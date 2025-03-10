@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>BiblioSmart</title>
+    <link rel="stylesheet" href="/Front-End-Web/css/accueil.css">
+    <link rel="stylesheet" href="">
+    <script type="module" src=""></script>
+</head>
+
+<body>
+    <div class="conteneur">
+        <header class="header">
+            <div class="logo">
+                <img id="img-logo" src="/Front-End-Web/ressources/logo.png" alt="Logo" width="240" height="80">
+            </div>
+            <div class="menu">
+                <ul>
+                    <li class="btn-menu">
+                        <a id="menu" href="">
+                        <img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30">
+                        Menu</a>
+                        <ul class="sous-menu">
+                            <li><a href='/Front-End-Web/html/accueil.html'>Accueil</a></li>
+                            <li><a href='/Front-End-Web/html/connexion.html'>Connexion</a></li>
+                            <li><a href='/Front-End-Web/html/enregistrement.html'>S'enregistrer</a></li>
+                        </ul>
+                    </li> 
+                </ul>
+            </div>
+        </header>
+        <main class="main">
+            <section class="filtres" >
+                <h1>Filtre des activités</h1>
+                <div>
+                    <label for="filtre-titre" class="filtre"> Titre : </label>
+                    <select id="filtre-titre" class="options">
+                    </select>
+                    <label for="filtre-auteur" class="filtre"> Auteur : </label>
+                    <select id="filtre-auteur" class="options">
+                    </select>
+                    <label for="filtre-categorie" class="filtre"> Catégorie : </label>
+                    <select id="filtre-categorie" class="options">
+                    </select>
+                    <label for="filtre-date-parution" class="filtre"> Date de parution :</label>
+                    <select id="filtre-date-parution" class="options">
+                    </select>
+                    <button id="bouton-appliquer" class="appliquer" type="button"> Appliquer </button>
+                </div>
+            </section>
+            <section id="conteneur_activites" class="activites"> 
+            </section>
+    
+        </main>
+        <footer>
+            <div class="debutfooter">
+                <div class="footer">
+                    <div>
+                        <article class="apropos">
+                            <h3> À propos </h3>
+                            <p>
+                            <h4> Notre mission : </h4>
+                            <p>Promouvoir la santé et le bien-être en offrant un espace dédié à la pratique d'activités physiques pour tous les âges et niveaux.</p>
+                            <h4> Nos valeurs : </h4>
+                            <p> L'inclusion, le respect, l'esprit d'équipe et la persévérance.</p>
+                            </p>
+                        </article>
+                    </div>
+                    <div>
+                        <article class="contacter">
+                            <h3> Nous contacter </h3>
+                            <ul>
+                                <li> Adresse : 56 rue de l'Éts, Montréal, QC </li>
+                                <li> Téléphone : 438-321-456</li>
+                                <li> Email : contact@energixquebec.org</li>
+                            </ul>
+                            <ul>
+                                <h4>Heures d’ouverture du centre de soutien :</h4>
+                                <li>Lundi au vendredi : 9 h à 18 h</li>
+                                <li>Samedi : 9 h à 16 h</li>
+                            </ul>
+                        </article>
+                    </div>
+                    <div>
+                        <article class="reseaux">
+                            <h3> Suivez-nous</h3>
+                            <a href="">
+                                <img src="/Front-End-Web/ressources/instagram.png" alt="Icône de instagram" width="40" 
+                                    height="40">
+                            </a>
+                            <a href="">
+                                <img src="/Front-End-Web/ressources/facebook.png" alt="Icône de facebook" width="40" 
+                                    height="40">
+                            </a>
+                            <a href="">
+                                <img src="/Front-End-Web/ressources/twitter.jpg" alt="Icône de twitter" width="40" 
+                                    height="40">
+                            </a>
+                        </article>
+                    </div>
+                </div>
+                <p class="copyright"> &copy; 2025 le centre sportif, tous droits réservés</p>
+            </div>
+        </footer>
+
+    </div>
+</body>
+
+</html>
