@@ -1,0 +1,173 @@
+/* ---------------- création grille ---------------- */
+
+.conteneur {
+    display: grid;
+    grid-template-rows: 6rem auto 10rem;
+    grid-template-columns: auto;
+    grid-template-areas:
+        "header "
+        "main   "
+        "footer ";
+}
+
+/* ---------------- style header ---------------- */
+
+.header{
+    grid-area: header;
+    background-color: rgb(235, 197, 161);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ---------------- creation Le menu ---------------- */
+.menu ul{
+    list-style: none;
+}
+
+.btn-menu img{
+    margin-right: 10px;
+}
+.btn-menu{
+    margin-right: 40px;
+    padding-top: 20px;
+    position: relative;
+    font-size: 25px;
+}
+
+.menu:hover .sous-menu{
+    display: block;
+}
+.sous-menu{
+    display: none;
+    position: absolute;
+    top: 5rem;
+    right: 0px;
+    width:max-content;
+}
+.sous-menu li{
+    display: block;
+    padding: 8px;
+    text-align: right;
+    background-color: rgb(244, 236, 236);
+    cursor: pointer;
+    opacity: 1;
+
+}
+#img-logo{
+    margin-top: 5px;
+}
+
+.sous-menu li:hover {
+    border-width: 0.2rem;
+    background-color: rgb(207, 115, 115);
+}
+/* ---------------- style formulaire login ---------------- */
+
+.main{
+    grid-area: main;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.conteneurPrincipal{
+    text-align: center;
+}
+.containeurLogin {
+    display: flex;
+    justify-content: center;
+    background-color: rgb(221, 221, 221);
+    margin: 0.94rem;
+    border-radius: 0.63rem;
+    padding: 2rem;
+    width: 28rem;
+    height: 14rem;
+    text-align: justify;
+}
+/* ----- positionnement label et input ----- */
+
+label,input{
+    display: block;
+    text-align: left;
+    width: 100%;
+}
+
+.message_erreur{
+    color: red;
+}
+
+/* ---------------- style police ---------------- */
+
+* {
+    font-family: 'Courier New';
+}
+
+label,h1,h2,h3,h4 {
+    font-family: cooper black;
+     
+}
+a,button{
+    font-family: fantasy;
+    color: black;
+    text-decoration: none; 
+}
+
+/* ---------------- style footer ---------------- */
+.debutfooter {
+    grid-area: footer;
+    font-size: smaller;
+    background-color: rgb(235, 197, 161);
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ----- style conteneurs----- */
+.apropos,
+.contacter,
+.reseaux {
+    flex: 1;
+    width: 22.38rem;
+    padding-left: 4.38rem;
+    padding-top: 0.63rem;
+}
+
+.apropos,
+.contacter {
+    padding-right: 5.63rem;
+}
+
+/* ----- positionnement text copy ----- */
+.copyright {
+    text-align: center;
+}
+
+
+/* ---------------- style bouton ---------------- */
+.btn {
+    background-color: rgb(207, 115, 115);
+    padding: 0.63rem 1.56rem;
+    transition-duration: 0.4s;
+    border-radius: 0.44rem;
+    cursor: pointer;
+    width: 15rem;
+}
+.btn-compte{
+    display: flex;
+    border: 0.1rem solid ;
+    border-color: black;
+    background-color: rgb(207, 115, 115);
+    padding: 0.63rem 4rem;
+    transition-duration: 0.4s;
+    border-radius: 0.44rem;
+    cursor: pointer;
+    
+}
+
+/* ----------------  action sur le bouton ---------------- */
+.btn:hover,.btn-compte:hover {
+    opacity: 0.85;
+    color: black;
+    box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
+}
