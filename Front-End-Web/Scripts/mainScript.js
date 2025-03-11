@@ -17,7 +17,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         displayLivres(filtres)
     } else if (nomPage == 'Connexion') {
+        ocument.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();});//Add function here
     } else if (nomPage == 'Enregistrement') {
+        ocument.getElementById('signInForm').addEventListener('submit', function(event) {
+            event.preventDefault();});//Add function here
     }else if(nomPage == "Info Livre"){
         const url = new URL(window.location.href);
         const id = new URLSearchParams(url.search).get("id");
