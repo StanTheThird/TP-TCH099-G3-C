@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-install pdo pdo_mysql
 
 # Copy custom Apache configuration
-COPY ./conf/js-no-cache.conf /etc/apache2/conf-available/js-no-cache.conf
+COPY ./Back-End/conf/js-no-cache.conf /etc/apache2/conf-available/js-no-cache.conf
 
 # Enable the new configuration
 RUN a2enconf js-no-cache
