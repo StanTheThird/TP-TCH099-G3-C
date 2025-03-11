@@ -1,43 +1,56 @@
 
 
---Il reste encore a faire les liens entre les différentes table et les populates dans data
-1. utilisateur 
+-- Création de la table Utilisateur
 CREATE TABLE Utilisateur (
     id_utilisateur INT AUTO_INCREMENT PRIMARY KEY,
     motDePasse VARCHAR(255) NOT NULL,
     nomUtilisateur VARCHAR(255) NOT NULL,
-    type BOOLEAN NOT NULL -- TRUE pour admin, FALSE pour client
+    type BOOLEAN NOT NULL  -- TRUE pour admin, FALSE pour client
 );
 
-2. Inscription
-CREATE TABLE Inscription (
-    id_inscription INT AUTO_INCREMENT PRIMARY KEY,
-    nom VARCHAR(255) NOT NULL,
-    prenom VARCHAR(255) NOT NULL,
-    adresse VARCHAR(255) NOT NULL,
-    telephone VARCHAR(20),
-    id_utilisateur INT,
-    FOREIGN KEY (id_utilisateur) REFERENCES Utilisateur(id_utilisateur)
+-- Création de la table Style (Catégorie de livre)
+CREATE TABLE Style (
+    id_style INT AUTO_INCREMENT PRIMARY KEY,
+    nom_style VARCHAR(255) NOT NULL
 );
 
-3. Auteur
+-- Création de la table Langue
+CREATE TABLE Langue (
+    id_langue INT AUTO_INCREMENT PRIMARY KEY,
+    nom_langue VARCHAR(255) NOT NULL
+);
+
+-- Création de la table Image (Image du livre)
+CREATE TABLE Image (
+    id_image INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,  -- URL de l'image
+    livre_id INT,
+    FOREIGN KEY (livre_id) REFERENCES Livre(id_livre)
+);
+
+-- Création de la table Auteur
 CREATE TABLE Auteur (
     id_auteur INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(255) NOT NULL,
     date_naissance DATE,
     description TEXT
 );
-4. Livre
+
+-- Création de la table Livre
 CREATE TABLE Livre (
     id_livre INT AUTO_INCREMENT PRIMARY KEY,
     titre VARCHAR(255) NOT NULL,
     auteur_id INT,
     description TEXT,
-    style VARCHAR(255),
+    style_id INT,
+    langue_id INT,
     date_parution DATE,
-    FOREIGN KEY (auteur_id) REFERENCES Auteur(id_auteur)
+    FOREIGN KEY (auteur_id) REFERENCES Auteur(id_auteur),
+    FOREIGN KEY (style_id) REFERENCES Style(id_style),
+    FOREIGN KEY (langue_id) REFERENCES Langue(id_langue)
 );
-5. Emprunt
+
+-- Création de la table Emprunt
 CREATE TABLE Emprunt (
     id_emprunt INT AUTO_INCREMENT PRIMARY KEY,
     date_emprunt DATE NOT NULL,
@@ -48,9 +61,26 @@ CREATE TABLE Emprunt (
     FOREIGN KEY (livre_id) REFERENCES Livre(id_livre),
     FOREIGN KEY (utilisateur_id) REFERENCES Utilisateur(id_utilisateur)
 );
-Recherches multiples filtres: 
-SELECT * FROM Livre 
-WHERE auteur_id = ? AND date_parution BETWEEN ? AND ? AND style LIKE ?;
-Recommandation de livres:
-SELECT * FROM Livre 
-WHERE id_livre NOT IN (SELECT livre_id FROM Emprunt WHERE utilisateur_id = ? AND date_retour IS NULL);
+
+-- Création de la table Solde
+CREATE TABLE Solde (
+    id_solde INT AUTO_INCREMENT PRIMARY KEY,
+    montant DECIMAL(10, 2) NOT NULL,
+    date_limite_paiement DATE,
+    emprunt_id INT,
+    utilisateur_id INT,
+    FOREIGN KEY (emprunt_id) REFERENCES Emprunt(id_emprunt),
+    FOREIGN KEY (utilisateur_id) REFERENCES Utilisateur(id_utilisateur)
+);
+
+-- Création de la table Inscription
+CREATE TABLE Inscription (
+    id_inscription INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    prenom VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    mot_de_passe VARCHAR(255) NOT NULL,
+    confirmation_mot_de_passe VARCHAR(255) NOT NULL,
+    id_utilisateur INT,
+    FOREIGN KEY (id_utilisateur) REFERENCES Utilisateur(id_utilisateur)
+);
