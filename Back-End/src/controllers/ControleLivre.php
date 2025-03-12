@@ -11,10 +11,13 @@ class ControleLivre{
         // header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
         try {
-            $requete = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, l.style, l.date_parution, a.id_auteur, a.nom AS nom_auteur, a.date_naissance, a.description AS description_auteur 
+            $requete = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  s.nom_style AS style, la.nom_langue AS langue, l.date_parution, a.id_auteur, a.nom AS nom_auteur, a.date_naissance, a.description AS description_auteur 
             FROM livre l
             INNER JOIN auteur a ON l.auteur_id = a.id_auteur
-            WHERE l.id_livre = :id');
+            INNER JOIN style s ON l.style_id = s.id_style
+            INNER JOIN langue la ON l.langue_id = la.id_langue
+            WHERE l.id_livre = :id
+            ');
             $requete->bindParam(':id',$id, PDO::PARAM_INT);
             $requete->execute();
             $livre = $requete->fetch(PDO::FETCH_ASSOC);
@@ -32,9 +35,11 @@ class ControleLivre{
         header('Content-Type: application/json; charset=utf-8'); 
 
         try {
-            $requete = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, l.style, l.date_parution, a.id_auteur, a.nom AS nom_auteur 
+            $requete = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, s.nom_style AS style, la.nom_langue AS langue, l.date_parution, a.id_auteur, a.nom AS nom_auteur 
             FROM livre l
             INNER JOIN auteur a ON l.auteur_id = a.id_auteur
+            INNER JOIN style s ON l.style_id = s.id_style
+            INNER JOIN langue la ON l.langue_id = la.id_langue
             ');
             $requete->execute();
             $livre = $requete->fetchAll();
@@ -56,18 +61,20 @@ class ControleLivre{
         $langue = isset($_GET['langue']) ? $_GET['langue'] : null;
 
         try {
-            $sql = ('SELECT SELECT l.id_livre, l.image, l.titre, l.description, l.style, l.date_parution, a.id_auteur, a.nom AS nom_auteur 
+            $sql = ('SELECT SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  s.nom_style AS style, la.nom_langue AS langue, a.id_auteur, a.nom AS nom_auteur 
             FROM livre l
             INNER JOIN auteur a ON l.auteur_id = a.id_auteur
+            INNER JOIN style s ON l.style_id = s.id_style
+            INNER JOIN langue la ON l.langue_id = la.id_langue
             ');
             $param = [];
 
             if (!empty($style) && $style !== "Tous") {
-                $query .= ('AND style.name = :style');
+                $query .= ('AND s.nom_style = :style');
                 $params['style'] = $style;
             }
             if (!empty($langue) && $langue !== "Tous") {
-                $query .= ('AND langue.name = :langue');
+                $query .= ('AND la.nom_langue = :langue');
                 $params['langue'] = $langue;
             }
 
@@ -81,6 +88,7 @@ class ControleLivre{
         }
     }
 
+    // À completer plus tard
     public static function createBook() {
         global $pdo;
 
@@ -114,6 +122,7 @@ class ControleLivre{
         }
     }
 
+    // À completer plus tard
     public static function deleteBook() {
         global $pdo;
 
