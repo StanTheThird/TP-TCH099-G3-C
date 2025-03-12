@@ -1,15 +1,11 @@
-let host = null;
+let conteneur = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     const nomPage = document.title;
-
+    
     console.log(nomPage);
     if (nomPage == 'Accueil') {
-        //Put Accueil Action here
-    } else if (nomPage == 'Liste livres') {
-
-        const liste = document.getElementsByClassName('list-livre');
-        host = liste[0].getElementsByTagName('tbody')[0];
+        conteneur = document.getElementsByClassName('liste-livre');
         populateFiltres();
 
         const filtres =
@@ -20,6 +16,12 @@ document.addEventListener("DOMContentLoaded", () => {
         };  
 
         displayLivres(filtres)
+    } else if (nomPage == 'Connexion') {
+        ocument.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();});//Add function here
+    } else if (nomPage == 'Enregistrement') {
+        ocument.getElementById('signInForm').addEventListener('submit', function(event) {
+            event.preventDefault();});//Add function here
     }else if(nomPage == "Info Livre"){
         const url = new URL(window.location.href);
         const id = new URLSearchParams(url.search).get("id");
@@ -29,11 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-const typeDeFiltre = ["Auteur", "Style", "Langue"];
+const typeDeFiltre = ["Auteur", "Categorie"];
 
 function populateFiltres() {
-    
-    fetch(`http://localhost:8001/api/livres`)
+    fetch(`http://localhost:8001/api/livre`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur lors de la récupération des livres');
@@ -41,25 +42,27 @@ function populateFiltres() {
             return response.json();
         })
         .then(data => {
-            createFilter(data);
+            createFiltre(data);
         })
         .catch(error => {
             console.error('Erreur:', error);
         });
 }
 
-function createFilter(livres){
+function createFiltre(livres){
 
-    const filtre = document.getElementById('critere'); //On cherche pour les emplacement de filtres
+    const filtre = document.getElementById('filtres'); //On cherche pour les emplacement de filtres
     for (let i = 0; i < typeDeFiltre.length; i++) {
         const label = document.createElement('label'); //Cree le label
         label.textContent = typeDeFiltre[i];
-        label.setAttribute('for', typeDeFiltre[i]);
+        label.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
+        label.className='filtre';
         filtre.appendChild(label); //On peut append le label, car on n'as plus de modification a faire dessus.
         const select = document.createElement('select'); //Cree le select
         select.id = typeDeFiltre[i];
         select.name = typeDeFiltre[i];
-        select.className = "filterSelect";
+        select.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
+        select.className = 'options';
         //On cree l'option tous en premier
         const optTous = document.createElement('option');
         optTous.value = "tous";
@@ -71,13 +74,10 @@ function createFilter(livres){
             let textTest;
             switch (i) {
                 case 0:
-                    textTest = livre.auteur_nom;
+                    textTest = livre.nom_auteur;
                     break;
                 case 1:
-                    textTest = livre.style_nom;
-                    break;
-                case 2:
-                    textTest = livre.langue_nom;
+                    textTest = livre.style;
                     break;
             }
             if (!dejaAjouter.includes(textTest)) {                                              //Tristan du futur. tu doit modifier cette parite  et la remplacer par un UniqueSet = new Set(). Le tout devrait être plus éfficace.
@@ -109,8 +109,7 @@ function filtrerFromOptions() {
     const filters =
     {
         auteur: selectList[0].value,
-        style: selectList[1].value,
-        langue: selectList[2].value
+        style: selectList[1].value
     };
     displayFilteredBooks(filters);
 }
@@ -126,9 +125,9 @@ function displayFilteredBooks(filters) {
         .then(data => {
             let livres;
             livres = data;
-            host.innerHTML = "";
+            conteneur.innerHTML = "";
             livres.forEach((livre) => {
-            host.append(addLivre(livre));
+            conteneur.append(addLivre(livre));
             });
         })
         .catch(error => {
@@ -145,7 +144,7 @@ function addLivre(livre) {
 
     let livre = document.createElement("div");
     livre.className = "livreInfo";
-    td.append(activite);
+    td.append(livre);
 
     let img = document.createElement("div");
     img.className = "image";
@@ -159,7 +158,7 @@ function addLivre(livre) {
     description.className = "desc";
 
     let h1 = document.createElement("h1");
-    h1.textContent = livre.name;
+    h1.textContent = livre.titre;
     description.append(h1);
 
     let ul = document.createElement("ul");
@@ -173,12 +172,12 @@ function addLivre(livre) {
 
     ul.append(document.createElement("br"));
 
-    let a = document.createElement("a");
-    a.href = "modifierActivite.html?id=" + (activity.id);
-    let button = document.createElement("button");
-    button.textContent = "modifier l'activité";
-    a.append(button);
-    ul.append(a);
+    //let a = document.createElement("a");
+    //a.href = "modifierActivite.html?id=" + (activity.id);
+    //let button = document.createElement("button");
+    //button.textContent = "modifier l'activité";
+    //a.append(button);
+    //ul.append(a);
 
     description.append(ul);
     activite.append(description);
