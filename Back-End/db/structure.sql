@@ -20,13 +20,7 @@ CREATE TABLE Langue (
     nom_langue VARCHAR(255) NOT NULL
 );
 
--- Création de la table Image (Image du livre)
-CREATE TABLE Image (
-    id_image INT AUTO_INCREMENT PRIMARY KEY,
-    image_url VARCHAR(255) NOT NULL,  -- URL de l'image
-    livre_id INT,
-    FOREIGN KEY (livre_id) REFERENCES Livre(id_livre)
-);
+
 
 -- Création de la table Auteur
 CREATE TABLE Auteur (
@@ -48,6 +42,14 @@ CREATE TABLE Livre (
     FOREIGN KEY (auteur_id) REFERENCES Auteur(id_auteur),
     FOREIGN KEY (style_id) REFERENCES Style(id_style),
     FOREIGN KEY (langue_id) REFERENCES Langue(id_langue)
+);
+
+-- Création de la table Image (Image du livre)
+CREATE TABLE Image (
+    id_image INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,  -- URL de l'image
+    livre_id INT,
+    FOREIGN KEY (livre_id) REFERENCES Livre(id_livre)
 );
 
 -- Création de la table Emprunt
