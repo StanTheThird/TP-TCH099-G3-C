@@ -52,6 +52,14 @@ CREATE TABLE Livre (
     FOREIGN KEY (langue_id) REFERENCES Langue(id_langue)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Création de la table Image (Image du livre)
+CREATE TABLE Image (
+    id_image INT AUTO_INCREMENT PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,  -- URL de l'image
+    livre_id INT,
+    FOREIGN KEY (livre_id) REFERENCES Livre(id_livre)
+);
+
 -- Création de la table Emprunt
 CREATE TABLE Emprunt (
     id_emprunt INT(10)  NOT NULL AUTO_INCREMENT,
