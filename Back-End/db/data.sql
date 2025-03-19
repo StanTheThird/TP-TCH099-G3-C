@@ -1,5 +1,5 @@
 --Il faut inserer les informations de livres, clients et autres ici.
--- Insertion des données dans la table Style
+-- Insertion des données dans la table catégorie
 INSERT INTO Categorie (nom) VALUES ('Fantasy'), ('Romance'), ('Policier'), ('Science-fiction');
 
 -- Insertion des données dans la table Langue
@@ -35,34 +35,41 @@ VALUES
 INSERT INTO Livre (titre,description,date_parution,image, categorie_id, auteur_id, langue_id)
 VALUES 
     ('Le Seigneur des Anneaux','Un epic de fantasy qui raconte l''histoire de la destruction de l''Anneau Unique, une arme de pouvoir maléfique, et des aventures
-     de Frodon Sacquet et ses compagnons pour sauver la Terre du Milieu.','1954-07-29','',1,1,2),
+     de Frodon Sacquet et ses compagnons pour sauver la Terre du Milieu.','1954-07-29','/Front-End-Web/ressources/seigneurDesAnneaux.jpg',1,1,2),
     ('Le Hobbit','L''histoire de Bilbo Baggins, un hobbit qui se lance dans une aventure pour aider un groupe de nains à récupérer leur royaume perdu.','1937-09-21',
-    '',1,1,1),
+    '/Front-End-Web/ressources/hobbit.jpg',1,1,1),
     ('Le Lion, la Sorcière Blanche et l''Armoire Magique ','Quatre enfants découvrent une armoire magique qui les transporte dans le monde de Narnia, où ils rencontrent
-     des créatures fantastiques et luttent contre une sorcière maléfique.','1950-10-16','',1,2,1),
+     des créatures fantastiques et luttent contre une sorcière maléfique.','1950-10-16','/Front-End-Web/ressources/armoireMagique.jpg',1,2,1),
     ('Le Prince Caspian ','Quelques années après leur première aventure, les enfants Pevensie retournent à Narnia pour découvrir que des siècles se sont écoulés. Le royaume est sous
-     l''oppression de l''usurpateur Miraz. Le prince Caspian, héritier légitime, leur demande de l''aide pour reprendre son trône et sauver Narnia.','1951-10-15','',1,2,1),
+     l''oppression de l''usurpateur Miraz. Le prince Caspian, héritier légitime, leur demande de l''aide pour reprendre son trône et sauver Narnia.',
+     '1951-10-15','/Front-End-Web/ressources/princeCaspian.jpg',1,2,1),
     ('Harry Potter à l''école des sorciers','Le premier livre de la série Harry Potter où un jeune orphelin découvre qu''il est un sorcier et entame sa scolarité à l''école de sorcellerie
-     Poudlard.','1997-06-26','',1,3,2),
+     Poudlard.','1997-06-26','/Front-End-Web/ressources/ecoleSorciers.jpg',1,3,2),
     ('Harry Potter et la Chambre des Secrets','Harry Potter, le jeune sorcier enquête sur des événements mystérieux à Poudlard et découvre une chambre secrète où des créatures maléfiques
-     sont cachées.','1998-07-02','',1,3,2),
+     sont cachées.','1998-07-02','/Front-End-Web/ressources/chambreSecrets.jpg',1,3,2),
     ('Orgueil et Préjugés','Un roman sur l''amour et les classes sociales, où Elizabeth Bennet et Mr. Darcy luttent contre leurs préjugés pour finir ensemble.','1813-01-28',
-    '',2,4,3),
-    ('Raison et Sentiments','L’histoire des sœurs Dashwood, Elinor et Marianne, et de leur lutte pour équilibrer l’amour et la raison.','1811-10-28','',2,4,1),
+    '/Front-End-Web/ressources/orgueilPrejuges.jpg',2,4,3),
+    ('Raison et Sentiments','L’histoire des sœurs Dashwood, Elinor et Marianne, et de leur lutte pour équilibrer l’amour et la raison.','1811-10-28','/Front-End-Web/ressources/sentiments.jpg',2,4,1),
     ('La Promesse du Marquis','Ce livre raconte l’histoire d’un homme qui, pour sauver son nom, se voit obligé de faire une promesse d’amour à une jeune femme.','2000-01-01',
-    '',2,5,1),
-    ('Les Quatre Premiers Mariages','L’histoire de l’histoire de la famille Rokesby et des amours contrariés dans la haute société anglaise du 18e siècle.','2016-09-26','',2,5,2),
+    '/Front-End-Web/ressources/marquis.jpg',2,5,1),
+    ('Les Quatre Premiers Mariages','L’histoire de l’histoire de la famille Rokesby et des amours contrariés dans la haute société anglaise du 18e siècle.','2016-09-26',
+    '/Front-End-Web/ressources/mariages.jpg',2,5,2),
     ('Le Crime de l''Orient-Express',' Un meurtre est commis à bord du célèbre train de luxe, l''Orient-Express, et Hercule Poirot est appelé pour résoudre le mystère.','1934-01-01',
-    '',3,6,1),
+    '/Front-End-Web/ressources/orientExpress.jpg',3,6,1),
     ('Dix Petits Nègres','Dix personnes invitées sur une île déserte sont tuées une par une selon une comptine, et il revient à un détective de résoudre ce meurtre mystérieux.','1939-11-06',
-    '',3,6,2),
-    ('Une Étude en Rouge','Sherlock Holmes et son fidèle Dr Watson résolvent leur première enquête ensemble, où un meurtre mystérieux a lieu à Londres.','1887-11-01','',3,7,3),
-    ('Le Chien des Baskerville','Un célèbre mystère de Sherlock Holmes où il doit enquêter sur une légende familiale impliquant un chien géant.','1902-08-01','',3,7,3),
+    '/Front-End-Web/ressources/dixPetits.jpg',3,6,2),
+    ('Une Étude en Rouge','Sherlock Holmes et son fidèle Dr Watson résolvent leur première enquête ensemble, où un meurtre mystérieux a lieu à Londres.',
+    '1887-11-01','/Front-End-Web/ressources/etudeEnRouge.jpg',3,7,3),
+    ('Le Chien des Baskerville','Un célèbre mystère de Sherlock Holmes où il doit enquêter sur une légende familiale impliquant un chien géant.','1902-08-01',
+    '/Front-End-Web/ressources/chienBaskerville.jpg',3,7,3),
     ('Dune',' L’histoire épique se déroule sur la planète désertique Arrakis, où l''humanité lutte pour le contrôle de l''épice, une substance précieuse qui permet le voyage spatial.',
-    '1965-08-01','',4,8,1),
-    ('Le Messie de Dune','Suite de Dune, ce livre suit Paul Atreides, devenu empereur, alors qu''il doit naviguer entre les enjeux politiques, religieux et familiaux.','1969-11-06','',4,8,2),
-    ('La Machine à explorer le temps','Un scientifique voyage dans le futur pour découvrir un monde où les humains sont divisés en deux races distinctes.','1895','',4,9,2),
-    (' L''Île du docteur Moreau','Un naufragé arrive sur une île habitée par un scientifique qui mène des expériences biologiques sur des animaux.','1896','',4,9,2),;
+    '1965-08-01','/Front-End-Web/ressources/dune.jpg',4,8,1),
+    ('Le Messie de Dune','Suite de Dune, ce livre suit Paul Atreides, devenu empereur, alors qu''il doit naviguer entre les enjeux politiques, religieux et familiaux.','1969-11-06',
+    '/Front-End-Web/ressources/messieDune.jpg',4,8,2),
+    ('La Machine à explorer le temps','Un scientifique voyage dans le futur pour découvrir un monde où les humains sont divisés en deux races distinctes.','1895',
+    '/Front-End-Web/ressources/machine.jpg',4,9,2),
+    (' L''Île du docteur Moreau','Un naufragé arrive sur une île habitée par un scientifique qui mène des expériences biologiques sur des animaux.','1896',
+    '/Front-End-Web/ressources/docteurMoreau.jpg',4,9,2),;
 
 -- Insertion des données dans la table Emprunt
 INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
