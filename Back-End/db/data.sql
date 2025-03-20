@@ -1,4 +1,4 @@
---Il faut inserer les informations de livres, clients et autres ici.
+-- Il faut inserer les informations de livres, clients et autres ici.
 -- Insertion des données dans la table catégorie
 INSERT INTO Categorie (nom) VALUES ('Fantasy'), ('Romance'), ('Policier'), ('Science-fiction');
 
@@ -86,3 +86,4 @@ INSERT INTO Solde (montant, date_limite_paiement, emprunt_id, utilisateur_id)
 VALUES 
     (10.00, '2025-03-30', 1, 1);  
 
+COMMIT;

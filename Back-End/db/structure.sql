@@ -103,4 +103,4 @@ CREATE INDEX idx_utilisateur_id_solde ON Solde(utilisateur_id);
 
 -- Index de la table utilisateur
 CREATE UNIQUE INDEX idx_unique_nom_utilisateur ON Utilisateur(nom_utilisateur);
-COMMIT:
+COMMIT;
