@@ -19,14 +19,14 @@ VALUES
      traitant des mœurs et des relations sociales. Bien qu''elle n''ait pas connu de succès de son vivant, elle est maintenant considérée comme
      l''une des plus grandes écrivaines anglaises'),
     ('Julia', 'Quinn', '1970-01-08', 'Américaine', 'Julia Quinn est une auteure américaine de romans historiques, surtout connue pour sa série "Les Bridgerton".
-     Elle a écrit plus de 20 romans, principalement dans le genre romance historique, et est l''une des auteures les plus populaires de ce genre.');
+     Elle a écrit plus de 20 romans, principalement dans le genre romance historique, et est l''une des auteures les plus populaires de ce genre.'),
     ('Agatha', 'Christie', '1890-09-15', 'Britannique', 'Agatha Christie est une auteure britannique, l''une des plus grandes figures du roman policier.
-     Christie a écrit 66 romans policiers, 14 recueils de nouvelles et de nombreuses pièces de théâtre. Elle est connue pour ses intrigues complexes et ses retournements de situation.');
+     Christie a écrit 66 romans policiers, 14 recueils de nouvelles et de nombreuses pièces de théâtre. Elle est connue pour ses intrigues complexes et ses retournements de situation.'),
     ('Sir Arthur Ignatius', 'Conan Doyle', '1859-05-22', 'Britannique', 'Sir Arthur Conan Doyle était un écrivain écossais, mieux connu pour avoir créé le célèbre détective Sherlock Holmes.
-     Il a également écrit des romans historiques, des récits de science-fiction et des ouvrages de spiritualisme.');
+     Il a également écrit des romans historiques, des récits de science-fiction et des ouvrages de spiritualisme.'),
     ('Frank', 'Herbert', '1920-10-08', 'Américain', 'Frank Herbert était un écrivain américain de science-fiction, surtout connu pour sa série "Dune".
      "Dune" est l''une des œuvres les plus influentes du genre, abordant des thèmes de politique, d''écologie et de religion dans un futur lointain.
-      Herbert a écrit plusieurs autres romans de science-fiction tout au long de sa carrière.');
+      Herbert a écrit plusieurs autres romans de science-fiction tout au long de sa carrière.'),
     ('Herbert George', 'Wells', '1866-09-21', 'Britannique', 'H.G. Wells est un écrivain britannique, pionnier de la science-fiction. Il est l''auteur de classiques
      tels que "La Guerre des mondes", "L''Invasion divine" et "La Machine à explorer le temps". Ses œuvres ont souvent exploré des thèmes sociaux et technologiques,
       et il est considéré comme l''un des précurseurs de la science-fiction moderne.');
@@ -69,7 +69,12 @@ VALUES
     ('La Machine à explorer le temps','Un scientifique voyage dans le futur pour découvrir un monde où les humains sont divisés en deux races distinctes.','1895',
     '/Front-End-Web/ressources/machine.jpg',4,9,2),
     (' L''Île du docteur Moreau','Un naufragé arrive sur une île habitée par un scientifique qui mène des expériences biologiques sur des animaux.','1896',
-    '/Front-End-Web/ressources/docteurMoreau.jpg',4,9,2),;
+    '/Front-End-Web/ressources/docteurMoreau.jpg',4,9,2);
+
+-- Insertion des données dans la table Utilisateur
+INSERT INTO Utilisateur (prenom, nom, mot_de_passe, nom_utilisateur,type)
+VALUES 
+    ('Jean', 'Dupont', 'password123','client1', FALSE);
 
 -- Insertion des données dans la table Emprunt
 INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
@@ -81,7 +86,3 @@ INSERT INTO Solde (montant, date_limite_paiement, emprunt_id, utilisateur_id)
 VALUES 
     (10.00, '2025-03-30', 1, 1);  
 
--- Insertion des données dans la table Utilisateur
-INSERT INTO Inscription (prenon, nom, mot_de_passe, nom_utilisateur)
-VALUES 
-    ('Jean', 'Dupont', 'password123''client1',);
