@@ -17,7 +17,7 @@ VALUES
      la série "Harry Potter". Ses livres ont captivé des millions de lecteurs à travers le monde et ont été adaptés en films à succès.'),
     ('Jane', ' Austen', '1775-12-16', 'Britannique', 'Jane Austen est une auteure anglaise du XVIIIe siècle, surtout connue pour ses romans
      traitant des mœurs et des relations sociales. Bien qu''elle n''ait pas connu de succès de son vivant, elle est maintenant considérée comme
-     l''une des plus grandes écrivaines anglaises'),
+     l''une des plus grandes écrivaines  anglaises'),
     ('Julia', 'Quinn', '1970-01-08', 'Américaine', 'Julia Quinn est une auteure américaine de romans historiques, surtout connue pour sa série "Les Bridgerton".
      Elle a écrit plus de 20 romans, principalement dans le genre romance historique, et est l''une des auteures les plus populaires de ce genre.'),
     ('Agatha', 'Christie', '1890-09-15', 'Britannique', 'Agatha Christie est une auteure britannique, l''une des plus grandes figures du roman policier.
@@ -66,9 +66,9 @@ VALUES
     '1965-08-01','/Front-End-Web/ressources/dune.jpg',4,8,1),
     ('Le Messie de Dune','Suite de Dune, ce livre suit Paul Atreides, devenu empereur, alors qu''il doit naviguer entre les enjeux politiques, religieux et familiaux.','1969-11-06',
     '/Front-End-Web/ressources/messieDune.jpg',4,8,2),
-    ('La Machine à explorer le temps','Un scientifique voyage dans le futur pour découvrir un monde où les humains sont divisés en deux races distinctes.','1895',
+    ('La Machine à explorer le temps','Un scientifique voyage dans le futur pour découvrir un monde où les humains sont divisés en deux races distinctes.','1895-01-01',
     '/Front-End-Web/ressources/machine.jpg',4,9,2),
-    (' L''Île du docteur Moreau','Un naufragé arrive sur une île habitée par un scientifique qui mène des expériences biologiques sur des animaux.','1896',
+    (' L''Île du docteur Moreau','Un naufragé arrive sur une île habitée par un scientifique qui mène des expériences biologiques sur des animaux.','1896-01-01',
     '/Front-End-Web/ressources/docteurMoreau.jpg',4,9,2);
 
 -- Insertion des données dans la table Utilisateur
@@ -86,4 +86,3 @@ INSERT INTO Solde (montant, date_limite_paiement, emprunt_id, utilisateur_id)
 VALUES 
     (10.00, '2025-03-30', 1, 1);  
 
-COMMIT;

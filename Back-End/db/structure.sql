@@ -19,7 +19,7 @@ CREATE TABLE Auteur (
     nom VARCHAR(55) NOT NULL,
     date_naissance DATE,
     nationalite VARCHAR(55),
-    biographie VARCHAR (255),
+    biographie TEXT,
     PRIMARY KEY (id_auteur)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -41,7 +41,7 @@ CREATE TABLE Langue(
 CREATE TABLE Livre (
     id_livre INT(10) NOT NULL AUTO_INCREMENT,
     titre VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
     date_parution DATE NOT NULL,
     image VARCHAR(255) NOT NULL,
     categorie_id INT(10) NOT NULL,
@@ -53,13 +53,6 @@ CREATE TABLE Livre (
     FOREIGN KEY (langue_id) REFERENCES Langue(id_langue) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Création de la table Image (Image du livre)
-CREATE TABLE Image (
-    id_image INT AUTO_INCREMENT PRIMARY KEY,
-    image_url VARCHAR(255) NOT NULL,  -- URL de l'image
-    livre_id INT,
-    FOREIGN KEY (livre_id) REFERENCES Livre(id_livre) ON DELETE CASCADE
-);
 
 -- Création de la table Emprunt
 CREATE TABLE Emprunt (
@@ -103,4 +96,3 @@ CREATE INDEX idx_utilisateur_id_solde ON Solde(utilisateur_id);
 
 -- Index de la table utilisateur
 CREATE UNIQUE INDEX idx_unique_nom_utilisateur ON Utilisateur(nom_utilisateur);
-COMMIT;
