@@ -8,7 +8,7 @@ require 'Back-End\src\controllers\utilisateur.php';
 /*------------------------Route pour les livres------------------------*/
 // Récupérer tous les livres
 get('/api/livre', function(){
-    ControleLivre::getAllBook();
+    ControleLivre::getAllBooks();
 });
 
 // Récupérer un livre
