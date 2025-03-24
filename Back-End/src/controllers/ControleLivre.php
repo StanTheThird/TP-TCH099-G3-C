@@ -1,18 +1,17 @@
 <?php
-class ControleLivre{
+class ControleLivre {
 
-    
     public static function getBook($id){
         global $pdo;
-
+        
         self::headers();
 
         try {
-            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  s.nom_style AS style, la.nom_langue AS langue, l.date_parution, a.id_auteur, a.nom AS nom_auteur, a.date_naissance, a.description AS description_auteur 
-            FROM livre l
-            INNER JOIN auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN style s ON l.style_id = s.id_style
-            INNER JOIN langue la ON l.langue_id = la.id_langue
+            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom_langue AS langue, l.date_parution, a.id_auteur, a.nom AS nom_auteur, a.date_naissance, a.description AS description_auteur 
+            FROM Livre l
+            INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+            INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+            INNER JOIN Langue la ON l.langue_id = la.id_langue
             WHERE l.id_livre = :id
             ');
             $query->bindParam(':id',$id, PDO::PARAM_INT);
@@ -27,15 +26,14 @@ class ControleLivre{
 
     public static function getAllBooks() {
         global $pdo;
-
+        
         self::headers();
-
         try {
             $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, la.nom AS langue, l.date_parution, a.id_auteur, a.prenom AS prenom_auteur, a.nom AS nom_auteur 
-            FROM livre l
-            INNER JOIN auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN categorie c ON l.categorie_id = c.id_categorie
-            INNER JOIN langue la ON l.langue_id = la.id_langue
+            FROM Livre l
+            INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+            INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+            INNER JOIN Langue la ON l.langue_id = la.id_langue
             ');
             $query->execute();
             $books = $query->fetchAll();
@@ -49,7 +47,7 @@ class ControleLivre{
     public static function getAllBookFiltre() {
         global $pdo;
 
-        self::headers();
+         self::headers();
 
         // Récupérer les paramètres de filtres via les query parameters
         $categorie = isset($_GET['categorie']) ? $_GET['categorie'] : null;        
@@ -57,21 +55,21 @@ class ControleLivre{
 
         try {
             $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.id_auteur, a.nom AS nom_auteur, a.prenom AS prenom_auteur
-            FROM livre l
-            INNER JOIN auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN categorie c ON l.categorie_id = c.id_categorie
-            INNER JOIN langue la ON l.langue_id = la.id_langue
+            FROM Livre l
+            INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+            INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+            INNER JOIN Langue la ON l.langue_id = la.id_langue
             WHERE 1=1
             ');
             $params = [];
 
             if (!empty($categorie) && $categorie !== "Tous") {
                 $query .= ' AND c.nom = :categorie';
-                $params['categorie'] = $categorie;
+                $params['Categorie'] = $categorie;
             }
             if (!empty($langue) && $langue !== "Tous") {
                 $query .= ' AND la.nom_langue = :langue';
-                $params['langue'] = $langue;
+                $params['Langue'] = $langue;
             }
 
             $bookquery = $pdo->prepare($query);
@@ -147,8 +145,6 @@ class ControleLivre{
     private static function headers(){
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-        header("Access-Control-Allow-Headers: Content-Type, Authorization");
     }
 }
 ?>
