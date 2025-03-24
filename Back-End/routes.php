@@ -2,8 +2,8 @@
 
 require_once(__DIR__.'/router.php');
 require 'config.php';
-require 'Back-End\src\controllers\livre.php';
-require 'Back-End\src\controllers\utilisateur.php';
+require 'Back-End/src/controllers/ControleLivre.php';
+require 'Back-End/src/controllers/ControleUtilisateur.php';
 
 /*------------------------Route pour les livres------------------------*/
 // Récupérer tous les livres

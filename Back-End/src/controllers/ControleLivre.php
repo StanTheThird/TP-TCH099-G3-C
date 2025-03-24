@@ -31,10 +31,10 @@ class ControleLivre{
         self::headers();
 
         try {
-            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, s.nom_style AS style, la.nom_langue AS langue, l.date_parution, a.id_auteur, a.nom AS nom_auteur 
+            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, la.nom AS langue, l.date_parution, a.id_auteur, a.prenom AS prenom_auteur, a.nom AS nom_auteur 
             FROM livre l
             INNER JOIN auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN style s ON l.style_id = s.id_style
+            INNER JOIN categorie c ON l.categorie_id = c.id_categorie
             INNER JOIN langue la ON l.langue_id = la.id_langue
             ');
             $query->execute();
@@ -52,22 +52,22 @@ class ControleLivre{
         self::headers();
 
         // Récupérer les paramètres de filtres via les query parameters
-        $style = isset($_GET['style']) ? $_GET['style'] : null;
+        $categorie = isset($_GET['categorie']) ? $_GET['categorie'] : null;        
         $langue = isset($_GET['langue']) ? $_GET['langue'] : null;
 
         try {
-            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  s.nom_style AS style, la.nom_langue AS langue, a.id_auteur, a.nom AS nom_auteur 
+            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.id_auteur, a.nom AS nom_auteur, a.prenom AS prenom_auteur
             FROM livre l
             INNER JOIN auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN style s ON l.style_id = s.id_style
+            INNER JOIN categorie c ON l.categorie_id = c.id_categorie
             INNER JOIN langue la ON l.langue_id = la.id_langue
             WHERE 1=1
             ');
             $params = [];
 
-            if (!empty($style) && $style !== "Tous") {
-                $query .= ' AND s.nom_style = :style';
-                $params['style'] = $style;
+            if (!empty($categorie) && $categorie !== "Tous") {
+                $query .= ' AND c.nom = :categorie';
+                $params['categorie'] = $categorie;
             }
             if (!empty($langue) && $langue !== "Tous") {
                 $query .= ' AND la.nom_langue = :langue';
