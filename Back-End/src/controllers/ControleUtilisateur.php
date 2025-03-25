@@ -1,6 +1,6 @@
 <?php
 class ControleUtilisateur{
-
+  
     //Token??
 
     public static function userRegister() {
@@ -59,15 +59,34 @@ class ControleUtilisateur{
     public static function userLogin() {
         global $pdo;
 
+        require_once 'config.php';
+        $errorMessage = "";      
+
         header('Access-Control-Allow-Origin: *');  
         header('Content-Type: application/json; charset=utf-8'); 
+        // Traiter le formulaire (méthode post)
+        if ($_SERVER["REQUEST_METHOD"] == "POST"){
+            $username = trim($_POST['nom_utilisateur'] ?? '');
+            $password = $_POST['mot_de_passe'] ?? '';
 
-        try {
-           
-        } catch (PDOException $e) {
-            
+        // Si les champs sont bien remplis
+        if(!empty($username) && !empty($password)){
+            $requete = $pdo->prepare("SELECT id, nom_utilisateur, mot_de_passe FROM users WHERE nom_utilisateur = ?");
+            $requete->execute([$username]);
+            $user = $requete->fetch();
+
+            // Vérifier si le mot de passe est bon
+            if($user && password_verify($password, $user['mot_de_passe'])){
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['nom_utilisateur'];
+            header("Location: accueil.html");
+            exit();
+            } else  {
+            $errorMessage = "Identifiant incorrect!";
+            }
         }
-    }
+  }
 }
-?>
+}
 
+?>

@@ -4,10 +4,11 @@ class ControleLivre {
     public static function getBook($id){
         global $pdo;
         
-        self::headers();
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
 
         try {
-            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom_langue AS langue, l.date_parution, a.id_auteur, a.nom AS nom_auteur, a.date_naissance, a.description AS description_auteur 
+            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom AS langue, l.date_parution, a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.date_naissance, a.biographie AS biographie_auteur 
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -27,9 +28,11 @@ class ControleLivre {
     public static function getAllBooks() {
         global $pdo;
         
-        self::headers();
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+
         try {
-            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, la.nom AS langue, l.date_parution, a.id_auteur, a.prenom AS prenom_auteur, a.nom AS nom_auteur 
+            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, la.nom AS langue, l.date_parution, a.prenom AS prenom_auteur, a.nom AS nom_auteur 
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -47,14 +50,15 @@ class ControleLivre {
     public static function getAllBookFiltre() {
         global $pdo;
 
-         self::headers();
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
 
         // Récupérer les paramètres de filtres via les query parameters
-        $categorie = isset($_GET['categorie']) ? $_GET['categorie'] : null;        
-        $langue = isset($_GET['langue']) ? $_GET['langue'] : null;
+        $categorie = isset($_GET['Categorie']) ? $_GET['Categorie'] : null;        
+        $langue = isset($_GET['Langue']) ? $_GET['Langue'] : null;
 
         try {
-            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.id_auteur, a.nom AS nom_auteur, a.prenom AS prenom_auteur
+            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -64,11 +68,11 @@ class ControleLivre {
             $params = [];
 
             if (!empty($categorie) && $categorie !== "Tous") {
-                $query .= ' AND c.nom = :categorie';
+                $query .= " AND c.nom = :Categorie" ;
                 $params['Categorie'] = $categorie;
             }
             if (!empty($langue) && $langue !== "Tous") {
-                $query .= ' AND la.nom_langue = :langue';
+                $query .= " AND la.nom = :Langue";
                 $params['Langue'] = $langue;
             }
 
@@ -82,69 +86,65 @@ class ControleLivre {
         }
     }
 
-    // À completer plus tard
-    public static function createBook() {
-        global $pdo;
+//     // À completer plus tard
+//     public static function createBook() {
+//         global $pdo;
 
-        self::headers();
+//         header('Access-Control-Allow-Origin: *');
+//         header('Content-Type: application/json; charset=utf-8');
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!isset($data['image'], $data['titre'], $data['auteur_id'], $data['description'], 
-            $data['style'],$data['date_parution'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Données incomplètes']);
-            exit;
-        }
+//         $data = json_decode(file_get_contents('php://input'), true);
+//         if (!isset($data['image'], $data['titre'], $data['auteur_id'], $data['description'], 
+//             $data['style'],$data['date_parution'])) {
+//             http_response_code(400);
+//             echo json_encode(['error' => 'Données incomplètes']);
+//             exit;
+//         }
 
-        try {
-            $query = ('INSERT INTO livre (image, titre, auteur_id, description, style, date_parution) 
-            VALUES (:image, :titre, :auteur_id, :description, :style, :date_parution)');
-            $requete = $pdo->prepare($query);
-            $requete->execute([
-                ':image' => $data['image'] ?? null,
-                ':titre' => $data['titre'] ?? null,
-                ':auteur_id' => $data['auteur_id'] ?? null,
-                ':description' => $data['description'] ?? null,
-                ':style' => $data['style'] ?? null,
-                ':date_parution' => $data['date_parution'] ?? null,
-            ]);
-            echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        }
-    }
+//         try {
+//             $query = ('INSERT INTO livre (image, titre, auteur_id, description, style, date_parution) 
+//             VALUES (:image, :titre, :auteur_id, :description, :style, :date_parution)');
+//             $requete = $pdo->prepare($query);
+//             $requete->execute([
+//                 ':image' => $data['image'] ?? null,
+//                 ':titre' => $data['titre'] ?? null,
+//                 ':auteur_id' => $data['auteur_id'] ?? null,
+//                 ':description' => $data['description'] ?? null,
+//                 ':style' => $data['style'] ?? null,
+//                 ':date_parution' => $data['date_parution'] ?? null,
+//             ]);
+//             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
+//         } catch (PDOException $e) {
+//             http_response_code(500);
+//             echo json_encode(['error' => $e->getMessage()]);
+//         }
+//     }
 
-    // À completer plus tard
-    public static function deleteBook() {
-        global $pdo;
+//     // À completer plus tard
+//     public static function deleteBook() {
+//         global $pdo;
 
-        self::headers();
+//         header('Access-Control-Allow-Origin: *');
+//         header('Content-Type: application/json; charset=utf-8');
 
-        $data = json_decode(file_get_contents("php://input"), true);
+//         $data = json_decode(file_get_contents("php://input"), true);
 
-        if(!isset($data['id'])){
-            http_response_code(400);
-            echo json_encode(['error' => 'id manquant']);
-            exit();
-        }
+//         if(!isset($data['id'])){
+//             http_response_code(400);
+//             echo json_encode(['error' => 'id manquant']);
+//             exit();
+//         }
         
-        try {
-            $query = ('DELETE FROM livre WHERE id = :id');
-            $requete = $pdo->prepare($query);
-            $requete->bindParam(':id', $id, PDO::PARAM_INT);
-            $requete->execute();
-            echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        }
-    }
-
-    // Garder ici pour l'instant 
-    private static function headers(){
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
-    }
-}
+//         try {
+//             $query = ('DELETE FROM livre WHERE id = :id');
+//             $requete = $pdo->prepare($query);
+//             $requete->bindParam(':id', $id, PDO::PARAM_INT);
+//             $requete->execute();
+//             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
+//         } catch (PDOException $e) {
+//             http_response_code(500);
+//             echo json_encode(['error' => $e->getMessage()]);
+//         }
+//     }
+ }
 ?>

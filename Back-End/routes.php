@@ -34,11 +34,11 @@ delete('/api/livre/$id', function(){
 /*------------------------Route pour les utilisateurs------------------------*/
 // Inscription client
 post('/api/register', function(){
-    ControleUilisateur::userRegister();
+    ControleUtilisateur::userRegister();
 });
 // Connexion client
 post('/api/login', function(){
-    ControleUilisateur::userLogin();
+    ControleUtilisateur::userLogin();
 });
 
 
