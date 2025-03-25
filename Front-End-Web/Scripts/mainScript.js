@@ -95,20 +95,16 @@ function createFiltre(livres){
 
 function filtrerFromOptions() {
     const selectList = document.getElementsByClassName("option");
-    console.log("Voici notre selection!");
-    console.log(selectList);
-    console.log("notre selection : " + selectList[0].value + " + " + selectList[1].value);
     const filters =
     {
         categorie: selectList[0].value,
         langue: selectList[1].value
     };
-    console.log(filters);
     displayFilteredBooks(filters);
 }
 
 function displayFilteredBooks(filters) {
-    fetch(`http://localhost:8000/api/livres/filtrer?auteur=${filters.auteur}&style=${filters.style}&langue=${filters.langue}`)
+    fetch(`http://localhost:8000/api/livre/filtre?Categorie=${filters.categorie}&Langue=${filters.langue}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur lors de la récupération des livres');
