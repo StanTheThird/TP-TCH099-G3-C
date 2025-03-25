@@ -1,9 +1,5 @@
-let conteneur = null;
-
 document.addEventListener("DOMContentLoaded", () => {
     const nomPage = document.title;
-    
-    console.log(nomPage);
     if(nomPage == "BiblioSmart"){
         const url = new URL(window.location.href);
         const id = new URLSearchParams(url.search).get("id");
@@ -30,7 +26,6 @@ function populateFiltres() {
             return response.json();
         })
         .then(data => {
-            console.log(data);
             createFiltre(data);
             setDefaultValues();
             filtrerFromOptions();
@@ -39,6 +34,7 @@ function populateFiltres() {
             console.error('Erreur lors de la récupération des livres :', error);
         });
 }
+
 const typeDeFiltre = ["Categorie", "Langue"];
 function createFiltre(livres){
     const filtre = document.getElementById('filtres'); //On cherche pour les emplacement de filtres
@@ -52,10 +48,14 @@ function createFiltre(livres){
         select.name = typeDeFiltre[i];
         select.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
         select.className = 'option';
+        //On add un event listener sur les filtres
+        select.addEventListener('change', () => {
+            filtrerFromOptions();
+        });
         //On cree l'option tous en premier
         const optTous = document.createElement('option');
-        optTous.value = "tous";
-        optTous.text = "tous";
+        optTous.value = "Tous";
+        optTous.text = "Tous";
         optTous.selected = true;
         select.appendChild(optTous);
         let dejaAjouter = [];
@@ -82,15 +82,15 @@ function createFiltre(livres){
 
         filtre.appendChild(select);
     }
-    const bouttonFiltre = document.createElement('button');
-    bouttonFiltre.id = 'filtrer';
-    bouttonFiltre.textContent = "Filtrer";
-    bouttonFiltre.addEventListener('click', (e) => {
-        e.preventDefault(); // Prevent default behavior if inside a form
-        filtrerFromOptions();
-    }
-    );
-    filtre.appendChild(bouttonFiltre);
+    // const bouttonFiltre = document.createElement('button');
+    // bouttonFiltre.id = 'filtrer';
+    // bouttonFiltre.textContent = "Filtrer";
+    // bouttonFiltre.addEventListener('click', (e) => {
+    //     e.preventDefault(); // Prevent default behavior if inside a form
+    //     filtrerFromOptions();
+    // }
+    // );
+    // filtre.appendChild(bouttonFiltre);
 }
 
 function filtrerFromOptions() {
@@ -104,7 +104,7 @@ function filtrerFromOptions() {
 }
 
 function displayFilteredBooks(filters) {
-    fetch(`http://localhost:8000/api/livre/filtre?Categorie=${filters.categorie}&Langue=${filters.langue}`)
+    fetch(`http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur lors de la récupération des livres');
@@ -114,6 +114,7 @@ function displayFilteredBooks(filters) {
         .then(data => {
             let livres;
             livres = data;
+            let conteneur = document.getElementById("conteneur_livres");
             conteneur.innerHTML = "";
             livres.forEach((livre) => {
             conteneur.append(addLivre(livre));
@@ -127,63 +128,60 @@ function setDefaultValues() {
     const selectList = document.getElementsByClassName("option");
 
     for(const select of selectList){
-        select.value = 'tous';
+        select.value = 'Tous';
     }
 }
 
 //A remplacer                                                                               Cette partie n'est pas complète je ne connais pas encore tout les infos retourner par le php
 function addLivre(livre) {
-
     let tr = document.createElement("tr");
     let td = document.createElement("td");
     tr.append(td);
 
-    let l = document.createElement("div");
-    l.className = "livreInfo";
-    td.append(l);
+    // Main book container
+    let bookContainer = document.createElement("div");
+    bookContainer.className = "livreInfo";
+    td.append(bookContainer);
 
-    let img = document.createElement("div");
-    img.className = "image";
+    // Image section
+    let imgContainer = document.createElement("div");
+    imgContainer.className = "image";
     let image = document.createElement("img");
-    image.src = livre.image;
-    image.alt = "image loading failed";
-    img.append(image);
-    livre.append(img);
+    image.src = livre.image || 'placeholder.jpg'; // Fallback image
+    image.alt = livre.titre || "Book cover";
+    imgContainer.append(image);
+    bookContainer.append(imgContainer);  // Fixed: append to bookContainer instead of livre
 
+    // Description section
     let description = document.createElement("div");
     description.className = "desc";
 
+    // Title
     let h1 = document.createElement("h1");
     h1.textContent = livre.titre;
     description.append(h1);
 
+    // Details list
     let ul = document.createElement("ul");
 
-    li(activity.description, ul);
-    li(activity.level_id, ul);
-    li(activity.coach_id, ul);
-    li(activity.schedule_day, ul);
-    li(activity.schedule_time, ul);
-    li(activity.location_id, ul);
-
-    ul.append(document.createElement("br"));
-
-    //let l = document.createElement("l");
-    //l.href = "modifierActivite.html?id=" + (livre.id);
-    //let button = document.createElement("button");
-    //button.textContent = "modifier le livre";
-    //l.append(button);
-    //ul.append(l);
+    // Add book details using your li function
+    if (livre.description) li(livre.description, ul);
+    if (livre.categorie) li(`Catégorie: ${livre.categorie}`, ul);
+    if (livre.langue) li(`Langue: ${livre.langue}`, ul);
+    if (livre.date_parution) li(`Date de parution: ${livre.date_parution}`, ul);
+    if (livre.nom_auteur && livre.prenom_auteur) {
+        li(`Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}`, ul);
+    }
 
     description.append(ul);
-    activite.append(description);
+    bookContainer.append(description);  // Fixed: append to bookContainer instead of undefined 'activite'
 
     return tr;
 }
 
+// Your existing li helper function
 function li(data, host) {
     let li = document.createElement("li");
     li.textContent = data;
     host.append(li);
-
 }

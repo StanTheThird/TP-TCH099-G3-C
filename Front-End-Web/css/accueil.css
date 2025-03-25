@@ -9,6 +9,10 @@
         "main   "
         "footer ";
 }
+.livreInfo img {
+    width: 200px; /* Fixed width */
+    height: auto;
+}
 
 /* ---------------- style header ---------------- */
 .header{
