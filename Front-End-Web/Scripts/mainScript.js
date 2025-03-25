@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         displayLivres(filtres)
     } else if (nomPage == 'Connexion') {
-        ocument.getElementById('loginForm').addEventListener('submit', function(event) {
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();});//Add function here
     } else if (nomPage == 'Enregistrement') {
-        ocument.getElementById('signInForm').addEventListener('submit', function(event) {
+        document.getElementById('signInForm').addEventListener('submit', function(event) {
             event.preventDefault();});//Add function here
     }else if(nomPage == "BiblioSmart"){
         const url = new URL(window.location.href);
@@ -43,10 +43,11 @@ function populateFiltres() {
             return response.json();
         })
         .then(data => {
+            console.log(data);
             createFiltre(data);
         })
         .catch(error => {
-            console.error('Erreur:', error);
+            console.error('Erreur lors de la récupération des livres :', error);
         });
 }
 
@@ -54,6 +55,7 @@ function createFiltre(livres){
 
     const filtre = document.getElementById('filtres'); //On cherche pour les emplacement de filtres
     for (let i = 0; i < typeDeFiltre.length; i++) {
+        console.log("Début création de filtre " +typeDeFiltre[i] );
         const label = document.createElement('label'); //Cree le label
         label.textContent = typeDeFiltre[i];
         label.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
@@ -92,6 +94,7 @@ function createFiltre(livres){
         });
 
         filtre.appendChild(select);
+        console.log("Fin de création de filtre " +typeDeFiltre[i] );
     }
     const bouttonFiltre = document.createElement('button');
     bouttonFiltre.id = 'filtrer';
