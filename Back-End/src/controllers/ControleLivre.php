@@ -143,22 +143,17 @@ class ControleLivre {
 //             exit();
 //         }
         
-        try {
-            $query = ('DELETE FROM livre WHERE id = :id');
-            $requete = $pdo->prepare($query);
-            $requete->bindParam(':id', $id, PDO::PARAM_INT);
-            $requete->execute();
-            echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        }
-    }
+    //     try {
+    //         $query = ('DELETE FROM livre WHERE id = :id');
+    //         $requete = $pdo->prepare($query);
+    //         $requete->bindParam(':id', $id, PDO::PARAM_INT);
+    //         $requete->execute();
+    //         echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
+    //     } catch (PDOException $e) {
+    //         http_response_code(500);
+    //         echo json_encode(['error' => $e->getMessage()]);
+    //     }
+    // }
 
-    // Garder ici pour l'instant 
-    private static function headers(){
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
-    }
 }
 ?>
