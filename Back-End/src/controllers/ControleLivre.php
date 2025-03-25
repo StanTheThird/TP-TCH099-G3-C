@@ -39,7 +39,11 @@ class ControleLivre {
             INNER JOIN Langue la ON l.langue_id = la.id_langue
             ');
             $query->execute();
-            $books = $query->fetchAll();
+            $books = $query->fetchAll(PDO::FETCH_ASSOC);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
+                exit();
+            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -68,17 +72,21 @@ class ControleLivre {
             $params = [];
 
             if (!empty($categorie) && $categorie !== "Tous") {
-                $query .= " AND c.nom = :Categorie" ;
-                $params['Categorie'] = $categorie;
+                $query .= ' AND c.nom = :categorie';
+                $params['categorie'] = $categorie;
             }
             if (!empty($langue) && $langue !== "Tous") {
-                $query .= " AND la.nom = :Langue";
-                $params['Langue'] = $langue;
+                $query .= ' AND la.nom_langue = :langue';
+                $params['langue'] = $langue;
             }
 
             $bookquery = $pdo->prepare($query);
             $bookquery->execute($params);
-            $books = $bookquery->fetchAll();
+            $books = $query->fetchAll(PDO::FETCH_ASSOC);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
+                exit();
+            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -135,16 +143,22 @@ class ControleLivre {
 //             exit();
 //         }
         
-//         try {
-//             $query = ('DELETE FROM livre WHERE id = :id');
-//             $requete = $pdo->prepare($query);
-//             $requete->bindParam(':id', $id, PDO::PARAM_INT);
-//             $requete->execute();
-//             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
-//         } catch (PDOException $e) {
-//             http_response_code(500);
-//             echo json_encode(['error' => $e->getMessage()]);
-//         }
-//     }
- }
+        try {
+            $query = ('DELETE FROM livre WHERE id = :id');
+            $requete = $pdo->prepare($query);
+            $requete->bindParam(':id', $id, PDO::PARAM_INT);
+            $requete->execute();
+            echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    // Garder ici pour l'instant 
+    private static function headers(){
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    }
+}
 ?>
