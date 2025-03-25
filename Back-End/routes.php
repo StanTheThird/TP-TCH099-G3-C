@@ -24,14 +24,14 @@ get('/api/livre/$id', function($id){
 
 
 // Ajouter un livre (admin)
-post('/api/livre', function(){
-    ControleLivre::createBook();
-});
+// post('/api/livre', function(){
+//     ControleLivre::createBook();
+// });
 
 // Supprimer un livre (admin)
-delete('/api/livre/$id', function(){
-    ControleLivre::deleteBook();
-});
+// delete('/api/livre/$id', function(){
+//     ControleLivre::deleteBook();
+// });
 /*------------------------Route pour les utilisateurs------------------------*/
 // Inscription client
 post('/api/register', function(){

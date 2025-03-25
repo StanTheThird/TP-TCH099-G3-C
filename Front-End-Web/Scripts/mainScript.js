@@ -5,13 +5,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     console.log(nomPage);
     if (nomPage == 'Accueil') {
-        conteneur = document.getElementsByClassName('liste-livre');
+        conteneur = document.getElementsByClassName('.liste-livre');
         populateFiltres();
 
         const filtres =
         {
-            auteur: "tous",
-            style: "tous",
+            categorie: "tous",
             langue: "tous"
         };  
 
@@ -32,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-const typeDeFiltre = ["nom_auteur", "categorie"];
+
 
 function populateFiltres() {
     fetch(`http://localhost:8000/api/livre`)
@@ -50,9 +49,8 @@ function populateFiltres() {
             console.error('Erreur lors de la récupération des livres :', error);
         });
 }
-
+const typeDeFiltre = ["Categorie", "Langue"];
 function createFiltre(livres){
-
     const filtre = document.getElementById('filtres'); //On cherche pour les emplacement de filtres
     for (let i = 0; i < typeDeFiltre.length; i++) {
         console.log("Début création de filtre " +typeDeFiltre[i] );
@@ -77,10 +75,10 @@ function createFiltre(livres){
             let textTest;
             switch (i) {
                 case 0:
-                    textTest = livre.nom_auteur;
+                    textTest = livre.categorie;
                     break;
                 case 1:
-                    textTest = livre.categorie;
+                    textTest = livre.langue;
                     break;
             }
             if (!dejaAjouter.includes(textTest)) {                                              //Tristan du futur. tu doit modifier cette parite  et la remplacer par un UniqueSet = new Set(). Le tout devrait être plus efficace.
@@ -110,10 +108,11 @@ function createFiltre(livres){
 function filtrerFromOptions() {
     const selectList = document.getElementsByClassName("filtres");
     console.log("Génération des filtres!");
+    console.log(selectList);
     const filters =
     {
-        auteur: selectList[0].value,
-        style: selectList[1].value
+        categorie: selectList[0].value,
+        langue: selectList[1].value
     };
     displayFilteredBooks(filters);
 }
