@@ -36,7 +36,11 @@ class ControleLivre {
             INNER JOIN Langue la ON l.langue_id = la.id_langue
             ');
             $query->execute();
-            $books = $query->fetchAll();
+            $books = $query->fetchAll(PDO::FETCH_ASSOC);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
+                exit();
+            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -65,16 +69,20 @@ class ControleLivre {
 
             if (!empty($categorie) && $categorie !== "Tous") {
                 $query .= ' AND c.nom = :categorie';
-                $params['Categorie'] = $categorie;
+                $params[':categorie'] = $categorie;                 //J'essaie de fix les filtres, mais je ne sais pas si c'était le bon problème :/
             }
             if (!empty($langue) && $langue !== "Tous") {
                 $query .= ' AND la.nom_langue = :langue';
-                $params['Langue'] = $langue;
+                $params[':langue'] = $langue;                       //J'essaie de fix les filtres, mais je ne sais pas si c'était le bon problème :/
             }
 
             $bookquery = $pdo->prepare($query);
             $bookquery->execute($params);
-            $books = $bookquery->fetchAll();
+            $books = $query->fetchAll(PDO::FETCH_ASSOC);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
+                exit();
+            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -130,9 +138,9 @@ class ControleLivre {
         }
         
         try {
-            $query = ('DELETE FROM livre WHERE id = :id');
+            $query = 'DELETE FROM livre WHERE id_livre = :id';
             $requete = $pdo->prepare($query);
-            $requete->bindParam(':id', $id, PDO::PARAM_INT);
+            $requete->bindParam(':id', $data['id'], PDO::PARAM_INT);
             $requete->execute();
             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
         } catch (PDOException $e) {
