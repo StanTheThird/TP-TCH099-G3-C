@@ -4,28 +4,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const nomPage = document.title;
     
     console.log(nomPage);
-    if (nomPage == 'Accueil') {
-        conteneur = document.getElementsByClassName('.liste-livre');
+    if(nomPage == "BiblioSmart"){
+        const url = new URL(window.location.href);
+        const id = new URLSearchParams(url.search).get("id");
         populateFiltres();
-
-        const filtres =
-        {
-            categorie: "tous",
-            langue: "tous"
-        };  
-
-        displayLivres(filtres)
     } else if (nomPage == 'Connexion') {
         document.getElementById('loginForm').addEventListener('submit', function(event) {
             event.preventDefault();});//Add function here
     } else if (nomPage == 'Enregistrement') {
         document.getElementById('signInForm').addEventListener('submit', function(event) {
             event.preventDefault();});//Add function here
-    }else if(nomPage == "BiblioSmart"){
-        const url = new URL(window.location.href);
-        const id = new URLSearchParams(url.search).get("id");
-        populateFiltres();
-        filtrerFromOptions();
     } else {
         console.log('Rien à faire.');
     }
@@ -44,6 +32,8 @@ function populateFiltres() {
         .then(data => {
             console.log(data);
             createFiltre(data);
+            setDefaultValues();
+            filtrerFromOptions();
         })
         .catch(error => {
             console.error('Erreur lors de la récupération des livres :', error);
@@ -53,21 +43,20 @@ const typeDeFiltre = ["Categorie", "Langue"];
 function createFiltre(livres){
     const filtre = document.getElementById('filtres'); //On cherche pour les emplacement de filtres
     for (let i = 0; i < typeDeFiltre.length; i++) {
-        console.log("Début création de filtre " +typeDeFiltre[i] );
         const label = document.createElement('label'); //Cree le label
         label.textContent = typeDeFiltre[i];
         label.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
-        label.className='filtre';
         filtre.appendChild(label); //On peut append le label, car on n'as plus de modification a faire dessus.
         const select = document.createElement('select'); //Cree le select
         select.id = typeDeFiltre[i];
         select.name = typeDeFiltre[i];
         select.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
-        select.className = 'options';
+        select.className = 'option';
         //On cree l'option tous en premier
         const optTous = document.createElement('option');
         optTous.value = "tous";
         optTous.text = "tous";
+        optTous.selected = true;
         select.appendChild(optTous);
         let dejaAjouter = [];
 
@@ -92,7 +81,6 @@ function createFiltre(livres){
         });
 
         filtre.appendChild(select);
-        console.log("Fin de création de filtre " +typeDeFiltre[i] );
     }
     const bouttonFiltre = document.createElement('button');
     bouttonFiltre.id = 'filtrer';
@@ -106,14 +94,16 @@ function createFiltre(livres){
 }
 
 function filtrerFromOptions() {
-    const selectList = document.getElementsByClassName("filtres");
-    console.log("Génération des filtres!");
+    const selectList = document.getElementsByClassName("option");
+    console.log("Voici notre selection!");
     console.log(selectList);
+    console.log("notre selection : " + selectList[0].value + " + " + selectList[1].value);
     const filters =
     {
         categorie: selectList[0].value,
         langue: selectList[1].value
     };
+    console.log(filters);
     displayFilteredBooks(filters);
 }
 
@@ -136,8 +126,15 @@ function displayFilteredBooks(filters) {
         .catch(error => {
             console.error('Erreur:', error);
         });
-
 }
+function setDefaultValues() {
+    const selectList = document.getElementsByClassName("option");
+
+    for(const select of selectList){
+        select.value = 'tous';
+    }
+}
+
 //A remplacer                                                                               Cette partie n'est pas complète je ne connais pas encore tout les infos retourner par le php
 function addLivre(livre) {
 
