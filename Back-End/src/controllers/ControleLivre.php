@@ -53,46 +53,39 @@ class ControleLivre {
 
     public static function getAllBookFiltre() {
         global $pdo;
-
+        
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
 
-        // Récupérer les paramètres de filtres via les query parameters
         $categorie = isset($_GET['Categorie']) ? $_GET['Categorie'] : null;        
         $langue = isset($_GET['Langue']) ? $_GET['Langue'] : null;
 
         try {
-            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur
-            FROM Livre l
+            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur            FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
             INNER JOIN Langue la ON l.langue_id = la.id_langue
-            WHERE 1=1
             ');
             $params = [];
-
             if (!empty($categorie) && $categorie !== "Tous") {
-                $query .= ' AND c.nom = :categorie';
-                $params['categorie'] = $categorie;
+                $query .= ' AND c.nom = :Categorie';
+                $params['Categorie'] = $categorie;
             }
             if (!empty($langue) && $langue !== "Tous") {
-                $query .= ' AND la.nom_langue = :langue';
-                $params['langue'] = $langue;
+                $query .= ' AND la.nom = :Langue';
+                $params['Langue'] = $langue;
             }
 
             $bookquery = $pdo->prepare($query);
             $bookquery->execute($params);
-            $books = $query->fetchAll(PDO::FETCH_ASSOC);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
-                exit();
-            }
+            $books = $bookquery->fetchAll();
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
         }
-    }
+     }
+ 
 
 //     // À completer plus tard
 //     public static function createBook() {

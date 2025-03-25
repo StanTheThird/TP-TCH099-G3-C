@@ -12,15 +12,16 @@ get('/api/livre', function(){
     ControleLivre::getAllBooks();
 });
 
+// Récupérer tous les livres filtrés
+get('/api/livre/filter', function(){
+    ControleLivre::getAllBookFiltre();
+});
+
 // Récupérer un livre
 get('/api/livre/$id', function($id){
     ControleLivre::getBook($id);
 });
 
-// Récupérer tous les livres filtrés
-get('/api/livre/filter', function(){
-    ControleLivre::getAllBookFiltre();
-});
 
 // Ajouter un livre (admin)
 post('/api/livre', function(){
