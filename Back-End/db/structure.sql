@@ -5,7 +5,7 @@ CREATE TABLE Utilisateur (
     id_utilisateur INT(10) NOT NULL AUTO_INCREMENT,
     nom VARCHAR(55) NOT NULL,
     prenom VARCHAR(55) NOT NULL,
-    mot_de_passe VARCHAR(55) NOT NULL,
+    mot_de_passe VARCHAR(255) NOT NULL,
     nom_utilisateur VARCHAR(55) NOT NULL,
     type BOOLEAN NOT NULL, -- TRUE pour admin, FALSE pour client
     PRIMARY KEY(id_utilisateur)

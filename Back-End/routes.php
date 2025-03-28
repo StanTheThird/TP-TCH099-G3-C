@@ -44,8 +44,8 @@ post('/api/login', function(){
 
 
 // route par défaut pour les erreurs 404
-any('/404', function() {
-    http_response_code(404);
-    echo json_encode(["error" => "route not found"]);
-});
+// any('/404', function() {
+//     http_response_code(404);
+//     echo json_encode(["error" => "route not found"]);
+// });
 ?>
