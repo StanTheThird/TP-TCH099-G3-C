@@ -22,6 +22,11 @@ get('/api/livre/$id', function($id){
     ControleLivre::getBook($id);
 });
 
+// Rechercher un livre
+get('/api/recherche/livre', function(){
+    ControleLivre::getBookBySearch();
+});
+
 
 // Ajouter un livre (admin)
 // post('/api/livre', function(){
