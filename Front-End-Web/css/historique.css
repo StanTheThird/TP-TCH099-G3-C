@@ -2,11 +2,10 @@
 
 .conteneur {
     display: grid;
-    grid-template-rows: 6rem auto auto auto;
+    grid-template-rows: 6rem auto auto;
     grid-template-columns: auto;
     grid-template-areas:
         "header "
-        "filters"
         "main   "
         "footer ";
 }
@@ -65,74 +64,22 @@
     border-width: 0.2rem;
     background-color: rgb(207, 115, 115);
 }
-/* ----- style et positionnement barre filtre ----- */
 
-#filtres {
-    grid-area: filters;
-    padding: 0.63rem;
-    position:flex;
-    width: 98.7%;
-    background-color: lightgray;
-    font-size: medium;
-}
-
-.filtre- {
-    margin-left: 5rem;
-    padding-right: 0.63rem;
-    padding-bottom: 0.63rem;
-    flex: 1;
-    
-}
-.label{
-    padding-left: 1.63rem;
-    padding-right: 0.63rem;
-    padding-bottom: 0.63rem;
-    flex: 1;
-}
-
-.option {
-    flex:1;
-    width: 12rem;
-    margin-left: 0.8rem;
-    margin-right: 2.5rem;
-
-}
-
-/* ---------------- style conteneur activités ---------------- */
-#conteneur_livres {
+/* ---------------- style conteneur historique ---------------- */
+.conteneurPrincipal {
     grid-area: main;
+}
+.conteneurHistorique{
+    background-color:rgb(221, 221, 221);
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     overflow-y: scroll;
     scroll-snap-type: y proximity;
     height: 30rem;
-}
-/* ----- style de chaque activité ----- */
-.livreInfo {
-    display: flex;
-    background-color: rgb(222, 237, 255);
-    margin: 0.94rem;
-    border-radius: 0.63rem;
-    
-
-}
-
-/* ----- action sur l'activité ----- */
-.livreInfo:hover {
-    background: linear-gradient(#fcff65c7 , #f8983f9d,#f55b34bd);
-    background: linear-gradient(#66c7d8e8 , #6cace7ee,#efb9fa);
-
-
-}
-
-/* ----- style image----- */
-.image {
-    display: block;
-    margin: 0.94rem;   
-    border-radius: 0.63rem;
     
 }
+
 
 
 /* ---------------- style footer ---------------- */

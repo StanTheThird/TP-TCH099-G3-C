@@ -74,7 +74,7 @@ VALUES
 -- Insertion des données dans la table Utilisateur
 INSERT INTO Utilisateur (prenom, nom, mot_de_passe, nom_utilisateur,type)
 VALUES 
-    ('Jean', 'Dupont', 'password123','client1', FALSE);
+    ('Ignore', 'Moi', 'ignorerMoi','ignorerMoi', FALSE);
 
 -- Insertion des données dans la table Emprunt
 INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)

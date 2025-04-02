@@ -3,13 +3,13 @@
 -- Création de la table Utilisateur
 CREATE TABLE Utilisateur (
     id_utilisateur INT(10) NOT NULL AUTO_INCREMENT,
-    nom VARCHAR(55) NOT NULL,
-    prenom VARCHAR(55) NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
     mot_de_passe VARCHAR(255) NOT NULL,
-    nom_utilisateur VARCHAR(55) NOT NULL,
-    type BOOLEAN NOT NULL, -- TRUE pour admin, FALSE pour client
-    PRIMARY KEY(id_utilisateur)
-    
+    nom_utilisateur VARCHAR(100) NOT NULL,
+    type BOOLEAN NOT NULL DEFAULT 0,  -- Default to FALSE (client)
+    PRIMARY KEY(id_utilisateur),
+    UNIQUE KEY(nom_utilisateur)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Création de la table Auteur

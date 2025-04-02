@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Front-End-Web/css/normalize.css">
     <link rel="stylesheet" href="/Front-End-Web/css/connexion.css">
+    <script type="module" src="../Scripts/mainScript.js"></script>
     <title>Connexion</title>
 </head>
 <body>
     <div class="conteneur">
         <header class="header">
             <div class="logo">
-                <img id="img-logo" src="/Front-End-Web/ressources/logo.png" alt="Logo" width="240" height="80">
+                <a  href="/Front-End-Web/html/accueil.html">
+                    <img id="img-logo" src="/Front-End-Web/ressources/logo.png" alt="Logo" width="240" height="80">
+                </a>
             </div>
             <div class="menu">
                 <ul>
@@ -29,15 +33,17 @@
         </header>
         <main class="main">
             <div class="conteneurPrincipal">
-                <h2 class="login">Login</h2>
                 <div class="containeurLogin">
-                    <form id="loginForm" class="form-group" action="login.php" method="POST">
-                        <label for="username" class="nomUtilisateur">Nom d'utilisateur:</label>
-                        <input type="text" id="username" name="username" class="form-control" required> <br>
-                        <label for="password" class="mdp">Mot de passe:</label>
-                        <input type="password" id="password" name="password" class="form-control" required> <br> <br>
-                        <button  class="btn">Se connecter</button> <br> <br>
-                        <a href='/Front-End-Web/html/enregistrement.html' class="btn-compte" >Créer un compte</a>
+                    <h2 class="login">Login</h2>
+                    <form id="loginForm" class="form-group">
+                        <label for="nom_utilisateur" class="nomUtilisateur">Nom d'utilisateur:</label>
+                        <input type="text" name="nom_utilisateur" class="form-control" required> <br>
+                        <label for="mot_de_passe" class="mdp">Mot de passe:</label>
+                        <input type="password" name="mot_de_passe" class="form-control" required> <br> <br>
+                        <div class="conteneurbouton">
+                            <button  type="submit" class="btn">Se connecter</button> <br> <br>
+                            <a href='Front-End-Web\html\enregistrement.html' class="btn-compte" >Créer un compte</a>
+                        </div>
                     </form>
                 </div>
             </div>

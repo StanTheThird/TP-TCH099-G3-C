@@ -67,21 +67,19 @@
     grid-area: main;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
-.conteneurPrincipal{
+.login{
     text-align: center;
+    font-size: xx-large;
+
 }
 .containeurLogin {
-    display: flex;
-    justify-content: center;
     background-color: rgb(221, 221, 221);
     margin: 0.94rem;
     border-radius: 0.63rem;
     padding: 2rem;
-    width: 28rem;
-    height: 14rem;
-    text-align: justify;
+    width: 25.50rem;
+    height: 18rem;
 }
 /* ----- positionnement label et input ----- */
 
@@ -145,29 +143,31 @@ a,button{
 
 
 /* ---------------- style bouton ---------------- */
-.btn {
-    background-color: rgb(207, 115, 115);
+
+/* ----- positionnement bouton ----- */
+.conteneurbouton{
+    display: flex;
+    justify-content: center;
+}
+.btn,.btn-compte{
+    background:linear-gradient(to right,#62C4E8,#CE8DFF);
     padding: 0.63rem 1.56rem;
     transition-duration: 0.4s;
     border-radius: 0.44rem;
     cursor: pointer;
-    width: 15rem;
-}
-.btn-compte{
-    display: flex;
-    border: 0.1rem solid ;
-    border-color: black;
-    background-color: rgb(207, 115, 115);
-    padding: 0.63rem 4rem;
-    transition-duration: 0.4s;
-    border-radius: 0.44rem;
-    cursor: pointer;
+    font-size: medium;
     
 }
-
-/* ----------------  action sur le bouton ---------------- */
+.btn-compte{
+    margin-left: 3.5rem;
+    border: 0.1rem solid ;
+    border-color: black;
+    margin-right: 1rem;
+}
+/* ----- action sur le bouton ----- */
 .btn:hover,.btn-compte:hover {
     opacity: 0.85;
     color: black;
-    box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
+    box-shadow: 0.25rem 0.31rem 0.31rem  rgb(142, 141, 141);
 }
+

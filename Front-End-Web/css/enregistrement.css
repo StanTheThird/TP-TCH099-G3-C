@@ -79,11 +79,11 @@
 #nouvelUsager{
     background-color:rgb(221, 221, 221);
     border-radius: 0.63rem;
-    width: 37.50rem;
+    width: 29.50rem;
     margin-top: 2.5rem;
     margin-bottom: 2.5rem;
     padding: 1.25rem;
-    height: 32rem;
+    height: 30rem;
 }    
 /* ----- positionnement label et input ----- */
 label, input{
@@ -142,12 +142,13 @@ a,button{
 
 /* ----- positionnement bouton ----- */
 .conteneurbouton{
+    margin-top: 0.5rem;
     display: flex;
     justify-content: center;
 }
 /* ----- style bouton ----- */
 .btn-inscrire,.btn-compte{
-    background-color: rgb(207, 115, 115);
+    background:linear-gradient(to right,#62C4E8,#CE8DFF);
     padding: 0.63rem 1.56rem;
     transition-duration: 0.4s;
     border-radius: 0.44rem;
@@ -161,7 +162,7 @@ a,button{
     box-shadow: 0.25rem 0.31rem 0.31rem  rgb(142, 141, 141);
 }
 .btn-compte{
-    margin-left: 2rem;
+    margin-left: 3.5rem;
     border: 0.1rem solid ;
     border-color: black;
 }

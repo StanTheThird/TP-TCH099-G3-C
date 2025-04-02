@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 # Install PHP extensions
 RUN docker-php-ext-install pdo pdo_mysql
 
-ADD ./Back-end /var/www/html/
+ADD ./Back-End /var/www/html/
 
 # Copy custom Apache configuration
 COPY ./Back-End/conf/js-no-cache.conf /etc/apache2/conf-available/js-no-cache.conf
