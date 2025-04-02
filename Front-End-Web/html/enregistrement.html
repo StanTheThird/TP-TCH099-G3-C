@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/Front-End-Web/css/normalize.css">
     <link rel="stylesheet" href="/Front-End-Web/css/enregistrement.css">
+    <script type="module" src="../Scripts/mainScript.js"></script>
     <title>Enregistrement</title>
 </head>
 <body>
@@ -37,7 +38,7 @@
                     <div id="nouvelUsager" class="mb-4">
                         <h1 class="inscription"> Inscription</h1>
                         <h2>Créer un compte</h2>
-                        <form method="post">
+                        <form method="post" id="registerForm">
                         <div class="form-group">
                             <label for="nom">Nom:</label>
                             <input
@@ -71,7 +72,7 @@
                         <div class="form-group">
                             <label for="motDePasse">Mot de passe:</label>
                             <input
-                            type="motDePasse"
+                            type="password"
                             id="motDePasse"
                             name="motDePasse"
                             class="form-control"
@@ -89,7 +90,7 @@
                             />
                         </div><br>
                         <div class="conteneurbouton">
-                            <button type="submit" class="btn-inscrire">S'inscrire</button>
+                            <button type="submit" class="btn-inscrire" id="registerBtn">S'inscrire</button>
                             <a href='/Front-End-Web/html/connexion.html' class='btn-compte' >J'ai déjà un compte</a> 
                         </div>    
                         </form>

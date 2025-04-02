@@ -4,95 +4,106 @@ class ControleUtilisateur{
     //Token??
 
     public static function userRegister() {
-        global $pdo;
-
-        header('Access-Control-Allow-Origin: *');  
-        header('Content-Type: application/json; charset=utf-8'); 
-
-        $data = json_decode(file_get_contents("php://input"), true);
-
-        if(!isset($data['nom'], $data['prenom'], $data['nomUtilisateur'], $data['motDePasse'], $data['confirmation_mot_de_passe'])){
+        require_once __DIR__ . "/../../config.php"; // Ensure the correct path
+    
+        global $pdo; // Make sure $pdo is available
+    
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: POST');
+        header('Access-Control-Allow-Headers: Content-Type');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        // Get JSON input
+        $json = file_get_contents("php://input");
+        $data = json_decode($json, true);
+    
+        // Validate required fields
+        if (!isset($data['prenom'], $data['nom'], $data['nom_utilisateur'], $data['mot_de_passe'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Données incomplètes']);
+            echo json_encode(["error" => "Données incomplètes"]);
             exit;
         }
-
-        if ($data['motDePasse'] !== $data['confirmation_mot_de_passe']){
-            http_response_code(400);
-            echo json_encode(['error' => 'Les mots de passe sont différents']);
-            exit;
-        }
-
-        $nom = $data['nom'];
-        $prenom = $data['prenom'];
-        $nomUtilisateur = trim($data['nomUtilisateur']);
-        $motDePasse = password_hash($data['motDePasse'], PASSWORD_BCRYPT);
-        $type = 0; // Utilisateur est un client (0 = faux)
+    
+            $prenom = trim($data['prenom']);
+            $nom = trim($data['nom']);
+            $nomUtilisateur = trim($data['nom_utilisateur']);
+            $motDePasse = trim($data['mot_de_passe']);
+            $type = isset($data['type']) && ($data['type'] == 1) ? 1 : 0;
+    
+        // Hash the password
+        $hashedPassword = password_hash($motDePasse, PASSWORD_BCRYPT);
+    
         try {
-
-            // Vérifier si l'utilisateur existe déjà
-            $verifierClient = $pdo->prepare('SELECT COUNT(*) FROM Utilisateur WHERE nom_utilisateur = :nomUtilisateur');
-            $verifierClient->execute([':nomUtilisateur' => $nomUtilisateur]);
-            if ($verifierClient->fetchColumn() > 0){
-                http_response_code(409); // conflit
-                echo json_encode(["error" => "nom d'utilisateur déjà utilisé !"]);
+            // Check if username already exists
+            $query = $pdo->prepare("SELECT COUNT(*) FROM Utilisateur WHERE nom_utilisateur = ?");
+            $query->execute([$nomUtilisateur]);
+            if ($query->fetchColumn() > 0) {
+                http_response_code(409); // Conflict
+                echo json_encode(["error" => "Nom d'utilisateur déjà utilisé !"]);
                 exit;
             }
-
-            // Création du compte client
-            $query = $pdo->prepare('INSERT INTO Utilisateur (nom, prenom, nom_utilisateur, mot_de_passe, type)
-            VALUES (:nom, :prenom, :nomUtilisateur, :motDePasse, :type)
-            ');
-            $query -> execute([
-                ':nom' => $nom,
-                ':prenom' => $prenom,
-                ':nomUtilisateur' => $nomUtilisateur,
-                ':motDePasse' => $motDePasse,
-                ':type' => $type
-            ]);
+    
+            // Insert new user
+            $query = $pdo->prepare("INSERT INTO Utilisateur (prenom, nom, mot_de_passe, nom_utilisateur, type) 
+                                    VALUES (?, ?, ?, ?, ?)");
+            $query->execute([$prenom, $nom, $hashedPassword, $nomUtilisateur, $type]);
+    
             http_response_code(201);
-            echo json_encode(["message" => "Client enregistré avec succès"]);
-        } catch (PDOException $e) {
+            echo json_encode(["message" => "Utilisateur enregistré avec succès"]);
+        } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);           
+            echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);
         }
     }
     public static function userLogin() {
+        require_once __DIR__ . "/../../config.php"; 
         global $pdo;
     
+        // Set headers for the response
         header('Access-Control-Allow-Origin: *');  
         header('Content-Type: application/json; charset=utf-8'); 
+        
+        // Read and decode the input JSON
+        $data = json_decode(file_get_contents('php://input'), true);
     
-        if ($_SERVER["REQUEST_METHOD"] == "POST") {
-            $username = trim($_POST['nom_utilisateur'] ?? '');
-            $password = $_POST['mot_de_passe'] ?? '';
+        if (json_last_error() !== JSON_ERROR_NONE || $_SERVER["REQUEST_METHOD"] !== "POST") {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid JSON or incorrect method"]);
+            exit;
+        }
     
-            if (!empty($username) && !empty($password)) {
-                $query = $pdo->prepare("SELECT id_utilisateur, nom_utilisateur, mot_de_passe FROM Utilisateur WHERE nom_utilisateur = ?");
-                $query->execute([$username]);
-                $user = $query->fetch();
+        $username = trim($data['nom_utilisateur'] ?? '');
+        $password = $data['mot_de_passe'] ?? '';
     
-                if ($user && password_verify($password, $user['mot_de_passe'])) {
-                    http_response_code(200);
-                    echo json_encode([
-                        "message" => "Connexion réussie",
-                        // À enlever, juste pour vérifier que la connexion se fait sur le bon compte
-                        "user" => [
-                            "id" => $user['id_utilisateur'],
-                            "nom_utilisateur" => $user['nom_utilisateur']
-                        ]
-                    ]);
-                    exit;
-                } else {
-                    http_response_code(401); 
-                    echo json_encode(["error" => "Identifiant incorrect!"]);
-                    exit;
-                }
+        if (empty($username) || empty($password)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Champs manquants"]);
+            exit;
+        }
+    
+        try {
+            // Prepare and execute query
+            $query = $pdo->prepare("SELECT id_utilisateur, nom_utilisateur, mot_de_passe FROM Utilisateur WHERE nom_utilisateur = ?");
+            $query->execute([$username]);
+            $user = $query->fetch();
+    
+            // Check if user exists and password matches
+            if ($user && password_verify($password, $user['mot_de_passe'])) {
+                echo json_encode([
+                    "message" => "Connexion réussie",
+                    "user" => [
+                        "id" => $user['id_utilisateur'],
+                        "nom_utilisateur" => $user['nom_utilisateur']
+                    ]
+                ]);
+                http_response_code(200);
             } else {
-                http_response_code(400); 
-                echo json_encode(["error" => "Champs manquants"]);
-                exit;
+                http_response_code(401);
+                echo json_encode(["error" => "Identifiants incorrects!"]);
             }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);
         }
     }
     

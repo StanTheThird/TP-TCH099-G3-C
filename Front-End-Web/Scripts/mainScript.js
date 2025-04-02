@@ -1,20 +1,93 @@
 document.addEventListener("DOMContentLoaded", () => {
     const nomPage = document.title;
     if(nomPage == "BiblioSmart"){
+        console.log("Page Principale");
         const url = new URL(window.location.href);
         const id = new URLSearchParams(url.search).get("id");
         populateFiltres();
     } else if (nomPage == 'Connexion') {
-        document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();});//Add function here
+        console.log("Page Connexion");
+        SetupLogin();
     } else if (nomPage == 'Enregistrement') {
-        document.getElementById('signInForm').addEventListener('submit', function(event) {
-            event.preventDefault();});//Add function here
+        console.log("Page Enregistrement");
+        document.getElementById('registerBtn').addEventListener('submit', function(event) {
+            event.preventDefault();
+            register();
+        });
     } else {
         console.log('Rien à faire.');
     }
 });
 
+
+//Connexion
+function SetupLogin() {
+    const loginForm = document.getElementById('loginForm');
+
+    loginForm.addEventListener('submit', async event => {
+        event.preventDefault();
+    
+        try {
+            // Retrieve the form data
+            const formData = new FormData(loginForm);
+    
+            // Log the form data to check if it's being retrieved properly
+            console.log('Form data:', formData);
+    
+            // Prepare the data to be sent in the body
+            const data = {
+                nom_utilisateur: formData.get('nom_utilisateur'),  // Get 'nom_utilisateur' from the form field
+                mot_de_passe: formData.get('mot_de_passe')          // Get 'mot_de_passe' from the form field
+            };
+    
+            // Log the data to ensure both fields are retrieved
+            console.log('Prepared data:', data);
+    
+            // Check if the data exists before sending it
+            if (!data.nom_utilisateur || !data.mot_de_passe) {
+                throw new Error('Both username and password are required!');
+            }
+    
+            // Send the POST request to the API
+            const response = await fetch('http://localhost:8000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+    
+            // Check if the response is OK (status code 2xx)
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Login failed');
+            }
+    
+            // If the login is successful, handle the response data
+            const responseData = await response.json();
+    
+            // Log the success and the user data
+            console.log('Login successful:', responseData.user);
+    
+            // Store user information in localStorage if necessary
+            if (responseData.user) {
+                localStorage.setItem('user', JSON.stringify(responseData.user));
+            }
+    
+            // Redirect to the homepage or dashboard
+            //window.location.href = 'Front-End-Web/html/accueil.html';
+    
+        } catch (error) {
+            // Log any error and display it to the user
+            console.error('Error:', error);
+            alert(error.message || 'Login failed');
+        }
+    });
+}
+//Inscription
+function register(){
+    const registerFrom = document.getElementById("registerForm");
+}
 
 
 function populateFiltres() {
