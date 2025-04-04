@@ -106,9 +106,11 @@ class ControleLivre {
         $search = "$search%";
 
         try {
-            $query = $pdo -> prepare("SELECT l.titre, CONCAT(a.prenom, ' ', a.nom) AS nom_auteur 
+            $query = $pdo -> prepare("SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur     
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+            INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+            INNER JOIN Langue la ON l.langue_id = la.id_langue
             WHERE l.titre LIKE :search1
             OR a.nom LIKE :search2
             OR a.prenom LIKE :search3

@@ -164,26 +164,62 @@ function createFiltre(livres){
     // }
     // );
     // filtre.appendChild(bouttonFiltre);
+
+    // Filtre pour la recherche
+    const recherche = document.createElement('label');
+    recherche.textContent = " 🔎 ";                                 // à changer pour un autre symbole (à trouver)
+    recherche.setAttribute('for', 'rechercheLivre');
+    filtre.appendChild(recherche);
+
+    const champRecherche = document.createElement('input');
+    champRecherche.type = "text";
+    champRecherche.id = "rechercheLivre";
+    champRecherche.placeholder = "Entrez un titre/auteur...";
+    champRecherche.className = "champ-recherche";
+
+    champRecherche.addEventListener('input', () =>{
+        filtrerFromOptions();
+    });
+
+    filtre.appendChild(champRecherche);
+
 }
 
 function filtrerFromOptions() {
     const selectList = document.getElementsByClassName("option");
+    const rechercheTitre = document.getElementById("rechercheLivre")?.value || ""; 
+
     const filters =
     {
         categorie: selectList[0].value,
-        langue: selectList[1].value
+        langue: selectList[1].value,
+        titre: rechercheTitre.trim()
+
     };
     displayFilteredBooks(filters);
 }
 
 function displayFilteredBooks(filters) {
-    fetch(`http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`)
+    // fetch(`http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`)
+        // .then(response => {
+        //     if (!response.ok) {
+        //         throw new Error('Erreur lors de la récupération des livres');
+        //     }
+        //     return response.json();
+        // })
+    let url = "";
+    if (filters.titre && filters.titre.trim() !== ""){
+        url = `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
+    } else {
+        url = `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`
+    }
+    fetch(url)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erreur lors de la récupération des livres');
             }
             return response.json();
-        })
+        }) 
         .then(data => {
             let livres;
             livres = data;
