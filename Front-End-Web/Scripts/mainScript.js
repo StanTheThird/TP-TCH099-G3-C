@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    SetUpNavigation();
     const nomPage = document.title;
     if(nomPage == "BiblioSmart"){
         console.log("Page Principale");
@@ -10,10 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
         SetupLogin();
     } else if (nomPage == 'Enregistrement') {
         console.log("Page Enregistrement");
-        document.getElementById('registerBtn').addEventListener('submit', function(event) {
-            event.preventDefault();
-            register();
-        });
+        SetUpRegister();
+    } else if (nomPage == 'Admin') {
+        console.log("Page Admin");
+
     } else {
         console.log('Rien à faire.');
     }
@@ -28,65 +29,100 @@ function SetupLogin() {
         event.preventDefault();
     
         try {
-            // Retrieve the form data
+            // On récupère le data du form html
             const formData = new FormData(loginForm);
-    
-            // Log the form data to check if it's being retrieved properly
-            console.log('Form data:', formData);
-    
-            // Prepare the data to be sent in the body
-            const data = {
-                nom_utilisateur: formData.get('nom_utilisateur'),  // Get 'nom_utilisateur' from the form field
-                mot_de_passe: formData.get('mot_de_passe')          // Get 'mot_de_passe' from the form field
-            };
-    
-            // Log the data to ensure both fields are retrieved
-            console.log('Prepared data:', data);
-    
-            // Check if the data exists before sending it
-            if (!data.nom_utilisateur || !data.mot_de_passe) {
-                throw new Error('Both username and password are required!');
-            }
-    
-            // Send the POST request to the API
+
             const response = await fetch('http://localhost:8000/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(Object.fromEntries(formData.entries()))
             });
-    
-            // Check if the response is OK (status code 2xx)
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Login failed');
+
+            // First get the response as text
+            const responseText = await response.text();
+            
+            // Debug: log the raw response
+            console.log('Raw server response:', responseText);
+            
+            // Try to parse as JSON
+            let responseData;
+            try {
+                responseData = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse JSON:', e);
+                throw new Error("Invalid server response format");
             }
+
+            if (!response.ok) {
+                throw new Error(responseData.error || "Échec de la connexion");
+            }
+            
+            console.log('Connexion réussie :', responseData.user);
     
-            // If the login is successful, handle the response data
-            const responseData = await response.json();
-    
-            // Log the success and the user data
-            console.log('Login successful:', responseData.user);
-    
-            // Store user information in localStorage if necessary
+            // On récupère les informations utilisateur pour pouvoir rester connecté et accèdé au informations du compte
+            // Et on renvoie l'utilisateur a l'accueil
             if (responseData.user) {
                 localStorage.setItem('user', JSON.stringify(responseData.user));
+                window.location.href = 'accueil.html';
             }
-    
-            // Redirect to the homepage or dashboard
-            //window.location.href = 'Front-End-Web/html/accueil.html';
-    
+
         } catch (error) {
-            // Log any error and display it to the user
             console.error('Error:', error);
-            alert(error.message || 'Login failed');
+            alert(error.message || "Échec de la connexion");
         }
     });
 }
 //Inscription
-function register(){
-    const registerFrom = document.getElementById("registerForm");
+function SetUpRegister() {
+    const registerForm = document.getElementById('registerForm');
+
+    registerForm.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        //Vérif mot de passe
+        const motDePasse = registerForm.mot_de_passe.value;
+        const confirmation = registerForm.confirmation_mot_de_passe.value;
+        
+        if (motDePasse !== confirmation) {
+            alert("Les mots de passe ne correspondent pas !");
+            return;
+        }
+        
+        try {
+            // On récupère le data du form html
+            const formData = new FormData(registerForm);
+
+            const response = await fetch('http://localhost:8000/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                //On envoie le form en json, car nous savons que le form html utilise les bon noms
+                body: JSON.stringify(Object.fromEntries(formData.entries()))
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Échec de l'inscription");
+            }
+
+            const responseData = await response.json();
+            console.log('Inscription réussie:', responseData.user);
+    
+            // On stocke les informations utilisateur dans le localStorage
+            // Et on redirige vers la page d'accueil
+            if (responseData.user) {
+                localStorage.setItem('user', JSON.stringify(responseData.user));
+                window.location.href = 'accueil.html';
+            }
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert(error.message || "Échec de l'inscription");
+        }
+    });
 }
 
 
@@ -143,7 +179,7 @@ function createFiltre(livres){
                     textTest = livre.langue;
                     break;
             }
-            if (!dejaAjouter.includes(textTest)) {                                              //Tristan du futur. tu doit modifier cette parite  et la remplacer par un UniqueSet = new Set(). Le tout devrait être plus efficace.
+            if (!dejaAjouter.includes(textTest)) {                                              //Tristan du futur. tu doit modifier cette partie  et la remplacer par un UniqueSet = new Set(). Le tout devrait être plus efficace. 
                 const opt = document.createElement('option');
                 opt.value = textTest;
                 opt.text = textTest;
@@ -155,15 +191,6 @@ function createFiltre(livres){
 
         filtre.appendChild(select);
     }
-    // const bouttonFiltre = document.createElement('button');
-    // bouttonFiltre.id = 'filtrer';
-    // bouttonFiltre.textContent = "Filtrer";
-    // bouttonFiltre.addEventListener('click', (e) => {
-    //     e.preventDefault(); // Prevent default behavior if inside a form
-    //     filtrerFromOptions();
-    // }
-    // );
-    // filtre.appendChild(bouttonFiltre);
 
     // Filtre pour la recherche
     const recherche = document.createElement('label');
@@ -200,13 +227,6 @@ function filtrerFromOptions() {
 }
 
 function displayFilteredBooks(filters) {
-    // fetch(`http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`)
-        // .then(response => {
-        //     if (!response.ok) {
-        //         throw new Error('Erreur lors de la récupération des livres');
-        //     }
-        //     return response.json();
-        // })
     let url = "";
     if (filters.titre && filters.titre.trim() !== ""){
         url = `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
@@ -293,4 +313,60 @@ function li(data, host) {
     let li = document.createElement("li");
     li.textContent = data;
     host.append(li);
+}
+function SetUpNavigation() {
+    const nav = document.getElementById('navigation');
+    nav.innerHTML = ''; // Vide le menu avant reconstruction
+
+    // Récupère les données utilisateur depuis le localStorage
+    const userData = localStorage.getItem('user');
+    const isConnected = userData !== null; // Vérifie si un utilisateur est connecté
+
+    // Fonction pour créer un élément de menu
+    const createMenuItem = (text, href = '#', onClick = null) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.textContent = text;
+        
+        if (href !== '#') {
+            a.href = '/Front-End-Web/html/' + href;
+        }
+        
+        if (onClick) {
+            a.addEventListener('click', onClick);
+        }
+        
+        li.appendChild(a);
+        return li;
+    };
+
+    // Menu pour utilisateur connecté
+    if (isConnected) {
+        const user = JSON.parse(userData);
+        
+        // Accueil
+        nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
+        
+        // Nom d'utilisateur (non cliquable)
+        nav.appendChild(createMenuItem(user.nom_utilisateur));
+        
+        // Historique
+        nav.appendChild(createMenuItem('Historique', 'historique.html'));
+        
+        // Déconnexion
+        nav.appendChild(createMenuItem('Déconnexion', 'accueil.html', () => {
+            localStorage.removeItem('user'); // Supprime seulement les données utilisateur
+            SetUpNavigation(); // Met à jour le menu
+        }));
+
+        if(user.type == 1){
+            nav.appendChild(createMenuItem('Administration', 'admin.html'));
+        }
+    } 
+    // Menu pour visiteur non connecté
+    else {
+        nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
+        nav.appendChild(createMenuItem('Connexion', 'connexion.html'));
+        nav.appendChild(createMenuItem('Enregistrement', 'enregistrement.html'));
+    }
 }

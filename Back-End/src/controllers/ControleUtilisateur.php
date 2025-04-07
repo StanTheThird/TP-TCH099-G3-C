@@ -4,10 +4,9 @@ class ControleUtilisateur{
     //Token??
 
     public static function userRegister() {
-        require_once __DIR__ . "/../../config.php"; // Ensure the correct path
-    
-        global $pdo; // Make sure $pdo is available
-    
+        //Partie importante ne pas retirer: 
+        require_once __DIR__ . "/../../config.php"; 
+        global $pdo;
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: POST');
         header('Access-Control-Allow-Headers: Content-Type');
@@ -24,11 +23,11 @@ class ControleUtilisateur{
             exit;
         }
     
-            $prenom = trim($data['prenom']);
-            $nom = trim($data['nom']);
-            $nomUtilisateur = trim($data['nom_utilisateur']);
-            $motDePasse = trim($data['mot_de_passe']);
-            $type = isset($data['type']) && ($data['type'] == 1) ? 1 : 0;
+        $prenom = trim($data['prenom']);
+        $nom = trim($data['nom']);
+        $nomUtilisateur = trim($data['nom_utilisateur']);
+        $motDePasse = trim($data['mot_de_passe']);
+        $type = isset($data['type']) && ($data['type'] == 1) ? 1 : 0;
     
         // Hash the password
         $hashedPassword = password_hash($motDePasse, PASSWORD_BCRYPT);
@@ -48,22 +47,33 @@ class ControleUtilisateur{
                                     VALUES (?, ?, ?, ?, ?)");
             $query->execute([$prenom, $nom, $hashedPassword, $nomUtilisateur, $type]);
     
+            // Récupérer les informations du nouvel utilisateur
+            $query = $pdo->prepare("SELECT id_utilisateur, prenom, nom, nom_utilisateur, type FROM Utilisateur WHERE nom_utilisateur = ?");
+            $query->execute([$nomUtilisateur]);
+            $newUser = $query->fetch();
+    
             http_response_code(201);
-            echo json_encode(["message" => "Utilisateur enregistré avec succès"]);
+            echo json_encode([
+                "message" => "Utilisateur enregistré avec succès",
+                "user" => [
+                    "id" => $newUser['id_utilisateur'],
+                    "nom_utilisateur" => $newUser['nom_utilisateur'],
+                    "type" => $newUser['type']
+                ]
+            ]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);
         }
     }
     public static function userLogin() {
+        //Partie importante ne pas retirer :
         require_once __DIR__ . "/../../config.php"; 
         global $pdo;
-    
-        // Set headers for the response
         header('Access-Control-Allow-Origin: *');  
         header('Content-Type: application/json; charset=utf-8'); 
-        
-        // Read and decode the input JSON
+
+
         $data = json_decode(file_get_contents('php://input'), true);
     
         if (json_last_error() !== JSON_ERROR_NONE || $_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -82,18 +92,18 @@ class ControleUtilisateur{
         }
     
         try {
-            // Prepare and execute query
-            $query = $pdo->prepare("SELECT id_utilisateur, nom_utilisateur, mot_de_passe FROM Utilisateur WHERE nom_utilisateur = ?");
+            $query = $pdo->prepare("SELECT id_utilisateur, nom_utilisateur, mot_de_passe, type FROM Utilisateur WHERE nom_utilisateur = ?");
             $query->execute([$username]);
             $user = $query->fetch();
     
-            // Check if user exists and password matches
+            // On vérifie que le mot de passe et nom utilisateur existe.
             if ($user && password_verify($password, $user['mot_de_passe'])) {
                 echo json_encode([
                     "message" => "Connexion réussie",
                     "user" => [
                         "id" => $user['id_utilisateur'],
-                        "nom_utilisateur" => $user['nom_utilisateur']
+                        "nom_utilisateur" => $user['nom_utilisateur'],
+                        "type" => $user['type']
                     ]
                 ]);
                 http_response_code(200);
