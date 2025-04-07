@@ -40,10 +40,6 @@ class ControleLivre {
             ');
             $query->execute();
             $books = $query->fetchAll(PDO::FETCH_ASSOC);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
-                exit();
-            }
             // Si déjà emprunté
             foreach($books as &$book) {
                 $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
@@ -156,14 +152,6 @@ class ControleLivre {
 
         $data = json_decode(file_get_contents("php://input"), true);
 
-        // vérifier que l'utilisateur est connecté
-        if(!isset($_SESSION['utilisateur_id'])){
-            http_response_code(401);
-            // Rediriger vers la page pour ce connecté ********************************
-            echo json_encode(["error" => "Vous devez vous connecter pour poursuivre l'emprunt"]);
-            exit;
-        }
-
         // vérifier le livre
         if(!isset($data['livre_id'])){
             http_response_code(400);
@@ -171,9 +159,14 @@ class ControleLivre {
             exit;
         }
 
-        $utilisateurId = $_SESSION['utilisateur_id'];
-        $livreId = $data['livre_id'];
+        if(!isset($data['utilisateur_id'])){
+            http_response_code(400);
+            echo json_encode(["error" => "Veuillez-vous connecté pour poursuivre"]);
+            exit;
+        }
 
+        $livreId = $data['livre_id'];
+        $utilisateurId = $data['utilisateur_id'];
     
         try{
             //vérifier si le livre est déjà emprunté

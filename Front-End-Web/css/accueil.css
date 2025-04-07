@@ -71,7 +71,7 @@ html, body {
 }
 /* ----- style et positionnement barre filtre ----- */
 
-#filtres {
+#filtres, #admin {                                          /* AJOUT POUR LA PAGE ADMIN*/
     grid-area: filters;
     padding: 0.63rem;
     position:flex;

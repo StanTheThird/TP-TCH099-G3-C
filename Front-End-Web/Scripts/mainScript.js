@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         SetUpRegister();
     } else if (nomPage == 'Admin') {
         console.log("Page Admin");
-
+        displayAllBooks();
     } else {
         console.log('Rien à faire.');
     }
@@ -333,9 +333,11 @@ function addLivre(livre) {
 }
 
 function empruntLivre(livreId, bouton){
+    const utilisateur = JSON.parse(localStorage.getItem("user"));
+    
     fetch("http://localhost:8000/api/emprunt/livre", {
         method:"POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({livre_id: livreId})
+        body: JSON.stringify({livre_id: livreId, utilisateur_id: utilisateur.id})
     })
         .then (response =>{
             if (!response.ok){
