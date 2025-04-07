@@ -27,16 +27,20 @@ get('/api/recherche/livre', function(){
     ControleLivre::getBookBySearch();
 });
 
+// Emprunter un livre
+post('/api/emprunt/livre', function(){
+    ControleLivre::emprunterLivre();
+});
 
 // Ajouter un livre (admin)
-// post('/api/livre', function(){
-//     ControleLivre::createBook();
-// });
+post('/api/ajout/livre', function(){
+    ControleLivre::createBook();
+});
 
 // Supprimer un livre (admin)
-// delete('/api/livre/$id', function(){
-//     ControleLivre::deleteBook();
-// });
+delete('/api/supprimer/livre/$id', function($id){
+    ControleLivre::deleteBook($id);
+});
 /*------------------------Route pour les utilisateurs------------------------*/
 // Inscription client
 post('/api/register', function(){

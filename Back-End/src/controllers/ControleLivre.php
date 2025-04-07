@@ -44,6 +44,12 @@ class ControleLivre {
                 echo json_encode(['error' => 'Erreur d’encodage JSON: ' . json_last_error_msg()]);
                 exit();
             }
+            // Si déjà emprunté
+            foreach($books as &$book) {
+                $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
+                $query2->execute([$book['id_livre']]);
+                $book['deja_emprunter'] = $query2->fetchColumn() > 0;
+            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -80,6 +86,13 @@ class ControleLivre {
             $bookquery = $pdo->prepare($query);
             $bookquery->execute($params);
             $books = $bookquery->fetchAll();
+            
+            // Si déjà emprunté
+            foreach($books as &$book) {
+                $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
+                $query2->execute([$book['id_livre']]);
+                $book['deja_emprunter'] = $query2->fetchColumn() > 0;
+            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -120,75 +133,134 @@ class ControleLivre {
             ':search2' => $search,
             ':search3' => $search
             ]);
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode($result);
+            $books = $query->fetchAll(PDO::FETCH_ASSOC);
+
+            // Si déjà emprunté
+            foreach($books as &$book) {
+                $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
+                $query2->execute([$book['id_livre']]);
+                $book['deja_emprunter'] = $query2->fetchColumn() > 0;
+            }
+            echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
         }
      }
  
+    public static function emprunterLivre(){
+        global $pdo;
 
-//     // À completer plus tard
-//     public static function createBook() {
-//         global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
 
-//         header('Access-Control-Allow-Origin: *');
-//         header('Content-Type: application/json; charset=utf-8');
+        $data = json_decode(file_get_contents("php://input"), true);
 
-//         $data = json_decode(file_get_contents('php://input'), true);
-//         if (!isset($data['image'], $data['titre'], $data['auteur_id'], $data['description'], 
-//             $data['style'],$data['date_parution'])) {
-//             http_response_code(400);
-//             echo json_encode(['error' => 'Données incomplètes']);
-//             exit;
-//         }
+        // vérifier que l'utilisateur est connecté
+        if(!isset($_SESSION['utilisateur_id'])){
+            http_response_code(401);
+            // Rediriger vers la page pour ce connecté ********************************
+            echo json_encode(["error" => "Vous devez vous connecter pour poursuivre l'emprunt"]);
+            exit;
+        }
 
-//         try {
-//             $query = ('INSERT INTO livre (image, titre, auteur_id, description, style, date_parution) 
-//             VALUES (:image, :titre, :auteur_id, :description, :style, :date_parution)');
-//             $requete = $pdo->prepare($query);
-//             $requete->execute([
-//                 ':image' => $data['image'] ?? null,
-//                 ':titre' => $data['titre'] ?? null,
-//                 ':auteur_id' => $data['auteur_id'] ?? null,
-//                 ':description' => $data['description'] ?? null,
-//                 ':style' => $data['style'] ?? null,
-//                 ':date_parution' => $data['date_parution'] ?? null,
-//             ]);
-//             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
-//         } catch (PDOException $e) {
-//             http_response_code(500);
-//             echo json_encode(['error' => $e->getMessage()]);
-//         }
-//     }
+        // vérifier le livre
+        if(!isset($data['livre_id'])){
+            http_response_code(400);
+            echo json_encode(["error" => "Pas de livre sélectionné"]);
+            exit;
+        }
 
-//     // À completer plus tard
-//     public static function deleteBook() {
-//         global $pdo;
+        $utilisateurId = $_SESSION['utilisateur_id'];
+        $livreId = $data['livre_id'];
 
-//         header('Access-Control-Allow-Origin: *');
-//         header('Content-Type: application/json; charset=utf-8');
+    
+        try{
+            //vérifier si le livre est déjà emprunté
+            $query = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
+            $query->execute([$livreId]);
 
-//         $data = json_decode(file_get_contents("php://input"), true);
+            if($query->fetchColumn() > 0){
+                http_response_code(409);
+                echo json_encode(["error" => "Ce livre est déja emprunté"]);
+                exit;
+            }
 
-//         if(!isset($data['id'])){
-//             http_response_code(400);
-//             echo json_encode(['error' => 'id manquant']);
-//             exit();
-//         }
+            // emprunter le livre 
+            $query2 = $pdo->prepare("INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
+            VALUES (CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 14 DAY), ?, ?)");
+            $query2 -> execute([$livreId, $utilisateurId]);
+            http_response_code(201);
+            echo json_encode(["success" => true, "message" => "Livre emprunté!"]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Erreur:" . $e->getMessage()]);
+        }
+    
+    }
+
+    // Créer un livre pour l'admin
+    public static function createBook() {
+        global $pdo;
+
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (!isset($data['image'], $data['titre'], $data['auteur_id'], $data['description'], 
+                $data['categorie_id'], $data['langue_id'], $data['date_parution'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Données incomplètes']);
+            exit;
+        }
+
+        try {
+            $query = ("INSERT INTO Livre (image, titre, auteur_id, description, categorie_id, langue_id, date_parution)
+            VALUES (:image, :titre, :auteur_id, :description, :categorie_id, :langue_id, :date_parution)
+            ");
+            $requete = $pdo->prepare($query);
+            $requete->execute([
+                ':image' => $data['image'],
+                ':titre' => $data['titre'],
+                ':auteur_id' => $data['auteur_id'],
+                ':description' => $data['description'],
+                ':categorie_id' => $data['categorie_id'],
+                ':langue_id' => $data['langue_id'],
+                ':date_parution' => $data['date_parution'],
+            ]);
+            echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    //Supprimer un livre pour l'admin
+    public static function deleteBook($id) {
+        global $pdo;
+
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        if(!$id){
+            http_response_code(400);
+            echo json_encode(['error' => 'id manquant']);
+            exit();
+        }
         
-    //     try {
-    //         $query = ('DELETE FROM livre WHERE id = :id');
-    //         $requete = $pdo->prepare($query);
-    //         $requete->bindParam(':id', $id, PDO::PARAM_INT);
-    //         $requete->execute();
-    //         echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
-    //     } catch (PDOException $e) {
-    //         http_response_code(500);
-    //         echo json_encode(['error' => $e->getMessage()]);
-    //     }
-    // }
+        try {
+            $query = ('DELETE FROM Livre WHERE id_livre = :id');
+            $requete = $pdo->prepare($query);
+            $requete->bindParam(':id', $id, PDO::PARAM_INT);
+            $requete->execute();
+            echo json_encode(['success' => true, 'message' => 'Livre supprimé avec succès']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 
 }
 ?>

@@ -285,7 +285,55 @@ function addLivre(livre) {
     description.append(ul);
     bookContainer.append(description);  // Fixed: append to bookContainer instead of undefined 'activite'
 
+    // button section
+    let bouton = document.createElement("button");
+    bouton.className = "btn-emprunt";
+    bouton.style.backgroundColor = "white";
+    bouton.disabled = livre.deja_emprunter;
+    // Vérifier si le livre est déjà emprunté
+    if (livre.deja_emprunter){
+        bouton.disabled = true;
+        bouton.textContent = "Déjà emprunté";
+        bouton.style.background = "gray";
+    } else {
+        bouton.textContent= "Emprunter";
+        bouton.addEventListener("click", () => {
+            if (confirm(`Vous voulez emprunter ce livre ?`)) {
+                const utilisateur = JSON.parse(localStorage.getItem("user"));
+                if(!utilisateur){
+                    alert("Vous devez vous connecter pour effectuer cette action !");
+                    return;
+                }
+                empruntLivre(livre.id_livre,bouton); 
+            }
+        })
+    }
+    description.append(bouton);
     return tr;
+}
+
+function empruntLivre(livreId, bouton){
+    fetch("http://localhost:8000/api/emprunt/livre", {
+        method:"POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({livre_id: livreId})
+    })
+        .then (response =>{
+            if (!response.ok){
+                return response.json().then(err=>{throw new Error(err.error);});
+            }
+            return response.json();
+        })
+        .then (data =>{
+            console.log("Réponse de l'emprunt :", data);
+            alert("Livre emprunté!");
+            bouton.disabled=true;
+            bouton.textContent = "Déjà emprunté";
+            bouton.style.backgroundColor = "gray";
+        })
+        .catch(error => {
+            console.error("Erreur de fetch:", error);
+            alert("Erreur : " + error.message);
+        })
 }
 
 // Your existing li helper function
