@@ -15,7 +15,11 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (nomPage == 'Admin') {
         console.log("Page Admin");
 
-    } else {
+    } else if (nomPage == 'InfoLivre') {
+        console.log("Page InfoLivre");
+
+    }  
+    else {
         console.log('Rien à faire.');
     }
 });
@@ -319,8 +323,8 @@ function addLivre(livre) {
         bouton.textContent= "Emprunter";
         bouton.addEventListener("click", () => {
             if (confirm(`Vous voulez emprunter ce livre ?`)) {
-                const utilisateur = JSON.parse(localStorage.getItem("user"));
-                if(!utilisateur){
+                const userData = localStorage.getItem('user');
+                if(userData == null){
                     alert("Vous devez vous connecter pour effectuer cette action !");
                     return;
                 }
