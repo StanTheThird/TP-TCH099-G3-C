@@ -401,10 +401,19 @@ async function emprunter(livreId, bouton, event = null) {
 function SetUpNavigation() {
     const nav = document.getElementById('navigation');
     nav.innerHTML = ''; // Vide le menu avant reconstruction
+    const menuButton = document.querySelector('.btn-menu a'); // Sélectionne le bouton Menu
 
     // Récupère les données utilisateur depuis le localStorage
     const userData = localStorage.getItem('user');
     const isConnected = userData !== null; // Vérifie si un utilisateur est connecté
+
+    // Mettre à jour le texte du bouton Menu
+    if (isConnected) {
+        const user = JSON.parse(userData);
+        menuButton.innerHTML = `<img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30"> ${user.nom_utilisateur}`;
+    } else {
+        menuButton.innerHTML = `<img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30"> Menu`;
+    }
 
     // Fonction pour créer un élément de menu
     const createMenuItem = (text, href = '#', onClick = null) => {
@@ -424,15 +433,12 @@ function SetUpNavigation() {
         return li;
     };
 
+    // Ajout du bouton Accueil pour tous les utilisateurs
+    nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
+
     // Menu pour utilisateur connecté
     if (isConnected) {
         const user = JSON.parse(userData);
-        
-        // Accueil
-        nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
-        
-        // Nom d'utilisateur (non cliquable)
-        nav.appendChild(createMenuItem(user.nom_utilisateur));
         
         // Historique
         nav.appendChild(createMenuItem('Historique', 'historique.html'));
@@ -449,12 +455,9 @@ function SetUpNavigation() {
     } 
     // Menu pour visiteur non connecté
     else {
-        nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
         nav.appendChild(createMenuItem('Connexion', 'connexion.html'));
         nav.appendChild(createMenuItem('Enregistrement', 'enregistrement.html'));
     }
-
-    
 }
 
 async function ShowHistorique() {

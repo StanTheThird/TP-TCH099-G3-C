@@ -348,3 +348,21 @@
   [hidden] {
     display: none;
   }
+/* Top right corner menu
+     ========================================================================== */
+  
+  /**
+   * Add the correct display in IE 10+.
+   */
+
+  .btn-menu a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.btn-menu img {
+    vertical-align: middle;
+}
