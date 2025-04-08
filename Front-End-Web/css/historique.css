@@ -144,3 +144,67 @@ a,button{
     color: black;
     box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
 }
+
+/* Style de base pour la page historique */
+.conteneurPrincipal {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.conteneurHistorique {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.aucun-emprunt {
+    text-align: center;
+    color: #666;
+    font-size: 1.2em;
+    padding: 40px 0;
+}
+
+/* Style du tableau */
+.table-historique {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.table-historique th, 
+.table-historique td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-historique th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.table-historique tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Style des statuts */
+.statut {
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.statut.en-cours {
+    color: #28a745;
+}
+
+.statut.en-retard {
+    color: #dc3545;
+}
+
+.statut.retourné {
+    color: #6c757d;
+}
