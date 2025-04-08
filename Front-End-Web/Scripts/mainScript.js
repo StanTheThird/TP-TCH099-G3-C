@@ -1,11 +1,13 @@
 document.addEventListener("DOMContentLoaded", () => {
     SetUpNavigation();
     const nomPage = document.title;
+
     if(nomPage == "BiblioSmart"){
         console.log("Page Principale");
         const url = new URL(window.location.href);
         const id = new URLSearchParams(url.search).get("id");
         populateFiltres();
+        sessionStorage.removeItem('admin');
     } else if (nomPage == 'Connexion') {
         console.log("Page Connexion");
         SetupLogin();
@@ -15,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (nomPage == 'Admin') {
         console.log("Page Admin");
         displayAllBooks();
+        setUpModalAjoutLivre();
     } else if (nomPage == 'InfoLivre') {
         console.log("Page InfoLivre");
         SetUpLivreInfo();
@@ -328,24 +331,57 @@ function SetUpLivreInfo() {
         addInfo('Auteur', `${livreData.prenom_auteur} ${livreData.nom_auteur}`);
     }
 
-    // Gérer le bouton d'emprunt
-    const btnEmprunt = document.getElementById('btn-emprunt');
-    if (livreData.deja_emprunter) {
-        btnEmprunt.disabled = true;
-        btnEmprunt.textContent = "Déjà emprunté";
-        //btnEmprunt.style.background = "gray";
-    } else {
-        btnEmprunt.addEventListener('click', () => {
-            if (!localStorage.getItem('user')) {
-                alert("Veuillez vous connecter pour emprunter ce livre !");
-                return;
-            }
-            
-            if (confirm(`Voulez-vous emprunter "${livreData.titre}" ?`)) {
-                emprunter(livreData.id_livre, btnEmprunt);
+    // Gérer le bouton d'emprunt ET DE SUPPRESION
+    const conteneurBtn = document.getElementById('conteneur-btn');
+    conteneurBtn.innerHTML = '';
+    
+    // Si admin : bouton SUPPRIMER
+    if (sessionStorage.getItem('admin') === 'true') {
+        const btnSupprimer = document.createElement('button');
+        btnSupprimer.textContent = "Supprimer ce livre";
+        btnSupprimer.className = "btn-supprimer";
+    
+        btnSupprimer.addEventListener('click', async () => {
+            if (!confirm(`Confirmer la suppression de "${livreData.titre}" ?`)) return;
+    
+            try {
+                const response = await fetch(`http://localhost:8000/api/supprimer/livre/${livreData.id_livre}`, {
+                    method: 'DELETE'
+                });
+    
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error);
+    
+                alert("Livre supprimé avec succès !");
+                window.location.href = "admin.html";
+            } catch (error) {
+                alert("Erreur : " + error.message);
             }
         });
+        conteneurBtn.appendChild(btnSupprimer);
+    } else {       // Sinon : bouton EMPRUNTER
+        const btnEmprunt = document.createElement('button');
+        btnEmprunt.className = 'btn-emprunt';
+        
+        if (livreData.deja_emprunter) {
+            btnEmprunt.disabled = true;
+            btnEmprunt.textContent = "Déjà emprunté";
+            btnEmprunt.style.background = "gray";
+        } else {
+            btnEmprunt.textContent = "Emprunter";
+            btnEmprunt.addEventListener('click', () => {
+                if (!localStorage.getItem('user')) {
+                    alert("Veuillez vous connecter pour emprunter ce livre !");
+                    return;
+                }
+                if (confirm(`Voulez-vous emprunter "${livreData.titre}" ?`)) {
+                    emprunter(livreData.id_livre, btnEmprunt);
+                }
+            });
+        }
+        conteneurBtn.appendChild(btnEmprunt);
     }
+    
 }
 
 // Gère l'emprunt d'un livre
@@ -449,5 +485,169 @@ function SetUpNavigation() {
         nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
         nav.appendChild(createMenuItem('Connexion', 'connexion.html'));
         nav.appendChild(createMenuItem('Enregistrement', 'enregistrement.html'));
+    }
+}
+
+// création des éléments pour la bar des "filtres" + affiche tous les livres
+function displayAllBooks() {
+    const filtreContainer = document.getElementById("admin");
+
+    const titre = filtreContainer.querySelector('h1');
+    filtreContainer.innerHTML = '';
+    // Pour garder le titre "Administrateur"
+    if (titre) filtreContainer.appendChild(titre);
+
+    // Créer bar pour barre de recherche + le bouton pour ajouter un livre
+    const bar = document.createElement('div');
+    bar.className = 'admin-bar';
+
+    const rechercheLabel = document.createElement('label');
+    rechercheLabel.textContent = " 🔎 ";
+    rechercheLabel.setAttribute('for', 'rechercheLivre');
+
+    const champRecherche = document.createElement('input');
+    champRecherche.type = "text";
+    champRecherche.id = "rechercheLivre";
+    champRecherche.placeholder = "Entrez un titre ou un auteur...";
+    champRecherche.className = "champ-recherche";
+
+    champRecherche.addEventListener('input', () => {
+        let search = champRecherche.value.trim();
+        displayBooksFromSearch(search);
+    });
+
+    // création du bouton pour ajouter un livre
+    const boutonAjout = document.createElement('button');
+    boutonAjout.textContent = "+ Livre";
+    boutonAjout.className = 'btn-ajout-livre';
+    // boutonAjout.addEventListener('click', () => {
+    //     const modal = document.getElementById('addLivreModal');
+    //     if (modal) {
+    //         modal.style.display = 'flex'; // Affiche la modal (voir CSS)
+    //     }
+    // });
+
+    // Ajoute tout dans la barre de "filtre"
+    bar.append(rechercheLabel, champRecherche, boutonAjout);
+    filtreContainer.appendChild(bar);
+
+    // Récupere tous les livres
+    fetch("http://localhost:8000/api/livre")
+        .then(response => {
+            if (!response.ok) throw new Error(`erreur HTTP: ${response.status}`);
+            return response.json();
+        })
+        .then(books => {
+            const conteneur = document.getElementById("conteneur_livres_admin");
+            conteneur.innerHTML = '';
+            books.forEach(livre => {
+                conteneur.appendChild(createAdminLivre(livre));
+            });
+        })
+        .catch(error => {
+            console.error("Erreur chargement des livres :", error);
+        });
+}
+
+
+function displayBooksFromSearch(search) { 
+    fetch(`http://localhost:8000/api/livre/recherche-filtre?search=${encodeURIComponent(search)}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur recherche');
+            return response.json();
+        })
+        .then(books => {
+            const conteneur = document.getElementById( "conteneur_livres_admin");
+            conteneur.innerHTML = '';
+            books.forEach(livre => {
+                    conteneur.appendChild(createAdminLivre(livre));
+            });
+        })
+        .catch(error => {
+            console.error("erreur recherche: ", error);
+        });
+}
+
+// Créeation des "cartes" pour les livres (côté admin)
+function createAdminLivre(livre) {
+    // Création de la carte qui va représenter le livre 
+    const carteLivre = document.createElement('div');
+    carteLivre.className = 'admin-livre-carte';
+
+    const image = document.createElement('img');
+    image.src = livre.image;
+    image.alt = livre.titre;
+
+    const titre = document.createElement('h3');
+    titre.textContent = livre.titre;
+
+    carteLivre.appendChild(image);
+    carteLivre.appendChild(titre);
+
+    // Au clic on va à la page livre info
+    carteLivre.addEventListener('click', () => {
+        sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
+        sessionStorage.setItem('admin', 'true');
+        window.location.href = "livreInfo.html";
+    });
+
+    return carteLivre;
+}
+
+// Fenêtre du formulaire pour ajouter un livre
+function setUpModalAjoutLivre(){
+    const modal = document.getElementById('addLivreModal');
+    const btnAnnuler = document.getElementById('btnAnnuler');
+    const formulaire = document.getElementById('formulaire');
+
+    // Ouvre le modal avec le bouton ajout
+    const boutonAjout = document.querySelector('.btn-ajout-livre');
+    if (boutonAjout && modal) {
+        boutonAjout.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+    }
+
+    // bouton annuler
+    if (btnAnnuler) {
+        btnAnnuler.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+
+    // Soumission du formulaire
+    if (formulaire) {
+        formulaire.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Les données rentrées
+            const data = {
+                image: document.getElementById('image').value,
+                titre: document.getElementById('titre').value,
+                description: document.getElementById('description').value,
+                date_parution: document.getElementById('dateParution').value,
+                auteur_id: 1,                   // À CHANGER
+                langue_id: 1,                   // À CHANGER
+                categorie_id: 1                 // À CHANGER
+            };
+            // Ajouter le livre
+            try {
+                const response = await fetch('http://localhost:8000/api/ajout/livre', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error);
+
+                alert("Livre ajouté !");
+                modal.style.display = 'none';
+                displayAllBooks();
+            } catch (error) {
+                alert("erreur : " + error.message);
+            }
+        });
     }
 }

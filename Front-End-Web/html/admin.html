@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>Admin</title>
     <link rel="stylesheet" href="/Front-End-Web/css/normalize.css">
-    <link rel="stylesheet" href="/Front-End-Web/css/accueil.css">
+    <link rel="stylesheet" href="/Front-End-Web/css/admin.css">
     <script src="../Scripts/mainScript.js"></script>
 </head>
 <body>
@@ -88,6 +88,25 @@
         </footer>
 
     </div>
+
+    <div class="modal" id="addLivreModal">
+        <div class="modal-content">
+          <h2>Ajouter un livre</h2>
+          <form id="formulaire">
+            <input type="text" id="titre" placeholder="Titre" required>
+            <input type="text" id="prenomAuteur" placeholder="Prénom de l'auteur" required>
+            <input type="text" id="nomAuteur" placeholder="Nom de l'auteur" required>
+            <input type="text" id="langue" placeholder="Langue" required>
+            <input type="text" id="categorie" placeholder="Catégorie" required>
+            <input type="date" id="dateParution" placeholder="Date de parution">
+            <input type="text" id="image" placeholder="URL de l'image">
+            <textarea id="description" placeholder="Description du livre"></textarea>
+            <button type="submit">Ajouter</button>
+            <button type="button" id="btnAnnuler">Annuler</button>
+          </form>
+        </div>
+      </div>
+      
 </body>
 
 </html>
