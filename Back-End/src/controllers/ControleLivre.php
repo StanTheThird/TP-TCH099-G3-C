@@ -103,12 +103,14 @@ class ControleLivre {
         header('Content-Type: application/json; charset=utf-8');
 
         $search = $_GET['search'] ?? '';
+        
 
+        //Tristan : J'ai retirer cette partie car elle faisait que le tout avait l'air quelque peut étrange.
         // Si la recherche à moins de deux caractères, alors aucun résultat affiché
-        if (strlen($search) < 2){
-            echo json_encode([]);
-            exit;
-        }
+        // if (strlen($search) < 2){
+        //     echo json_encode([]);
+        //     exit;
+        // }
 
         // Pour les résulats qui débute avec le terme dans $search
         // Pas au milieu ou à la fin
@@ -125,9 +127,9 @@ class ControleLivre {
             OR a.prenom LIKE :search3
             ");
             $query -> execute([
-            ':search1' => $search,
-            ':search2' => $search,
-            ':search3' => $search
+            ':search1' => "%$search%",
+            ':search2' => "%$search%",
+            ':search3' => "%$search%"
             ]);
             $books = $query->fetchAll(PDO::FETCH_ASSOC);
 
