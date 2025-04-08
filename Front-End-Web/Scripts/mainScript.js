@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         displayAllBooks();
     } else if (nomPage == 'InfoLivre') {
         console.log("Page InfoLivre");
-
+        SetUpLivreInfo();
     }   else {
         console.log('Rien à faire.');
     }
@@ -129,244 +129,243 @@ function SetUpRegister() {
 }
 
 
-function populateFiltres() {
-    fetch(`http://localhost:8000/api/livre`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des livres');
-            }
-            return response.json();
-        })
-        .then(data => {
-            createFiltre(data);
-            setDefaultValues();
-            filtrerFromOptions();
-        })
-        .catch(error => {
-            console.error('Erreur lors de la récupération des livres :', error);
-        });
+// Récupère les livres et initialise les filtres
+async function populateFiltres() {
+    try {
+        const response = await fetch(`http://localhost:8000/api/livre`);
+        if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
+        const data = await response.json();
+        createFiltre(data);
+        setDefaultValues();
+        filtrerFromOptions();
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
 }
 
 const typeDeFiltre = ["Categorie", "Langue"];
-function createFiltre(livres){
-    const filtre = document.getElementById('filtres'); //On cherche pour les emplacement de filtres
-    for (let i = 0; i < typeDeFiltre.length; i++) {
-        const label = document.createElement('label'); //Cree le label
-        label.textContent = typeDeFiltre[i];
-        label.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
-        filtre.appendChild(label); //On peut append le label, car on n'as plus de modification a faire dessus.
-        const select = document.createElement('select'); //Cree le select
-        select.id = typeDeFiltre[i];
-        select.name = typeDeFiltre[i];
-        select.setAttribute('for', 'filtre-' + typeDeFiltre[i]);
+
+// Crée les éléments de filtre dans le DOM
+function createFiltre(livres) {
+    const filtre = document.getElementById('filtres'); // Conteneur des filtres
+    
+    // Crée les filtres pour catégorie et langue
+    typeDeFiltre.forEach((type, index) => {
+        const label = document.createElement('label');
+        label.textContent = type;
+        label.htmlFor = `filtre-${type}`;
+        
+        const select = document.createElement('select');
+        select.id = type;
         select.className = 'option';
-        //On add un event listener sur les filtres
-        select.addEventListener('change', () => {
-            filtrerFromOptions();
+        select.addEventListener('change', filtrerFromOptions);
+        
+        // Option par défaut "Tous"
+        select.innerHTML = `<option value="Tous" selected>Tous</option>`;
+        
+        // Ajoute les options uniques
+        const options = new Set(livres.map(livre => index === 0 ? livre.categorie : livre.langue));
+        options.forEach(value => {
+            if (value) select.innerHTML += `<option value="${value}">${value}</option>`;
         });
-        //On cree l'option tous en premier
-        const optTous = document.createElement('option');
-        optTous.value = "Tous";
-        optTous.text = "Tous";
-        optTous.selected = true;
-        select.appendChild(optTous);
-        let dejaAjouter = [];
+        
+        filtre.append(label, select);
+    });
 
-        livres.forEach((livre) => {
-            let textTest;
-            switch (i) {
-                case 0:
-                    textTest = livre.categorie;
-                    break;
-                case 1:
-                    textTest = livre.langue;
-                    break;
-            }
-            if (!dejaAjouter.includes(textTest)) {                                              //Tristan du futur. tu doit modifier cette partie  et la remplacer par un UniqueSet = new Set(). Le tout devrait être plus efficace. 
-                const opt = document.createElement('option');
-                opt.value = textTest;
-                opt.text = textTest;
-                dejaAjouter.push(textTest);
-                select.appendChild(opt);
-            }
-
-        });
-
-        filtre.appendChild(select);
-    }
-
-    // Filtre pour la recherche
+    // Champ de recherche
     const recherche = document.createElement('label');
-    recherche.textContent = " 🔎 ";                                 // à changer pour un autre symbole (à trouver)
-    recherche.setAttribute('for', 'rechercheLivre');
-    filtre.appendChild(recherche);
-
+    recherche.textContent = " 🔎 "; // Symbole de recherche
+    recherche.htmlFor = "rechercheLivre";
+    
     const champRecherche = document.createElement('input');
     champRecherche.type = "text";
     champRecherche.id = "rechercheLivre";
     champRecherche.placeholder = "Entrez un titre/auteur...";
     champRecherche.className = "champ-recherche";
-
-    champRecherche.addEventListener('input', () =>{
-        filtrerFromOptions();
-    });
-
-    filtre.appendChild(champRecherche);
-
-}
-
-function filtrerFromOptions() {
-    const selectList = document.getElementsByClassName("option");
-    const rechercheTitre = document.getElementById("rechercheLivre")?.value || ""; 
-
-    const filters =
-    {
-        categorie: selectList[0].value,
-        langue: selectList[1].value,
-        titre: rechercheTitre.trim()
-
-    };
-    displayFilteredBooks(filters);
-}
-
-function displayFilteredBooks(filters) {
-    let url = "";
-    if (filters.titre && filters.titre.trim() !== ""){
-        url = `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
-    } else {
-        url = `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`
-    }
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des livres');
-            }
-            return response.json();
-        }) 
-        .then(data => {
-            let livres;
-            livres = data;
-            let conteneur = document.getElementById("conteneur_livres");
-            conteneur.innerHTML = "";
-            livres.forEach((livre) => {
-            conteneur.append(addLivre(livre));
-            });
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-        });
-}
-function setDefaultValues() {
-    const selectList = document.getElementsByClassName("option");
-
-    for(const select of selectList){
-        select.value = 'Tous';
-    }
-}
-
-//A remplacer                                                                               Cette partie n'est pas complète je ne connais pas encore tout les infos retourner par le php
-function addLivre(livre) {
-    let tr = document.createElement("tr");
-    let td = document.createElement("td");
-    tr.append(td);
-
-    // Main book container
-    let bookContainer = document.createElement("div");
-    bookContainer.className = "livreInfo";
-    td.append(bookContainer);
-
-    // Image section
-    let imgContainer = document.createElement("div");
-    imgContainer.className = "image";
-    let image = document.createElement("img");
-    image.src = livre.image || 'placeholder.jpg'; // Fallback image
-    image.alt = livre.titre || "Book cover";
-    imgContainer.append(image);
-    bookContainer.append(imgContainer);  // Fixed: append to bookContainer instead of livre
-
-    // Description section
-    let description = document.createElement("div");
-    description.className = "desc";
-
-    // Title
-    let h1 = document.createElement("h1");
-    h1.textContent = livre.titre;
-    description.append(h1);
-
-    // Details list
-    let ul = document.createElement("ul");
-
-    // Add book details using your li function
-    if (livre.description) li(livre.description, ul);
-    if (livre.categorie) li(`Catégorie: ${livre.categorie}`, ul);
-    if (livre.langue) li(`Langue: ${livre.langue}`, ul);
-    if (livre.date_parution) li(`Date de parution: ${livre.date_parution}`, ul);
-    if (livre.nom_auteur && livre.prenom_auteur) {
-        li(`Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}`, ul);
-    }
-
-    description.append(ul);
-    bookContainer.append(description);  // Fixed: append to bookContainer instead of undefined 'activite'
-
-    // button section
-    let bouton = document.createElement("button");
-    bouton.className = "btn-emprunt";
-    bouton.style.backgroundColor = "white";
-    bouton.disabled = livre.deja_emprunter;
-    // Vérifier si le livre est déjà emprunté
-    if (livre.deja_emprunter){
-        bouton.disabled = true;
-        bouton.textContent = "Déjà emprunté";
-        bouton.style.background = "gray";
-    } else {
-        bouton.textContent= "Emprunter";
-        bouton.addEventListener("click", () => {
-            if (confirm(`Vous voulez emprunter ce livre ?`)) {
-                const userData = localStorage.getItem('user');
-                if(userData == null){
-                    alert("Vous devez vous connecter pour effectuer cette action !");
-                    return;
-                }
-                empruntLivre(livre.id_livre,bouton); 
-            }
-        })
-    }
-    description.append(bouton);
-    return tr;
-}
-
-function empruntLivre(livreId, bouton){
-    const utilisateur = JSON.parse(localStorage.getItem("user"));
+    champRecherche.addEventListener('input', filtrerFromOptions);
     
-    fetch("http://localhost:8000/api/emprunt/livre", {
-        method:"POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({livre_id: livreId, utilisateur_id: utilisateur.id})
-    })
-        .then (response =>{
-            if (!response.ok){
-                return response.json().then(err=>{throw new Error(err.error);});
-            }
-            return response.json();
-        })
-        .then (data =>{
-            console.log("Réponse de l'emprunt :", data);
-            alert("Livre emprunté!");
-            bouton.disabled=true;
-            bouton.textContent = "Déjà emprunté";
-            bouton.style.backgroundColor = "gray";
-        })
-        .catch(error => {
-            console.error("Erreur de fetch:", error);
-            alert("Erreur : " + error.message);
-        })
+    filtre.append(recherche, champRecherche);
 }
 
-// Your existing li helper function
-function li(data, host) {
-    let li = document.createElement("li");
-    li.textContent = data;
-    host.append(li);
+// Applique les filtres sélectionnés
+function filtrerFromOptions() {
+    const selects = document.getElementsByClassName("option");
+    displayFilteredBooks({
+        categorie: selects[0]?.value || "Tous",
+        langue: selects[1]?.value || "Tous",
+        titre: document.getElementById("rechercheLivre")?.value.trim() || ""
+    });
 }
+
+// Affiche les livres filtrés
+async function displayFilteredBooks(filters) {
+    try {
+        const url = filters.titre 
+            ? `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
+            : `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`;
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
+        const livres = await response.json();
+        
+        const conteneur = document.getElementById("conteneur_livres");
+        conteneur.innerHTML = livres.map(livre => addLivre(livre)).join('');
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Réinitialise les filtres
+function setDefaultValues() {
+    document.querySelectorAll(".option").forEach(select => select.value = 'Tous');
+}
+
+// Crée un élément livre pour l'affichage
+// Crée un élément livre pour l'affichage
+function addLivre(livre) {
+    // 1. Conversion de l'objet livre en JSON pour le stockage
+    const livreJSON = JSON.stringify(livre);
+    
+    // 2. Création du HTML avec template literals
+    const estEmprunte = livre.deja_emprunter;
+    const boutonHTML = estEmprunte 
+        ? `<button class="btn-emprunt" disabled style="background:gray">Déjà emprunté</button>`
+        : `<button class="btn-emprunt" onclick="emprunter(${livre.id_livre}, this, event)">Emprunter</button>`;
+    
+    // 3. Retourne le HTML complet avec un gestionnaire de clic
+    return `
+        <tr><td>
+            <div class="livre" onclick="redirectToLivreInfo('${encodeURIComponent(livreJSON)}')">
+                <div class="livreInfo">
+                    <div class="image">
+                        <img src="${livre.image || 'placeholder.jpg'}" alt="${livre.titre || 'Couverture'}">
+                    </div>
+                    <div class="desc">
+                        <h1>${livre.titre}</h1>
+                        <ul>
+                            ${livre.description ? `<li>${livre.description}</li>` : ''}
+                            ${livre.categorie ? `<li>Catégorie: ${livre.categorie}</li>` : ''}
+                            ${livre.langue ? `<li>Langue: ${livre.langue}</li>` : ''}
+                            ${livre.date_parution ? `<li>Date de parution: ${livre.date_parution}</li>` : ''}
+                            ${livre.nom_auteur && livre.prenom_auteur 
+                                ? `<li>Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}</li>` : ''}
+                        </ul>
+                        ${boutonHTML}
+                    </div>
+                </div>
+            </div>
+        </td></tr>
+    `;
+}
+
+// Nouvelle fonction pour gérer la redirection
+function redirectToLivreInfo(livreJSON) {
+    sessionStorage.setItem('livreSelectionne', decodeURIComponent(livreJSON));
+    window.location.href = "livreInfo.html";
+}
+
+
+function SetUpLivreInfo() {
+    // Récupérer les données du livre depuis le localStorage
+    const livreData = JSON.parse(sessionStorage.getItem('livreSelectionne'));
+    
+    if (!livreData) {
+        alert("Aucun livre sélectionné !");
+        window.location.href = "accueil.html"; // Rediriger vers la page principale
+        return;
+    }
+
+    // Remplir la page avec les données du livre
+    document.getElementById('livre-titre').textContent = livreData.titre;
+    document.getElementById('livre-image').src = livreData.image || 'placeholder.jpg';
+    
+    const infosList = document.getElementById('livre-infos');
+    infosList.innerHTML = ''; // Vider la liste avant de la remplir
+    
+    const addInfo = (label, value) => {
+        if (value) {
+            const li = document.createElement('li');
+            li.innerHTML = `<strong>${label}:</strong> ${value}`;
+            infosList.appendChild(li);
+        }
+    };
+
+    addInfo('Description', livreData.description);
+    addInfo('Catégorie', livreData.categorie);
+    addInfo('Langue', livreData.langue);
+    addInfo('Date de parution', livreData.date_parution);
+    
+    if (livreData.nom_auteur && livreData.prenom_auteur) {
+        addInfo('Auteur', `${livreData.prenom_auteur} ${livreData.nom_auteur}`);
+    }
+
+    // Gérer le bouton d'emprunt
+    const btnEmprunt = document.getElementById('btn-emprunt');
+    if (livreData.deja_emprunter) {
+        btnEmprunt.disabled = true;
+        btnEmprunt.textContent = "Déjà emprunté";
+        btnEmprunt.style.background = "gray";
+    } else {
+        btnEmprunt.addEventListener('click', () => {
+            if (!localStorage.getItem('user')) {
+                alert("Veuillez vous connecter pour emprunter ce livre !");
+                return;
+            }
+            
+            if (confirm(`Voulez-vous emprunter "${livreData.titre}" ?`)) {
+                emprunter(livreData.id_livre, btnEmprunt);
+            }
+        });
+    }
+}
+
+// Gère l'emprunt d'un livre
+async function emprunter(livreId, bouton, event = null) {
+    if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+    
+    if (!localStorage.getItem('user')) {
+        alert("Veuillez vous connecter !");
+        return;
+    }
+    
+    if (!confirm("Confirmez l'emprunt ?")) return;
+    
+    try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        const response = await fetch("http://localhost:8000/api/emprunt/livre", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                livre_id: livreId, 
+                utilisateur_id: user.id
+            })
+        });
+        
+        if (!response.ok) throw new Error((await response.json()).error);
+        
+        if (bouton) {
+            bouton.disabled = true;
+            bouton.textContent = "Déjà emprunté";
+            bouton.style.background = "gray";
+        }
+        
+        alert("Emprunt réussi !");
+        
+        // Mise à jour en temps réel si sur la page InfoLivre
+        if (document.title == 'InfoLivre') {
+            const livreData = JSON.parse(sessionStorage.getItem('livreSelectionne'));
+            livreData.deja_emprunter = true;
+            sessionStorage.setItem('livreSelectionne', JSON.stringify(livreData));
+        }
+    } catch (error) {
+        console.error("Erreur:", error);
+        alert("Erreur: " + error.message);
+    }
+}
+
 function SetUpNavigation() {
     const nav = document.getElementById('navigation');
     nav.innerHTML = ''; // Vide le menu avant reconstruction
