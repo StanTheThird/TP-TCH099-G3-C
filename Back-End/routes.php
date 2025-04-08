@@ -45,7 +45,9 @@ post('/api/register', function(){
 post('/api/login', function(){
     ControleUtilisateur::userLogin();
 });
-
+post('/api/historique', function(){
+    ControleUtilisateur::getHistorique();
+});
 
 // route par défaut pour les erreurs 404
 // any('/404', function() {

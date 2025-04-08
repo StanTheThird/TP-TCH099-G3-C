@@ -18,7 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (nomPage == 'InfoLivre') {
         console.log("Page InfoLivre");
         SetUpLivreInfo();
-    }   else {
+    } else if (nomPage == 'Historique') {
+        console.log("Page Historique");
+        ShowHistorique();
+    }    else {
         console.log('Rien à faire.');
     }
 });
@@ -450,4 +453,104 @@ function SetUpNavigation() {
         nav.appendChild(createMenuItem('Connexion', 'connexion.html'));
         nav.appendChild(createMenuItem('Enregistrement', 'enregistrement.html'));
     }
+
+    
+}
+
+async function ShowHistorique() {
+    // Récupérer l'utilisateur connecté depuis le localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    if (!user) {
+        alert("Veuillez vous connecter pour accéder à votre historique");
+        window.location.href = "connexion.html";
+        return;
+    }
+
+    try {
+        // Envoyer la requête pour récupérer l'historique
+        const response = await fetch('http://localhost:8000/api/historique', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id_utilisateur: user.id })
+        });
+
+        if (!response.ok) {
+            throw new Error('Erreur lors de la récupération de l\'historique');
+        }
+
+        const historique = await response.json();
+
+        // Afficher l'historique
+        displayHistorique(historique);
+
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert(error.message);
+    }
+}
+
+function displayHistorique(historique) {
+    const conteneur = document.querySelector('.conteneurHistorique');
+    conteneur.innerHTML = ''; // Vider le conteneur
+
+    if (historique.length === 0) {
+        conteneur.innerHTML = '<p class="aucun-emprunt">Aucun emprunt dans votre historique</p>';
+        return;
+    }
+
+    // Créer un tableau pour afficher l'historique
+    const table = document.createElement('table');
+    table.className = 'table-historique';
+    
+    // En-tête du tableau
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>Titre du livre</th>
+            <th>Date d'emprunt</th>
+            <th>Date limite</th>
+            <th>Date de retour</th>
+            <th>Statut</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    // Corps du tableau
+    const tbody = document.createElement('tbody');
+    historique.forEach(emprunt => {
+        const row = document.createElement('tr');
+        
+        // Déterminer le statut
+        let statut = '';
+        if (emprunt.date_retour) {
+            statut = 'Retourné';
+        } else {
+            const today = new Date();
+            const dateLimite = new Date(emprunt.date_limite);
+            statut = today > dateLimite ? 'En retard' : 'En cours';
+        }
+
+        row.innerHTML = `
+            <td>${emprunt.livre.titre}</td>
+            <td>${formatDate(emprunt.date_emprunt)}</td>
+            <td>${formatDate(emprunt.date_limite)}</td>
+            <td>${emprunt.date_retour ? formatDate(emprunt.date_retour) : '-'}</td>
+            <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+    
+    table.appendChild(tbody);
+    conteneur.appendChild(table);
+}
+
+// Fonction utilitaire pour formater la date
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('fr-CA'); // Format: AAAA-MM-JJ
 }

@@ -116,6 +116,101 @@ class ControleUtilisateur{
             echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);
         }
     }
+    public static function getHistorique() {
+        // Partie importante ne pas retirer: 
+        require_once __DIR__ . "/../../config.php"; 
+        global $pdo;
+        
+        // Configuration des headers
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET, POST');
+        header('Access-Control-Allow-Headers: Content-Type');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        // Récupérer l'ID utilisateur depuis les paramètres de la requête
+        $data = json_decode(file_get_contents('php://input'), true);
+        $userId = $data['id_utilisateur'] ?? null;
+    
+        if (!$userId) {
+            http_response_code(400);
+            echo json_encode(["error" => "ID utilisateur manquant"]);
+            exit;
+        }
+    
+        try {
+            // Requête pour récupérer l'historique des emprunts
+            $query = $pdo->prepare("
+                SELECT 
+                    e.id_emprunt,
+                    e.date_emprunt,
+                    e.date_limite,
+                    e.date_retour,
+                    l.id_livre,
+                    l.titre,
+                    l.image,
+                    a.nom AS auteur_nom,
+                    a.prenom AS auteur_prenom,
+                    c.nom AS categorie,
+                    lang.nom AS langue,
+                    s.montant AS amende,
+                    s.date_limite_paiement AS date_limite_amende
+                FROM 
+                    Emprunt e
+                JOIN 
+                    Livre l ON e.livre_id = l.id_livre
+                JOIN 
+                    Auteur a ON l.auteur_id = a.id_auteur
+                JOIN 
+                    Categorie c ON l.categorie_id = c.id_categorie
+                JOIN 
+                    Langue lang ON l.langue_id = lang.id_langue
+                LEFT JOIN 
+                    Solde s ON e.id_emprunt = s.emprunt_id
+                WHERE 
+                    e.utilisateur_id = ?
+                ORDER BY 
+                    e.date_emprunt DESC
+            ");
+            
+            $query->execute([$userId]);
+            $historique = $query->fetchAll(PDO::FETCH_ASSOC);
+    
+            if (empty($historique)) {
+                http_response_code(404);
+                echo json_encode(["message" => "Aucun emprunt trouvé pour cet utilisateur"]);
+                return;
+            }
+    
+            // Formater les données pour la réponse
+            $response = [];
+            foreach ($historique as $emprunt) {
+                $response[] = [
+                    'id_emprunt' => $emprunt['id_emprunt'],
+                    'date_emprunt' => $emprunt['date_emprunt'],
+                    'date_limite' => $emprunt['date_limite'],
+                    'date_retour' => $emprunt['date_retour'],
+                    'livre' => [
+                        'id' => $emprunt['id_livre'],
+                        'titre' => $emprunt['titre'],
+                        'image' => $emprunt['image'],
+                        'auteur' => $emprunt['auteur_prenom'] . ' ' . $emprunt['auteur_nom'],
+                        'categorie' => $emprunt['categorie'],
+                        'langue' => $emprunt['langue']
+                    ],
+                    'amende' => $emprunt['amende'] ? [
+                        'montant' => $emprunt['amende'],
+                        'date_limite_paiement' => $emprunt['date_limite_amende']
+                    ] : null
+                ];
+            }
+    
+            http_response_code(200);
+            echo json_encode($response);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);
+        }
+    }
     
 }
 
