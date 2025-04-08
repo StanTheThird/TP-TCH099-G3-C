@@ -176,6 +176,7 @@ function createFiltre(livres) {
     const recherche = document.createElement('label');
     recherche.textContent = " 🔎 "; // Symbole de recherche
     recherche.htmlFor = "rechercheLivre";
+    recherche.id="symbole";
     
     const champRecherche = document.createElement('input');
     champRecherche.type = "text";
@@ -304,7 +305,7 @@ function SetUpLivreInfo() {
     if (livreData.deja_emprunter) {
         btnEmprunt.disabled = true;
         btnEmprunt.textContent = "Déjà emprunté";
-        btnEmprunt.style.background = "gray";
+        //btnEmprunt.style.background = "gray";
     } else {
         btnEmprunt.addEventListener('click', () => {
             if (!localStorage.getItem('user')) {

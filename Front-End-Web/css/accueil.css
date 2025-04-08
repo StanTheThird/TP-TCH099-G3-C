@@ -101,6 +101,13 @@ html, body {
     margin-right: 2.5rem;
 
 }
+#symbole{
+    margin-left: 33rem;
+}
+#rechercheLivre{
+    padding-right: 0.5rem;
+    width: 15rem;
+}
 
 /* ---------------- style conteneur activités ---------------- */
 #conteneur_livres {
@@ -126,7 +133,7 @@ html, body {
 /* ----- action sur l'activité ----- */
 .livreInfo:hover {
     background: linear-gradient(#fcff65c7 , #f8983f9d,#f55b34bd);
-    background: linear-gradient(#66c7d8e8 , #6cace7ee,#efb9fa);
+    /*background: linear-gradient(#66c7d8e8 , #6cace7ee,#efb9fa);*/
 
 
 }
@@ -189,13 +196,15 @@ a,button{
 }
 
 /* ---------------- style bouton ---------------- */
-.appliquer {
-    background-color: rgb(207, 115, 115);
-    padding: 0.33rem 1.56rem;
+
+.btn-emprunt {
+    background:linear-gradient(to right,#62C4E8,#CE8DFF);
+    padding: 0.63rem 1.56rem;
     transition-duration: 0.4s;
     border-radius: 0.44rem;
     cursor: pointer;
-    margin-left: 0.5rem;
+    margin-left: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 /* ----- action sur le bouton ----- */
