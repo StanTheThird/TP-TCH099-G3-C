@@ -116,7 +116,7 @@ class ControleUtilisateur{
             echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);
         }
     }
-    public static function getHistorique() {
+    public static function getHistorique($userId) {
         // Partie importante ne pas retirer: 
         require_once __DIR__ . "/../../config.php"; 
         global $pdo;
@@ -127,9 +127,9 @@ class ControleUtilisateur{
         header('Access-Control-Allow-Headers: Content-Type');
         header('Content-Type: application/json; charset=utf-8');
     
-        // Récupérer l'ID utilisateur depuis les paramètres de la requête
-        $data = json_decode(file_get_contents('php://input'), true);
-        $userId = $data['id_utilisateur'] ?? null;
+        // // Récupérer l'ID utilisateur depuis les paramètres de la requête
+        // $data = json_decode(file_get_contents('php://input'), true);
+        // $userId = $data['id_utilisateur'] ?? null;
     
         if (!$userId) {
             http_response_code(400);

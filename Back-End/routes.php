@@ -32,7 +32,7 @@ post('/api/login', function(){
 // TA NOUVELLE ROUTE HISTORIQUE (GET) ↓
 get('/api/historique/$id', function($id){
     require_once './src/controllers/ControleHistorique.php';
-    ControleHistorique::getHistoriqueByUser($id);
+    ControleUtilisateur::getHistorique($id);
 });
 
 
