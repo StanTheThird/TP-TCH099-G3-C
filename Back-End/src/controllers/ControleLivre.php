@@ -55,97 +55,67 @@ class ControleLivre {
 
     public static function getAllBookFiltre() {
         global $pdo;
-        
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
 
-        $categorie = isset($_GET['Categorie']) ? $_GET['Categorie'] : null;        
-        $langue = isset($_GET['Langue']) ? $_GET['Langue'] : null;
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json; charset=utf-8');
 
-        try {
-            $query = ('SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur            
-            FROM Livre l
-            INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
-            INNER JOIN Langue la ON l.langue_id = la.id_langue
-            ');
-            $params = [];
-            if (!empty($categorie) && $categorie !== "Tous") {
-                $query .= ' AND c.nom = :Categorie';
-                $params['Categorie'] = $categorie;
-            }
-            if (!empty($langue) && $langue !== "Tous") {
-                $query .= ' AND la.nom = :Langue';
-                $params['Langue'] = $langue;
-            }
+    $search = $_GET['search'] ?? '';
+    $categorie = $_GET['Categorie'] ?? null;
+    $langue = $_GET['Langue'] ?? null;
 
-            $bookquery = $pdo->prepare($query);
-            $bookquery->execute($params);
-            $books = $bookquery->fetchAll();
-            
-            // Si déjà emprunté
-            foreach($books as &$book) {
-                $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
-                $query2->execute([$book['id_livre']]);
-                $book['deja_emprunter'] = $query2->fetchColumn() > 0;
-            }
-            echo json_encode($books);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+    $search = trim($search);
+    $params = [];
+    
+    $query = "SELECT l.id_livre, l.image, l.titre, l.description, l.date_parution,  
+                    c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur
+              FROM Livre l
+              INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+              INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+              INNER JOIN Langue la ON l.langue_id = la.id_langue
+              WHERE 1=1";
+
+    // Filtre texte (titre ou auteur)
+    if (!empty($search)) {
+        $query .= " AND (
+            l.titre LIKE :searchTitre 
+            OR a.nom LIKE :searchNom 
+            OR a.prenom LIKE :searchPrenom
+        )";
+        $params['searchTitre'] = "%$search%";
+        $params['searchNom'] = "%$search%";
+        $params['searchPrenom'] = "%$search%";
+    }
+
+    // Filtre catégorie
+    if (!empty($categorie) && $categorie !== "Tous") {
+        $query .= " AND c.nom = :categorie";
+        $params['categorie'] = $categorie;
+    }
+
+    // Filtre langue
+    if (!empty($langue) && $langue !== "Tous") {
+        $query .= " AND la.nom = :langue";
+        $params['langue'] = $langue;
+    }
+
+    try {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Vérifier les emprunts
+        foreach ($books as &$book) {
+            $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
+            $stmt2->execute([$book['id_livre']]);
+            $book['deja_emprunter'] = $stmt2->fetchColumn() > 0;
         }
-     }
 
-     public static function getBookBySearch(){
-        global $pdo;
-
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
-
-        $search = $_GET['search'] ?? '';
-        
-
-        //Tristan : J'ai retirer cette partie car elle faisait que le tout avait l'air quelque peut étrange.
-        // Si la recherche à moins de deux caractères, alors aucun résultat affiché
-        // if (strlen($search) < 2){
-        //     echo json_encode([]);
-        //     exit;
-        // }
-
-        // Pour les résulats qui débute avec le terme dans $search
-        // Pas au milieu ou à la fin
-        $search = "$search%";
-
-        try {
-            $query = $pdo -> prepare("SELECT l.id_livre, l.image, l.titre, l.description,l.date_parution,  c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, a.prenom AS prenom_auteur     
-            FROM Livre l
-            INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
-            INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
-            INNER JOIN Langue la ON l.langue_id = la.id_langue
-            WHERE l.titre LIKE :search1
-            OR a.nom LIKE :search2
-            OR a.prenom LIKE :search3
-            ");
-            $query -> execute([
-            ':search1' => "%$search%",
-            ':search2' => "%$search%",
-            ':search3' => "%$search%"
-            ]);
-            $books = $query->fetchAll(PDO::FETCH_ASSOC);
-
-            // Si déjà emprunté
-            foreach($books as &$book) {
-                $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
-                $query2->execute([$book['id_livre']]);
-                $book['deja_emprunter'] = $query2->fetchColumn() > 0;
-            }
-            echo json_encode($books);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        }
-     }
- 
+        echo json_encode($books);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+}
     public static function emprunterLivre(){
         global $pdo;
 

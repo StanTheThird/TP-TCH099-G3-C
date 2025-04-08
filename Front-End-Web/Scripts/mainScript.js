@@ -200,9 +200,14 @@ function filtrerFromOptions() {
 
 // Affiche les livres filtrés
 async function displayFilteredBooks(filters) {
-    const url = filters.titre
-        ? `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
-        : `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`;
+    const params = new URLSearchParams();
+
+    if (filters.titre) params.append('search', filters.titre);
+    if (filters.categorie && filters.categorie !== "Tous") params.append('Categorie', filters.categorie);
+    if (filters.langue && filters.langue !== "Tous") params.append('Langue', filters.langue);
+
+    const url = `http://localhost:8000/api/livre/recherche-filtre?${params.toString()}`;
+
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
@@ -210,8 +215,7 @@ async function displayFilteredBooks(filters) {
 
         const conteneur = document.getElementById("conteneur_livres");
         conteneur.innerHTML = '';
-        livres.forEach(addLivre); 
-
+        livres.forEach(addLivre);
     } catch (error) {
         console.error('Erreur:', error);
     }

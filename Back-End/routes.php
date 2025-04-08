@@ -12,19 +12,14 @@ get('/api/livre', function(){
     ControleLivre::getAllBooks();
 });
 
-// Récupérer tous les livres filtrés
-get('/api/livre/filter', function(){
+//Récupérer tous les livres filtré (filtre + barre de recherche)
+get('/api/livre/recherche-filtre', function(){
     ControleLivre::getAllBookFiltre();
 });
 
 // Récupérer un livre
 get('/api/livre/$id', function($id){
     ControleLivre::getBook($id);
-});
-
-// Rechercher un livre
-get('/api/recherche/livre', function(){
-    ControleLivre::getBookBySearch();
 });
 
 // Emprunter un livre
