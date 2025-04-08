@@ -118,7 +118,7 @@ html, body {
     overflow-y: scroll;
     scroll-snap-type: y proximity;
     height: 100%; 
-    min-height: 30rem;
+    max-height: 30rem;
 }
 /* ----- style de chaque activité ----- */
 .livreInfo {

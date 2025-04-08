@@ -250,57 +250,57 @@ function SetUpLivreInfo() {
     if (livreData.nom_auteur && livreData.prenom_auteur) {
         addInfo('Auteur', `${livreData.prenom_auteur} ${livreData.nom_auteur}`);
     }
- // Gérer le bouton d'emprunt ET DE SUPPRESION
- const conteneurBtn = document.getElementById('conteneur-btn');
- conteneurBtn.innerHTML = '';
- 
- // Si admin : bouton SUPPRIMER
- if (sessionStorage.getItem('admin') === 'true') {
-     const btnSupprimer = document.createElement('button');
-     btnSupprimer.textContent = "Supprimer ce livre";
-     btnSupprimer.className = "btn-supprimer";
- 
-     btnSupprimer.addEventListener('click', async () => {
-         if (!confirm(`Confirmer la suppression de "${livreData.titre}" ?`)) return;
- 
-         try {
-             const response = await fetch(`http://localhost:8000/api/supprimer/livre/${livreData.id_livre}`, {
-                 method: 'DELETE'
-             });
- 
-             const result = await response.json();
-             if (!response.ok) throw new Error(result.error);
- 
-             alert("Livre supprimé avec succès !");
-             window.location.href = "admin.html";
-         } catch (error) {
-             alert("Erreur : " + error.message);
-         }
-     });
-     conteneurBtn.appendChild(btnSupprimer);
- } else {       // Sinon : bouton EMPRUNTER
-     const btnEmprunt = document.createElement('button');
-     btnEmprunt.className = 'btn-emprunt';
-     
-     if (livreData.deja_emprunter) {
-         btnEmprunt.disabled = true;
-         btnEmprunt.textContent = "Déjà emprunté";
-         btnEmprunt.style.background = "gray";
-     } else {
-         btnEmprunt.textContent = "Emprunter";
-         btnEmprunt.addEventListener('click', () => {
-             if (!localStorage.getItem('user')) {
-                 alert("Veuillez vous connecter pour emprunter ce livre !");
-                 return;
-             }
-             if (confirm(`Voulez-vous emprunter "${livreData.titre}" ?`)) {
-                 emprunter(livreData.id_livre, btnEmprunt);
-             }
-         });
-     }
-     conteneurBtn.appendChild(btnEmprunt);
- }
- 
+// Gérer le bouton d'emprunt ET DE SUPPRESION
+const conteneurBtn = document.getElementById('conteneur-btn');
+conteneurBtn.innerHTML = '';
+
+// Si admin : bouton SUPPRIMER
+if (sessionStorage.getItem('admin') === 'true') {
+    const btnSupprimer = document.createElement('button');
+    btnSupprimer.textContent = "Supprimer ce livre";
+    btnSupprimer.className = "btn-supprimer";
+
+    btnSupprimer.addEventListener('click', async () => {
+        if (!confirm(`Confirmer la suppression de "${livreData.titre}" ?`)) return;
+
+        try {
+            const response = await fetch(`http://localhost:8000/api/supprimer/livre/${livreData.id_livre}`, {
+                method: 'DELETE'
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+
+            alert("Livre supprimé avec succès !");
+            window.location.href = "admin.html";
+        } catch (error) {
+            alert("Erreur : " + error.message);
+        }
+    });
+    conteneurBtn.appendChild(btnSupprimer);
+} else {       // Sinon : bouton EMPRUNTER
+    const btnEmprunt = document.createElement('button');
+    btnEmprunt.className = 'btn-emprunt';
+    
+    if (livreData.deja_emprunter) {
+        btnEmprunt.disabled = true;
+        btnEmprunt.textContent = "Déjà emprunté";
+        btnEmprunt.style.background = "gray";
+    } else {
+        btnEmprunt.textContent = "Emprunter";
+        btnEmprunt.addEventListener('click', () => {
+            if (!localStorage.getItem('user')) {
+                alert("Veuillez vous connecter pour emprunter ce livre !");
+                return;
+            }
+            if (confirm(`Voulez-vous emprunter "${livreData.titre}" ?`)) {
+                emprunter(livreData.id_livre, btnEmprunt);
+            }
+        });
+    }
+    conteneurBtn.appendChild(btnEmprunt);
+}
+
 }
 
 async function emprunter(livreId, bouton, event = null) {
