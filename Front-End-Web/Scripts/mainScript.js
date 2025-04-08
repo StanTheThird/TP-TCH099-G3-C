@@ -204,18 +204,13 @@ async function displayFilteredBooks(filters) {
         ? `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
         : `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`;
     try {
-        const url = filters.titre 
-            ? `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
-            : `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`;
-        
         const response = await fetch(url);
         if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
         const livres = await response.json();
-        
+
         const conteneur = document.getElementById("conteneur_livres");
-        conteneur.innerHTML = livres.map(livre => addLivre(livre)).join('');
         conteneur.innerHTML = '';
-        livres.forEach(addLivre); // 👈 Tu continues d'utiliser la fonction dédiée
+        livres.forEach(addLivre); 
 
     } catch (error) {
         console.error('Erreur:', error);
@@ -230,43 +225,12 @@ function setDefaultValues() {
 // Crée un élément livre pour l'affichage
 // Crée un élément livre pour l'affichage
 function addLivre(livre) {
-    // 1. Conversion de l'objet livre en JSON pour le stockage
-    const livreJSON = JSON.stringify(livre);
-    
-    // 2. Création du HTML avec template literals
-    const estEmprunte = livre.deja_emprunter;
-    const boutonHTML = estEmprunte 
-        ? `<button class="btn-emprunt" disabled style="background:gray">Déjà emprunté</button>`
-        : `<button class="btn-emprunt" onclick="emprunter(${livre.id_livre}, this, event)">Emprunter</button>`;
     const row = document.createElement('tr');
     const cell = document.createElement('td');
 
     const livreDiv = document.createElement('div');
     livreDiv.className = 'livre';
     
-    // 3. Retourne le HTML complet avec un gestionnaire de clic
-    return `
-        <tr><td>
-            <div class="livre" onclick="redirectToLivreInfo('${encodeURIComponent(livreJSON)}')">
-                <div class="livreInfo">
-                    <div class="image">
-                        <img src="${livre.image || 'placeholder.jpg'}" alt="${livre.titre || 'Couverture'}">
-                    </div>
-                    <div class="desc">
-                        <h1>${livre.titre}</h1>
-                        <ul>
-                            ${livre.description ? `<li>${livre.description}</li>` : ''}
-                            ${livre.categorie ? `<li>Catégorie: ${livre.categorie}</li>` : ''}
-                            ${livre.langue ? `<li>Langue: ${livre.langue}</li>` : ''}
-                            ${livre.date_parution ? `<li>Date de parution: ${livre.date_parution}</li>` : ''}
-                            ${livre.nom_auteur && livre.prenom_auteur 
-                                ? `<li>Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}</li>` : ''}
-                        </ul>
-                        ${boutonHTML}
-                    </div>
-                </div>
-            </div>
-        </td></tr>
     // Redirection quand on clique sur le bloc
     livreDiv.addEventListener('click', () => {
         sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));

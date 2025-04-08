@@ -1,0 +1,215 @@
+/* ---------------- création grille ---------------- */
+html, body {
+    height: 100%; 
+    margin: 0;
+}
+.conteneur {
+    display: grid;
+    min-height: 100vh;
+    grid-template-rows: 6rem auto 1fr auto;
+    grid-template-columns: auto;
+    grid-template-areas:
+        "header"
+        "filters"
+        "main"
+        "footer";
+}
+.livreInfo img {
+    width: 200px; /* Fixed width */
+    height: auto;
+}
+
+/* ---------------- style header ---------------- */
+.header{
+    grid-area: header;
+    background-color: rgb(235, 197, 161);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ---------------- creation Le menu ---------------- */
+.menu ul{
+    list-style: none;
+}
+
+.btn-menu img{
+    margin-right: 10px;
+}
+.btn-menu{
+    margin-right: 40px;
+    padding-top: 20px;
+    position: relative;
+    font-size: 25px;
+}
+
+.menu:hover .sous-menu{
+    display: block;
+}
+.sous-menu{
+    display: none;
+    position: absolute;
+    top: 5rem;
+    right: 0px;
+    width:max-content;
+}
+.sous-menu li{
+    display: block;
+    padding: 8px;
+    text-align: right;
+    background-color: rgb(244, 236, 236);
+    cursor: pointer;
+    opacity: 1;
+
+}
+#img-logo{
+    margin-top: 5px;
+}
+
+.sous-menu li:hover {
+    border-width: 0.2rem;
+    background-color: rgb(207, 115, 115);
+}
+/* ----- style et positionnement barre filtre ----- */
+
+#filtres, #admin {                                          /* AJOUT POUR LA PAGE ADMIN*/
+    grid-area: filters;
+    padding: 0.63rem;
+    position:flex;
+    width: 98.7%;
+    background-color: lightgray;
+    font-size: medium;
+}
+
+.filtre- {
+    margin-left: 5rem;
+    padding-right: 0.63rem;
+    padding-bottom: 0.63rem;
+    flex: 1;
+    
+}
+.label{
+    padding-left: 1.63rem;
+    padding-right: 0.63rem;
+    padding-bottom: 0.63rem;
+    flex: 1;
+}
+
+.option {
+    flex:1;
+    width: 12rem;
+    margin-left: 0.8rem;
+    margin-right: 2.5rem;
+
+}
+#symbole{
+    margin-left: 33rem;
+}
+#rechercheLivre{
+    padding-right: 0.5rem;
+    width: 15rem;
+}
+
+/* ---------------- style conteneur activités ---------------- */
+#conteneur_livres {
+    grid-area: main;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 1.5rem;
+    overflow-y: scroll;
+    scroll-snap-type: y proximity;
+    height: 100%; 
+    min-height: 30rem;
+}
+/* ----- style de chaque activité ----- */
+.livreInfo {
+    display: flex;
+    background-color: rgb(222, 237, 255);
+    margin: 0.94rem;
+    border-radius: 0.63rem;
+    
+
+}
+
+/* ----- action sur l'activité ----- */
+.livreInfo:hover {
+    background: linear-gradient(#fcff65c7 , #f8983f9d,#f55b34bd);
+    /*background: linear-gradient(#66c7d8e8 , #6cace7ee,#efb9fa);*/
+
+
+}
+
+/* ----- style image----- */
+.livre-image {
+    width: 200px;
+    height: auto;
+    border-radius: 0.63rem;
+    margin-right: 2rem;
+}
+
+
+/* ---------------- style footer ---------------- */
+
+.debutfooter {
+    grid-area: footer;
+    font-size: smaller;
+    background-color: rgb(235, 197, 161);
+    width: 100%;
+    margin-top: auto;
+}
+.footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+}
+
+/* ----- style conteneurs----- */
+.apropos,.contacter,.reseaux {
+    flex: 1;
+    width: 22.38rem;
+    padding-left: 4.38rem;
+    padding-top: 0.63rem;
+}
+
+.apropos,.contacter {
+    padding-right: 5.63rem;
+}
+
+/* ----- positionnement text copy ----- */
+.copyright {
+    text-align: center;
+}
+
+/* ---------------- style police ---------------- */
+
+* {
+    font-family: 'Courier New';
+}
+
+label,h1,h2,h3,h4 {
+    font-family: cooper black;
+     
+}
+a,button{
+    font-family: fantasy;
+    color: black;
+    text-decoration: none; 
+}
+
+/* ---------------- style bouton ---------------- */
+
+.btn-emprunt {
+    background:linear-gradient(to right,#62C4E8,#CE8DFF);
+    padding: 0.63rem 1.56rem;
+    transition-duration: 0.4s;
+    border-radius: 0.44rem;
+    cursor: pointer;
+    margin-left: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+/* ----- action sur le bouton ----- */
+.appliquer:hover {
+    opacity: 0.85;
+    color: black;
+    box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
+}
