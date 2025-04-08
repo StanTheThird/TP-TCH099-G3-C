@@ -200,6 +200,9 @@ function filtrerFromOptions() {
 
 // Affiche les livres filtrés
 async function displayFilteredBooks(filters) {
+    const url = filters.titre
+        ? `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
+        : `http://localhost:8000/api/livre/filter?Categorie=${filters.categorie}&Langue=${filters.langue}`;
     try {
         const url = filters.titre 
             ? `http://localhost:8000/api/recherche/livre?search=${filters.titre}`
@@ -211,6 +214,9 @@ async function displayFilteredBooks(filters) {
         
         const conteneur = document.getElementById("conteneur_livres");
         conteneur.innerHTML = livres.map(livre => addLivre(livre)).join('');
+        conteneur.innerHTML = '';
+        livres.forEach(addLivre); // 👈 Tu continues d'utiliser la fonction dédiée
+
     } catch (error) {
         console.error('Erreur:', error);
     }
@@ -232,6 +238,11 @@ function addLivre(livre) {
     const boutonHTML = estEmprunte 
         ? `<button class="btn-emprunt" disabled style="background:gray">Déjà emprunté</button>`
         : `<button class="btn-emprunt" onclick="emprunter(${livre.id_livre}, this, event)">Emprunter</button>`;
+    const row = document.createElement('tr');
+    const cell = document.createElement('td');
+
+    const livreDiv = document.createElement('div');
+    livreDiv.className = 'livre';
     
     // 3. Retourne le HTML complet avec un gestionnaire de clic
     return `
@@ -256,7 +267,56 @@ function addLivre(livre) {
                 </div>
             </div>
         </td></tr>
+    // Redirection quand on clique sur le bloc
+    livreDiv.addEventListener('click', () => {
+        sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
+        window.location.href = "livreInfo.html";
+    });
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'livreInfo';
+
+    const imageDiv = document.createElement('div');
+    imageDiv.className = 'image';
+    imageDiv.innerHTML = `<img src="${livre.image || 'placeholder.jpg'}" alt="${livre.titre || 'Couverture'}">`;
+
+    const descDiv = document.createElement('div');
+    descDiv.className = 'desc';
+    descDiv.innerHTML = `
+        <h1>${livre.titre}</h1>
+        <ul>
+            ${livre.description ? `<li>${livre.description}</li>` : ''}
+            ${livre.categorie ? `<li>Catégorie: ${livre.categorie}</li>` : ''}
+            ${livre.langue ? `<li>Langue: ${livre.langue}</li>` : ''}
+            ${livre.date_parution ? `<li>Date de parution: ${livre.date_parution}</li>` : ''}
+            ${livre.nom_auteur && livre.prenom_auteur ? `<li>Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}</li>` : ''}
+        </ul>
     `;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn-emprunt';
+
+    if (livre.deja_emprunter) {
+        btn.disabled = true;
+        btn.textContent = "Déjà emprunté";
+        btn.style.background = "gray";
+    } else {
+        btn.textContent = "Emprunter";
+
+        // Empêche la redirection si on clique sur le bouton
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            emprunter(livre.id_livre, btn);
+        });
+    }
+
+    descDiv.appendChild(btn);
+    infoDiv.appendChild(imageDiv);
+    infoDiv.appendChild(descDiv);
+    livreDiv.appendChild(infoDiv);
+    cell.appendChild(livreDiv);
+    row.appendChild(cell);
+    document.getElementById("conteneur_livres").appendChild(row);
 }
 
 // Nouvelle fonction pour gérer la redirection
