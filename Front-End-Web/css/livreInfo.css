@@ -110,31 +110,13 @@ html, body {
 }
 
 /* ---------------- style conteneur activités ---------------- */
-#conteneur_livres {
+.livre-container {
     grid-area: main;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 1.5rem;
-    overflow-y: scroll;
-    scroll-snap-type: y proximity;
-    height: 100%; 
-    min-height: 30rem;
-}
-/* ----- style de chaque activité ----- */
-.livreInfo {
-    display: flex;
     background-color: rgb(222, 237, 255);
-    margin: 0.94rem;
-    border-radius: 0.63rem;
-    
-
-}
-
-/* ----- action sur l'activité ----- */
-.livreInfo:hover {
-    background: linear-gradient(#fcff65c7 , #f8983f9d,#f55b34bd);
-    /*background: linear-gradient(#66c7d8e8 , #6cace7ee,#efb9fa);*/
-
+    min-height: 25rem;
+    padding: 2rem;
 
 }
 
