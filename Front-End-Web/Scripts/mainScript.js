@@ -336,7 +336,7 @@ function SetUpLivreInfo() {
     if (livreData.deja_emprunter) {
         btnEmprunt.disabled = true;
         btnEmprunt.textContent = "Déjà emprunté";
-        //btnEmprunt.style.background = "gray";
+        btnEmprunt.style.background = "gray";
     } else {
         btnEmprunt.addEventListener('click', () => {
             if (!localStorage.getItem('user')) {
