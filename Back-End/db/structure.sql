@@ -40,10 +40,14 @@ CREATE TABLE Langue(
 -- Création de la table Livre
 CREATE TABLE Livre (
     id_livre INT(10) NOT NULL AUTO_INCREMENT,
+    code_livre INT (25) NOT NULL,
     titre VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     date_parution DATE NOT NULL,
     image VARCHAR(255) NOT NULL,
+    nb_pages INT(10)NOT NULL,
+    format VARCHAR(25) CHECK (format IN ('Livre de poche','Livre numérique','Livre relié')),
+    stock INT(2) NOT NULL,
     categorie_id INT(10) NOT NULL,
     auteur_id INT(10) NOT NULL,
     langue_id INT(10) NOT NULL,
