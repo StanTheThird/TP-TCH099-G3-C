@@ -113,7 +113,7 @@ async function populateFiltres() {
     }
 }
 
-const typeDeFiltre = ["Categorie", "Langue"];
+const typeDeFiltre = ["Categorie", "Langue", "Origine"];
 function createFiltre(livres) {
     const filtre = document.getElementById('filtres');
     typeDeFiltre.forEach((type, index) => {
@@ -125,7 +125,12 @@ function createFiltre(livres) {
         select.className = 'option';
         select.addEventListener('change', filtrerFromOptions);
         select.innerHTML = `<option value="Tous" selected>Tous</option>`;
-        const options = new Set(livres.map(livre => index === 0 ? livre.categorie : livre.langue));
+    
+        const options = new Set(livres.map(livre => 
+            index === 0 ? livre.categorie : 
+            index === 1 ? livre.langue : 
+            livre.nationalite_auteur
+        ));
         options.forEach(value => {
             if (value) select.innerHTML += `<option value="${value}">${value}</option>`;
         });
@@ -172,6 +177,7 @@ function filtrerFromOptions() {
     displayFilteredBooks({
         categorie: selects[0]?.value || "Tous",
         langue: selects[1]?.value || "Tous",
+        origine: selects[2]?.value || "Tous",
         titre: document.getElementById("rechercheLivre")?.value.trim() || ""
     });
 }
@@ -181,6 +187,7 @@ async function displayFilteredBooks(filters) {
     if (filters.titre) params.append('search', filters.titre);
     if (filters.categorie && filters.categorie !== "Tous") params.append('Categorie', filters.categorie);
     if (filters.langue && filters.langue !== "Tous") params.append('Langue', filters.langue);
+    if (filters.origine && filters.origine !== "Tous") params.append('Origine', filters.origine);
     const url = `http://localhost:8000/api/livre/recherche-filtre?${params.toString()}`;
     try {
         const response = await fetch(url);
