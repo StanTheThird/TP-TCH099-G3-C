@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Page Admin");
         displayAllBooks();
         setUpModalAjoutLivre();
+    } else if (nomPage == "AdminEmprunt"){
+        console.log("Page Emprunt (côté Admin)");
+        displayEmpruntAdmin();
     } else if (nomPage == 'InfoLivre') {
         console.log("Page InfoLivre");
         SetUpLivreInfo();
@@ -139,6 +142,29 @@ function createFiltre(livres) {
     champRecherche.className = "champ-recherche";
     champRecherche.addEventListener('input', filtrerFromOptions);
     filtre.append(recherche, champRecherche);
+
+     //Ajout des 2 boutons pour l'affichage
+     const conteneurBouton = document.createElement('div');
+     conteneurBouton.className= 'affichage-boutons';
+ 
+     //bouton pour afficher les livres en grille
+     const btnGrille = document.createElement('button');
+     btnGrille.textContent = 'Grille';
+     btnGrille.className = 'btn-affichage';
+     btnGrille.addEventListener('click', () => changerAffichage('grille'));
+ 
+     //Bouton pour afficher les livres en liste 
+     const btnListe = document.createElement('button');
+     btnListe.textContent = 'Liste';
+     btnListe.className = 'btn-affichage';
+     btnListe.addEventListener('click' , () => changerAffichage('liste'));
+ 
+     conteneurBouton.appendChild(btnGrille);
+     conteneurBouton.appendChild(btnListe);
+ 
+     filtre.appendChild(conteneurBouton);
+ 
+ 
 }
 
 function filtrerFromOptions() {
@@ -173,51 +199,59 @@ function setDefaultValues() {
 }
 
 function addLivre(livre) {
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
-    const livreDiv = document.createElement('div');
-    livreDiv.className = 'livre';
-    livreDiv.addEventListener('click', () => {
-        sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
-        window.location.href = "livreInfo.html";
-    });
-    const infoDiv = document.createElement('div');
-    infoDiv.className = 'livreInfo';
-    const imageDiv = document.createElement('div');
-    imageDiv.className = 'image';
-    imageDiv.innerHTML = `<img src="${livre.image || 'placeholder.jpg'}" alt="${livre.titre || 'Couverture'}">`;
-    const descDiv = document.createElement('div');
-    descDiv.className = 'desc';
-    descDiv.innerHTML = `
-        <h1>${livre.titre}</h1>
-        <ul>
-            ${livre.description ? `<li>${livre.description}</li>` : ''}
-            ${livre.categorie ? `<li>Catégorie: ${livre.categorie}</li>` : ''}
-            ${livre.langue ? `<li>Langue: ${livre.langue}</li>` : ''}
-            ${livre.date_parution ? `<li>Date de parution: ${livre.date_parution}</li>` : ''}
-            ${livre.nom_auteur && livre.prenom_auteur ? `<li>Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}</li>` : ''}
-        </ul>
-    `;
-    const btn = document.createElement('button');
-    btn.className = 'btn-emprunt';
-    if (livre.deja_emprunter) {
-        btn.disabled = true;
-        btn.textContent = "Déjà emprunté";
-        btn.style.background = "gray";
+    const mode = localStorage.getItem('modeAffichage') || 'grille';
+    const conteneur = document.getElementById("conteneur_livres"); 
+
+    if(mode == 'grille'){
+        const carte = createAdminLivre(livre); 
+        conteneur.appendChild(carte);
     } else {
-        btn.textContent = "Emprunter";
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            emprunter(livre.id_livre, btn);
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        const livreDiv = document.createElement('div');
+        livreDiv.className = 'livre';
+        livreDiv.addEventListener('click', () => {
+            sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
+            window.location.href = "livreInfo.html";
         });
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'livreInfo';
+        const imageDiv = document.createElement('div');
+        imageDiv.className = 'image';
+        imageDiv.innerHTML = `<img src="${livre.image || 'placeholder.jpg'}" alt="${livre.titre || 'Couverture'}">`;
+        const descDiv = document.createElement('div');
+        descDiv.className = 'desc';
+        descDiv.innerHTML = `
+            <h1>${livre.titre}</h1>
+            <ul>
+                ${livre.description ? `<li>${livre.description}</li>` : ''}
+                ${livre.categorie ? `<li>Catégorie: ${livre.categorie}</li>` : ''}
+                ${livre.langue ? `<li>Langue: ${livre.langue}</li>` : ''}
+                ${livre.date_parution ? `<li>Date de parution: ${livre.date_parution}</li>` : ''}
+                ${livre.nom_auteur && livre.prenom_auteur ? `<li>Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}</li>` : ''}
+            </ul>
+        `;
+        const btn = document.createElement('button');
+        btn.className = 'btn-emprunt';
+        if (livre.deja_emprunter) {
+            btn.disabled = true;
+            btn.textContent = "Déjà emprunté";
+            btn.style.background = "gray";
+        } else {
+            btn.textContent = "Emprunter";
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                emprunter(livre.id_livre, btn);
+            });
+        }
+        descDiv.appendChild(btn);
+        infoDiv.appendChild(imageDiv);
+        infoDiv.appendChild(descDiv);
+        livreDiv.appendChild(infoDiv);
+        cell.appendChild(livreDiv);
+        row.appendChild(cell);
+        document.getElementById("conteneur_livres").appendChild(row);
     }
-    descDiv.appendChild(btn);
-    infoDiv.appendChild(imageDiv);
-    infoDiv.appendChild(descDiv);
-    livreDiv.appendChild(infoDiv);
-    cell.appendChild(livreDiv);
-    row.appendChild(cell);
-    document.getElementById("conteneur_livres").appendChild(row);
 }
 
 function redirectToLivreInfo(livreJSON) {
@@ -616,3 +650,207 @@ function setUpModalAjoutLivre(){
         });
     }
 }
+
+// function displayEmpruntAdmin(){
+//     const conteneur = document.querySelector('.conteneurEmprunt');
+//     conteneur.innerHTML = '';
+
+//     fetch('http://localhost:8000/api/emprunt/admin')
+//         .then(response => {
+//             if (!response.ok) throw new Error('Erreur recherche');
+//             return response.json();
+//         })
+//         .then(emprunts => {
+//             if (emprunts.length === 0) {
+//             conteneur.innerHTML ='<p class="aucun-emprunt">Aucun emprunt trouvé !</p>';
+//             return;
+//         }
+//         const table = document.createElement('table');
+//         table.className = 'table-emprunt';
+//         const thread = document.createElement('thread');
+//         table.innerHTML = `
+//             <tr>
+//                 <th>Utilisateur</th>
+//                 <th>Titre du livre</th>
+//                 <th>Date d'emprunt</th>
+//                 <th>Date limite</th>
+//                 <th>Date de retour</th>
+//                 <th>Statut</th>
+//                 <th>Retour</th>
+//             </tr>
+//             `;
+//             table.appendChild(thread);
+//             const tbody = document.createElement('tbody');
+//             emprunts.forEach(emprunt => {
+//                 const row = document.createElement('tr');
+//                 let statut = '';
+//                 if (emprunt.date_retour) {
+//                     statut = 'Retourné';
+//                 } else {
+//                     const today = new Date();
+//                     const dateLimite = new Date(emprunt.date_limite);
+//                     statut = today > dateLimite ? 'En retard' : 'En cours';
+//                 }
+//                 row.innerHTML = `
+//                 <td>${emprunt.prenom_utilisateur} ${emprunt.nom_utilisateur}</td>
+//                 <td>${emprunt.titre}</td>
+//                 <td>${formatDate(emprunt.date_emprunt)}</td>
+//                 <td>${formatDate(emprunt.date_limite)}</td>
+//                 <td>${emprunt.date_retour ? formatDate(emprunt.date_retour) : '-'}</td>
+//                 <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
+//                 <td>
+//                     ${!emprunt.date_retour
+//                         ? `<button class="btn-retour" onclick="retournerLivre(${emprunt.id_emprunt})">Retourner</button>`
+//                         : ''}
+//                 </td>
+//             `;
+//             tbody.appendChild(row);
+//         });
+
+//         table.appendChild(tbody);
+//         conteneur.appendChild(table);
+//     })
+//     .catch(err => {
+//         console.error('Erreur chargement des emprunts admin:', err);
+//         conteneur.innerHTML = '<p class="erreur">Erreur lors du chargement des emprunts.</p>';
+//     });
+// }
+function displayEmpruntAdmin() {
+    const conteneur = document.querySelector('.conteneurEmprunt');
+    conteneur.innerHTML = '';
+
+    const divRecherche = document.createElement('div');
+    divRecherche.className = 'recherche-emprunt';
+
+    const inputRecherche = document.createElement('input');
+    inputRecherche.type = 'text';
+    inputRecherche.id = 'rechercheEmpruntInput';
+    inputRecherche.placeholder = 'Code du livre';
+
+    inputRecherche.addEventListener('input', () => {
+        const valeurRecherche = inputRecherche.value.trim();
+        if (valeurRecherche === '') {
+            chargerTousLesEmprunts(conteneur);
+        } else {
+            rechercherEmprunts(valeurRecherche, conteneur);
+        }
+    });
+
+    divRecherche.appendChild(inputRecherche);
+    conteneur.appendChild(divRecherche);
+
+    chargerTousLesEmprunts(conteneur);
+}
+function chargerTousLesEmprunts(conteneur) {
+    fetch('http://localhost:8000/api/emprunt/admin')
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur recherche');
+            return response.json();
+        })
+        .then(emprunts => {
+            afficherTableauEmprunts(emprunts, conteneur);
+        })
+        .catch(err => {
+            console.error('Erreur chargement des emprunts admin:', err);
+            conteneur.innerHTML += '<p class="erreur">Erreur lors du chargement des emprunts.</p>';
+        });
+}
+function rechercherEmprunts(search, conteneur) {
+    fetch(`http://localhost:8000/api/emprunt/recherche?search=${encodeURIComponent(search)}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Erreur recherche');
+            return response.json();
+        })
+        .then(emprunts => {
+            afficherTableauEmprunts(emprunts, conteneur);
+        })
+        .catch(err => {
+            console.error('Erreur lors de la recherche:', err);
+            conteneur.innerHTML += '<p class="erreur">Erreur lors de la recherche</p>';
+        });
+}
+function afficherTableauEmprunts(emprunts, conteneur) {
+    const ancienTableau = conteneur.querySelector('table');
+    if (ancienTableau) ancienTableau.remove();
+
+    if (emprunts.length === 0) {
+        conteneur.innerHTML += '<p class="aucun-emprunt">Aucun emprunt trouvé !</p>';
+        return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'table-emprunt';
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Titre du livre</th>
+                <th>Date d'emprunt</th>
+                <th>Date limite</th>
+                <th>Date de retour</th>
+                <th>Statut</th>
+                <th>Retour</th>
+            </tr>
+        </thead>
+    `;
+
+    const tbody = document.createElement('tbody');
+    emprunts.forEach(emprunt => {
+        const row = document.createElement('tr');
+        let statut = '';
+        if (emprunt.date_retour) {
+            statut = 'Retourné';
+        } else {
+            const today = new Date();
+            const dateLimite = new Date(emprunt.date_limite);
+            statut = today > dateLimite ? 'En retard' : 'En cours';
+        }
+
+        row.innerHTML = `
+            <td>${emprunt.prenom_utilisateur} ${emprunt.nom_utilisateur}</td>
+            <td>${emprunt.titre}</td>
+            <td>${formatDate(emprunt.date_emprunt)}</td>
+            <td>${formatDate(emprunt.date_limite)}</td>
+            <td>${emprunt.date_retour ? formatDate(emprunt.date_retour) : '-'}</td>
+            <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
+            <td>
+                ${!emprunt.date_retour
+                    ? `<button class="btn-retour" onclick="retournerLivre(${emprunt.id_emprunt})">Retourner</button>`
+                    : ''}
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    table.appendChild(tbody);
+    conteneur.appendChild(table);
+}
+function retournerLivre(idEmprunt) {
+    if (!confirm("Confirmez-vous le retour de ce livre ?")) return;
+
+    fetch("http://localhost:8000/api/retour/emprunt", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id_emprunt: idEmprunt })
+    })
+    .then(async response => {
+        const result = await response.json();
+        if (!response.ok) {
+            alert(result.message || "Erreur lors du retour");
+            throw new Error(result.message);
+        }
+        alert(result.message || "Livre retourné !");
+        displayEmpruntAdmin(); 
+    })
+    .catch(error => {
+        console.error("Erreur:", error);
+    });
+}
+
+function changerAffichage(mode){
+    localStorage.setItem('modeAffichage', mode);
+    filtrerFromOptions();
+}
+
