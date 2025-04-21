@@ -34,7 +34,15 @@ get('/api/historique/$id', function($id){
     require_once './src/controllers/ControleHistorique.php';
     ControleUtilisateur::getHistorique($id);
 });
-
+post('/api/retour/emprunt', function(){
+    ControleLivre::retourLivre();
+});
+get('/api/emprunt/admin', function(){
+    ControleLivre::getAllEmprunt();
+});
+get('/api/emprunt/recherche', function(){
+    ControleLivre::getEmpruntParRecherche();
+})
 
 // route par défaut pour les erreurs 404
 // any('/404', function() {

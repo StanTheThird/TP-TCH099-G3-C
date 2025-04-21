@@ -227,5 +227,96 @@ class ControleLivre {
         }
     }
 
+    public static function retourLivre(){
+        global $pdo;
+        header('Content-Type: application/json');
+
+        $data = json_decode(file_get_contents("php://input"), true);
+        $id = $data['id_emprunt'];
+
+        if(!$id){
+            http_response_code(400);
+            echo json_encode(["message" => "Pas d'emprunt (id manquant)"]);
+            return;
+        }
+
+        // vérifier que le livre n'est pas déjà emprunté
+        $query = $pdo->prepare(' SELECT * FROM Emprunt 
+        WHERE id_emprunt = ? 
+        ');
+        $query->execute([$id]);
+        $emprunt = $query->fetch(PDO::FETCH_ASSOC);
+        if (!$emprunt){
+        // Not found
+        http_response_code(404);
+        echo json_encode(["message" => "Aucun emprunt trouvé / Livre déjà retourné"]);
+        return;
+        }
+
+        if($emprunt['date_retour'] !== null){
+            // conflit, parce que livre déjà emprunté
+            http_response_code(409);
+            echo json_encode(["message" => "Ce livre a déjà été retourné !"]);
+            return;
+        }
+
+        // Si déjà retourné
+        $maj = $pdo->prepare('UPDATE Emprunt SET date_Retour = CURRENT_DATE 
+        WHERE id_emprunt = ?');
+        $maj->execute([$id]);
+
+        echo json_encode(["message" => "Livre retourné avec succès !"]);
+    }
+
+    public static function getAllEmprunt(){
+        global $pdo;
+
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json');
+
+        try{
+            $query = $pdo->prepare('SELECT e.id_emprunt, e.date_emprunt, e.date_limite, e.date_retour, 
+            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, l.id_livre, l.titre
+            FROM Emprunt e
+            INNER JOIN Utilisateur u ON e.utilisateur_id = u.id_utilisateur 
+            INNER JOIN Livre l ON e.livre_id = l.id_livre
+            ORDER BY e.date_retour DESC
+            ');
+            $query->execute();
+            $emprunts = $query -> fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode($emprunts);
+
+        } catch (PDOException $e){
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+
+    public static function getEmpruntParRecherche(){
+        global $pdo;
+        header('Content-Type: application/json');
+
+        $search = trim($_GET['search'] ?? '');
+        $params = [];
+
+        try{
+            $query = $pdo->prepare('SELECT e.id_emprunt, e.date_emprunt, e.date_limite, e.date_retour, 
+            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, l.id_livre, l.code_livre, l.titre
+            FROM Emprunt e
+            INNER JOIN Livre l ON e.livre_id = l.id_livre
+            INNER JOIN Utilisateur u ON e.utilisateur_id = u.id_utilisateur 
+            WHERE l.code_livre LIKE :search
+            ORDER BY e.date_emprunt DESC
+            ');
+            $query -> execute([':search' => "$search%"]);
+            $resultats = $query->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($resultats);
+
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
 }
 ?>
