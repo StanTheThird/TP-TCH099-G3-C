@@ -26,6 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (nomPage == "Historique") {
         console.log("Page Historique");
         ShowHistorique();
+    } else if (nomPage == "Recommandations") {
+        console.log("Page Recommandations");
+        populateRecommandations();
     } else {
         console.log("Rien à faire.");
     }
@@ -385,12 +388,14 @@ function SetUpNavigation() {
     const menuButton = document.querySelector('.btn-menu a');
     const userData = localStorage.getItem('user');
     const isConnected = userData !== null;
+    
     if (isConnected) {
         const user = JSON.parse(userData);
         menuButton.innerHTML = `<img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30"> ${user.nom_utilisateur}`;
     } else {
         menuButton.innerHTML = `<img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30"> Menu`;
     }
+
     const createMenuItem = (text, href = '#', onClick = null) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
@@ -404,14 +409,18 @@ function SetUpNavigation() {
         li.appendChild(a);
         return li;
     };
+
     nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
+    
     if (isConnected) {
         const user = JSON.parse(userData);
+        nav.appendChild(createMenuItem('Recommandations', 'recommandations.html'));
         nav.appendChild(createMenuItem('Historique', 'historique.html'));
         nav.appendChild(createMenuItem('Déconnexion', 'accueil.html', () => {
             localStorage.removeItem('user');
             SetUpNavigation();
         }));
+        
         if (user.type == 1) {
             nav.appendChild(createMenuItem('Administration', 'admin.html'));
         }
@@ -861,3 +870,87 @@ function changerAffichage(mode){
     filtrerFromOptions();
 }
 
+async function populateRecommandations() {
+    console.log("Fonction populateRecommandations appelée"); // Debug
+    
+    try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            alert("Veuillez vous connecter pour voir vos recommandations");
+            window.location.href = "connexion.html";
+            return;
+        }
+
+        console.log(`Tentative de récupération pour user ID: ${user.id}`); // Debug
+        
+        const response = await fetch(`http://localhost:8000/api/recommandations/${user.id}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Erreur API:", response.status, errorText); // Debug
+            throw new Error('Erreur lors de la récupération des recommandations');
+        }
+        
+        const recommendations = await response.json();
+        console.log("Données reçues:", recommendations); // Debug
+        
+        const conteneur = document.getElementById("conteneur_recommandations");
+        if (!conteneur) {
+            console.error("Conteneur non trouvé!"); // Debug
+            return;
+        }
+        conteneur.innerHTML = '';
+
+        if (recommendations.length === 0) {
+            conteneur.innerHTML = '<p class="aucun-livre">Aucune recommandation disponible pour le moment</p>';
+            return;
+        }
+
+        recommendations.forEach(livre => {
+            try {
+                const carte = createLivreRecommandation(livre);
+                conteneur.appendChild(carte);
+            } catch (e) {
+                console.error("Erreur création carte:", e); // Debug
+            }
+        });
+
+    } catch (error) {
+        console.error('Erreur:', error);
+        const conteneur = document.getElementById("conteneur_recommandations");
+        if (conteneur) {
+            conteneur.innerHTML = '<p class="erreur">Erreur lors du chargement des recommandations</p>';
+        }
+    }
+}
+
+function createLivreRecommandation(livre) {
+    const carte = document.createElement('div');
+    carte.className = 'livre-recommande admin-livre-carte';
+    
+    // Badge "Recommandé"
+    const badge = document.createElement('div');
+    badge.className = 'badge-recommandation';
+    badge.textContent = 'Recommandé';
+    carte.appendChild(badge);
+
+    const image = document.createElement('img');
+    image.src = livre.image || 'placeholder.jpg';
+    image.alt = livre.titre || 'Livre sans titre';
+    carte.appendChild(image);
+
+    const titre = document.createElement('h3');
+    titre.textContent = livre.titre || 'Titre inconnu';
+    carte.appendChild(titre);
+
+    const auteur = document.createElement('p');
+    auteur.textContent = `${livre.prenom_auteur || ''} ${livre.nom_auteur || ''}`.trim() || 'Auteur inconnu';
+    auteur.className = 'auteur';
+    carte.appendChild(auteur);
+
+    carte.addEventListener('click', () => {
+        sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
+        window.location.href = "livreInfo.html";
+    });
+
+    return carte;
+}
