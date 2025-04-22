@@ -5,11 +5,11 @@ require './src/controllers/ControleLivre.php';
 require './src/controllers/ControleUtilisateur.php';
 
 // Routes existantes...
-get('/api/livre', function(){
-    ControleLivre::getAllBooks();
-});
 get('/api/livre/recherche-filtre', function(){
     ControleLivre::getAllBookFiltre();
+});
+get('/api/livre', function(){
+    ControleLivre::getAllBooks();
 });
 get('/api/livre/$id', function($id){
     ControleLivre::getBook($id);

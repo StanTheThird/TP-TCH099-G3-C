@@ -71,13 +71,14 @@ class ControleLivre {
         $params = [];
         
         $query = "SELECT l.id_livre, l.image, l.titre, l.description, l.date_parution,  
-                        c.nom AS categorie, la.nom AS langue, a.nom AS nom_auteur, 
-                        a.prenom AS prenom_auteur, a.nationalite AS nationalite_auteur
-                  FROM Livre l
-                  INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
-                  INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
-                  INNER JOIN Langue la ON l.langue_id = la.id_langue
-                  WHERE 1=1";
+                l.nb_pages, l.format,
+                c.nom AS categorie, la.nom AS langue, 
+                a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.nationalite AS nationalite_auteur
+                FROM Livre l
+                INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+                INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+                 INNER JOIN Langue la ON l.langue_id = la.id_langue
+          WHERE 1=1";
     
         // Filtre texte (titre ou auteur)
         if (!empty($search)) {

@@ -23,6 +23,9 @@ function SetUpLivreInfo() {
     if (livreData.nom_auteur && livreData.prenom_auteur) {
         addInfo('Auteur', `${livreData.prenom_auteur} ${livreData.nom_auteur}`);
     }
+    addInfo('Format', livreData.format);
+    addInfo('Nombre de pages', livreData.nb_pages);
+
 
     const conteneurBtn = document.getElementById('conteneur-btn');
     conteneurBtn.innerHTML = '';
