@@ -379,7 +379,7 @@ class ControleLivre {
             // Si l'utilisateur n'a pas d'historique, retourner 3 livres aléatoires disponibles
             if (empty($lastBooks)) {
                 $queryRandom = $pdo->prepare("
-                    SELECT DISTINCT l.code_livre, l.image, l.titre, l.description, l.date_parution,
+                    SELECT DISTINCT l.image, l.titre, l.description, l.date_parution,
                            a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur
                     FROM Livre l
                     JOIN Auteur a ON l.auteur_id = a.id_auteur
@@ -395,7 +395,7 @@ class ControleLivre {
     
             // 2. Récupérer tous les livres disponibles (groupés par code_livre)
             $queryAllBooks = $pdo->prepare("
-                SELECT l.code_livre, l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
+                SELECT l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
                        l.langue_id, l.nb_pages, l.date_parution, l.format,
                        a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur,
                        SUM(CASE WHEN l.emprunte = FALSE THEN 1 ELSE 0 END) AS stock
@@ -405,9 +405,9 @@ class ControleLivre {
                     SELECT livre.code_livre 
                     FROM Emprunt 
                     JOIN Livre livre ON Emprunt.livre_id = livre.id_livre
-                    WHERE Emprunt.utilisateur_id = ? AND Emprunt.date_retour IS NULL
+                    WHERE Emprunt.utilisateur_id = ?
                 )
-                GROUP BY l.code_livre, l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
+                GROUP BY l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
                          l.langue_id, l.nb_pages, l.date_parution, l.format,
                          a.prenom, a.nom, a.nationalite
                 HAVING stock > 0
@@ -476,7 +476,6 @@ class ControleLivre {
             foreach ($topBooks as $scoredBook) {
                 $book = $scoredBook['book'];
                 $recommendations[] = [
-                    'code_livre' => $book['code_livre'],
                     'image' => $book['image'],
                     'titre' => $book['titre'],
                     'description' => $book['description'],

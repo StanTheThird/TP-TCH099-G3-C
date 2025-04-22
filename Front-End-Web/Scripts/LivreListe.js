@@ -108,11 +108,6 @@ async function displayFilteredBooks(filters) {
             }
         }
 
-        // Vérification qu'on a au moins 3 livres à afficher
-        if (livres.length < 3) {
-            console.warn("Moins de 3 livres trouvés, affichage réduit.");
-        }
-
         const conteneur = document.getElementById("conteneur_livres");
         conteneur.innerHTML = '';
 
