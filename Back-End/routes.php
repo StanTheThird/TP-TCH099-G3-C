@@ -4,9 +4,11 @@ require 'config.php';
 require './src/controllers/ControleLivre.php';
 require './src/controllers/ControleUtilisateur.php';
 
-// Routes existantes...
 get('/api/livre/recherche-filtre', function(){
     ControleLivre::getAllBookFiltre();
+});
+get('/api/livre/admin-search', function(){
+    ControleLivre::getAllBookAdmin();
 });
 get('/api/livre', function(){
     ControleLivre::getAllBooks();
@@ -49,8 +51,8 @@ get('/api/recommandations/$id', function($id) {
 });
 
 // route par défaut pour les erreurs 404
-// any('/404', function() {
-//     http_response_code(404);
-//     echo json_encode(["error" => "route not found"]);
-// });
+any('/404', function() {
+    http_response_code(404);
+     echo json_encode(["error" => "route not found"]);
+ });
 ?>

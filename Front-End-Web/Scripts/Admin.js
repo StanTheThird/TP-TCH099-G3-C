@@ -1,85 +1,114 @@
-function displayAllBooks() {
+// Variable globale pour conserver la référence à l'input
+let searchInput = null;
+
+function displayBooks(search = '') {
     const filtreContainer = document.getElementById("admin");
-    const titre = filtreContainer.querySelector('h1');
-    filtreContainer.innerHTML = '';
-    if (titre) filtreContainer.appendChild(titre);
-
-    const bar = document.createElement('div');
-    bar.className = 'admin-bar';
-
-    const rechercheLabel = document.createElement('label');
-    rechercheLabel.textContent = " 🔎 ";
-    rechercheLabel.setAttribute('for', 'rechercheLivre');
-
-    const champRecherche = document.createElement('input');
-    champRecherche.type = "text";
-    champRecherche.id = "rechercheLivre";
-    champRecherche.placeholder = "Entrez un titre ou un auteur...";
-    champRecherche.className = "champ-recherche";
-    champRecherche.addEventListener('input', () => {
-        let search = champRecherche.value.trim();
-        displayBooksFromSearch(search);
-    });
+    const conteneurLivres = document.getElementById("conteneur_livres_admin");
     
-    const boutonAjout = document.createElement('button');
-    boutonAjout.textContent = "+ Livre";
-    boutonAjout.className = 'btn-ajout-livre';
+    // On ne recrée la barre d'administration que si elle n'existe pas déjà
+    if (!document.querySelector('.admin-bar')) {
+        const titre = filtreContainer.querySelector('h1');
+        filtreContainer.innerHTML = '';
+        if (titre) filtreContainer.appendChild(titre);
 
-    const boutonAdmin = document.createElement('button');
-    boutonAdmin.textContent = "+ Admin";
-    boutonAdmin.className = "btn-ajouter-admin";
-    boutonAdmin.addEventListener('click', () => {
-        window.location.href = 'createAdmin.html';
-    });
+        const bar = document.createElement('div');
+        bar.className = 'admin-bar';
 
-    const boutonEmprunt = document.createElement('button');
-    boutonEmprunt.textContent = "Gérer les emprunts";
-    boutonEmprunt.className = "btn-gerer-emprunt";
-    boutonEmprunt.addEventListener('click', () => {
-        window.location.href = 'adminEmprunt.html';
-    });
+        const rechercheLabel = document.createElement('label');
+        rechercheLabel.textContent = " 🔎 ";
+        rechercheLabel.setAttribute('for', 'rechercheLivre');
 
-    bar.append(rechercheLabel, champRecherche, boutonAjout, boutonAdmin, boutonEmprunt);
-    filtreContainer.appendChild(bar);
+        searchInput = document.createElement('input'); // On stocke la référence
+        searchInput.type = "text";
+        searchInput.id = "rechercheLivre";
+        searchInput.placeholder = "Entrez un titre ou un auteur...";
+        searchInput.className = "champ-recherche";
+        searchInput.value = search; // On pré-remplit avec la valeur actuelle
+        
+        // Utilisation d'un debouncer pour éviter des appels trop fréquents
+        let timeout = null;
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const searchTerm = e.target.value.trim();
+                loadBooks(searchTerm);
+            }, 300);
+        });
 
-    fetch("http://localhost:8000/api/livre")
+        const boutonAjout = document.createElement('button');
+        boutonAjout.textContent = "+ Livre";
+        boutonAjout.className = 'btn-ajout-livre';
+
+        const boutonAdmin = document.createElement('button');
+        boutonAdmin.textContent = "+ Admin";
+        boutonAdmin.className = "btn-ajouter-admin";
+        boutonAdmin.addEventListener('click', () => {
+            window.location.href = 'createAdmin.html';
+        });
+
+        const boutonEmprunt = document.createElement('button');
+        boutonEmprunt.textContent = "Gérer les emprunts";
+        boutonEmprunt.className = "btn-gerer-emprunt";
+        boutonEmprunt.addEventListener('click', () => {
+            window.location.href = 'adminEmprunt.html';
+        });
+
+        bar.append(rechercheLabel, searchInput, boutonAjout, boutonAdmin, boutonEmprunt);
+        filtreContainer.appendChild(bar);
+    } else if (searchInput) {
+        // Si la barre existe déjà, on met juste à jour la valeur
+        searchInput.value = search;
+    }
+
+    loadBooks(search);
+}
+
+function loadBooks(search = '') {
+    const apiUrl = search 
+        ? `http://localhost:8000/api/livre/admin-search?search=${encodeURIComponent(search)}`
+        : 'http://localhost:8000/api/livre/admin-search';
+
+    fetch(apiUrl)
         .then(response => {
-            if (!response.ok) throw new Error(`erreur HTTP: ${response.status}`);
+            if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
             return response.json();
         })
-        .then(books => {
+        .then(data => {
             const conteneur = document.getElementById("conteneur_livres_admin");
             conteneur.innerHTML = '';
+            
+            const books = Array.isArray(data) ? data : [];
+            
+            if (books.length === 0) {
+                conteneur.innerHTML = '<p class="no-books">Aucun livre trouvé</p>';
+                return;
+            }
+            
             books.forEach(livre => {
                 conteneur.appendChild(createAdminLivre(livre));
             });
         })
         .catch(error => {
-            console.error("Erreur chargement des livres :", error);
+            console.error("Erreur:", error);
+            const conteneur = document.getElementById("conteneur_livres_admin");
+            conteneur.innerHTML = `<p class="error">Erreur lors du chargement: ${error.message}</p>`;
         });
 }
 
-function displayBooksFromSearch(search) { 
-    fetch(`http://localhost:8000/api/livre/recherche-filtre?search=${encodeURIComponent(search)}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Erreur recherche');
-            return response.json();
-        })
-        .then(books => {
-            const conteneur = document.getElementById("conteneur_livres_admin");
-            conteneur.innerHTML = '';
-            books.forEach(livre => {
-                conteneur.appendChild(createAdminLivre(livre));
-            });
-        })
-        .catch(error => {
-            console.error("erreur recherche: ", error);
-        });
-}
+// Keep all other functions unchanged (createAdminLivre, setUpModalAjoutLivre, etc.)
 
 function createAdminLivre(livre) {
     const carteLivre = document.createElement('div');
     carteLivre.className = 'admin-livre-carte';
+
+    if (livre.emprunte) {
+        carteLivre.classList.add('livre-emprunte');
+        
+        const badge = document.createElement('div');
+        badge.className = 'badge-emprunte';
+        badge.textContent = 'Emprunté';
+        carteLivre.appendChild(badge);
+    }
 
     const image = document.createElement('img');
     image.src = livre.image;

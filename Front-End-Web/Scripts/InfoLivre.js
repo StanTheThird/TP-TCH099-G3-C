@@ -5,11 +5,14 @@ function SetUpLivreInfo() {
         window.location.href = "accueil.html";
         return;
     }
-    console.log("Informations de l'auteur :", livreData);
+
+    const isAdmin = sessionStorage.getItem('admin') === 'true';
+    
     document.getElementById('livre-titre').textContent = livreData.titre;
     document.getElementById('livre-image').src = livreData.image || 'placeholder.jpg';
     const infosList = document.getElementById('livre-infos');
     infosList.innerHTML = '';
+
     const addInfo = (label, value) => {
         if (value) {
             if (label === 'Auteur') {
@@ -25,42 +28,50 @@ function SetUpLivreInfo() {
                     const auteurInfo = {
                         prenom: livreData.prenom_auteur,
                         nom: livreData.nom_auteur,
-                        nationalite : livreData.nationalite_auteur,
-                        image_auteur : livreData.image_auteur,
+                        nationalite: livreData.nationalite_auteur,
+                        image_auteur: livreData.image_auteur,
                         date_naissance: livreData.date_naissance, 
                         biographie_auteur: livreData.biographie_auteur 
-                        
                     };
                     sessionStorage.setItem('auteurSelectionne', JSON.stringify(auteurInfo));
                     window.location.href = "auteurInfo.html";
                 });
-                
-
             } else {
                 const li = document.createElement('li');
                 li.innerHTML = `<strong>${label}:</strong> ${value}`;
                 infosList.appendChild(li);
             }
-    
         }
     };
+
+    // Ajout du code livre pour les admins
+    if (isAdmin && livreData.code_livre) {
+        addInfo('Code livre', livreData.code_livre);
+    }
+
     addInfo('Description', livreData.description);
     addInfo('Catégorie', livreData.categorie);
     addInfo('Langue', livreData.langue);
     addInfo('Date de parution', livreData.date_parution);
+    
     if (livreData.nom_auteur && livreData.prenom_auteur) {
         addInfo('Auteur', `${livreData.prenom_auteur} ${livreData.nom_auteur}`);
     }
+    
     addInfo('Format', livreData.format);
     addInfo('Nombre de pages', livreData.nb_pages);
     
-    // Ajout de l'information sur le stock disponible
-    addInfo('Exemplaires disponibles', livreData.stock || '0');
+    // Modification de l'affichage du statut pour les admins
+    if (isAdmin) {
+        addInfo('Statut', livreData.emprunte ? 'Emprunté' : 'Disponible');
+    } else {
+        addInfo('Exemplaires disponibles', livreData.stock || '0');
+    }
 
     const conteneurBtn = document.getElementById('conteneur-btn');
     conteneurBtn.innerHTML = '';
 
-    if (sessionStorage.getItem('admin') === 'true') {
+    if (isAdmin) {
         const btnSupprimer = document.createElement('button');
         btnSupprimer.textContent = "Supprimer ce livre";
         btnSupprimer.className = "btn-supprimer";
@@ -87,7 +98,6 @@ function SetUpLivreInfo() {
         const btnEmprunt = document.createElement('button');
         btnEmprunt.className = 'btn-emprunt';
         
-        // Modifier la condition pour vérifier le stock plutôt que deja_emprunter
         if (livreData.stock <= 0) {
             btnEmprunt.disabled = true;
             btnEmprunt.textContent = "Indisponible";
@@ -105,7 +115,6 @@ function SetUpLivreInfo() {
             });
         }
         conteneurBtn.appendChild(btnEmprunt);
-
     }
 }
 

@@ -343,3 +343,24 @@ a,button{
     transform: translateY(0);
     box-shadow: 0 2px 3px rgba(0,0,0,0.2);
 }
+
+/* Styles pour les livres empruntés */
+.livre-emprunte {
+    position: relative;
+    border: 2px solid #0b7dda;
+    box-shadow: 0 0 10px rgba(127, 140, 141, 0.3);
+    opacity: 0.8;
+}
+
+.badge-emprunte {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #0b7dda; /* Bleu pour différencier des indisponibles */
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 1;
+}
