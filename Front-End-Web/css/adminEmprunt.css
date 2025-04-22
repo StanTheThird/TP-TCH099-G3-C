@@ -144,7 +144,20 @@ a,button{
     color: black;
     box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
 }
-
+.btn-retour{
+    background:linear-gradient(to right,#62C4E8,#CE8DFF);
+    padding: 0.63rem 1.56rem;
+    transition-duration: 0.4s;
+    border-radius: 0.44rem;
+    cursor: pointer;
+    margin-left: 1.5rem;
+    margin-top: 1.5rem;
+}
+.btn-retour :hover {
+    opacity: 0.85;
+    color: black;
+    box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
+}
 /* ------ Style de base pour la page emprunt ------ */
 .conteneurPrincipal {
     padding: 20px;
