@@ -38,18 +38,6 @@ function createFiltre(livres) {
         filtre.append(label, select);
     });
 
-    const recherche = document.createElement('label');
-    recherche.textContent = " 🔎 ";
-    recherche.htmlFor = "rechercheLivre";
-    recherche.id = "symbole";
-    const champRecherche = document.createElement('input');
-    champRecherche.type = "text";
-    champRecherche.id = "rechercheLivre";
-    champRecherche.placeholder = "Entrez un titre/auteur...";
-    champRecherche.className = "champ-recherche";
-    champRecherche.addEventListener('input', filtrerFromOptions);
-    filtre.append(recherche, champRecherche);
-
     const conteneurBouton = document.createElement('div');
     conteneurBouton.className= 'affichage-boutons';
     const btnGrille = document.createElement('button');
@@ -63,6 +51,18 @@ function createFiltre(livres) {
     conteneurBouton.appendChild(btnGrille);
     conteneurBouton.appendChild(btnListe);
     filtre.appendChild(conteneurBouton);
+    
+    const recherche = document.createElement('label');
+    recherche.textContent = " 🔎 ";
+    recherche.htmlFor = "rechercheLivre";
+    recherche.id = "symbole";
+    const champRecherche = document.createElement('input');
+    champRecherche.type = "text";
+    champRecherche.id = "rechercheLivre";
+    champRecherche.placeholder = "Entrez un titre/auteur...";
+    champRecherche.className = "champ-recherche";
+    champRecherche.addEventListener('input', filtrerFromOptions);
+    filtre.append(recherche, champRecherche);
 }
 
 function filtrerFromOptions() {
