@@ -127,6 +127,75 @@ class ControleLivre {
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+    public static function getAllBookAdmin() {
+        global $pdo;
+    
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        $search = $_GET['search'] ?? '';
+        $search = trim($search);
+        $params = [];
+        
+        $query = "SELECT l.id_livre, l.code_livre, l.image, l.titre, l.description, l.date_parution,  
+                 l.nb_pages, l.format, l.emprunte,
+                 c.nom AS categorie, la.nom AS langue,
+                 a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.nationalite AS nationalite_auteur,
+                 a.date_naissance, a.biographie AS biographie_auteur, a.image AS image_auteur
+                 FROM Livre l
+                 INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
+                 INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
+                 INNER JOIN Langue la ON l.langue_id = la.id_langue
+                 WHERE 1=1";
+    
+        // Search filter (title, author or code_livre)
+        if (!empty($search)) {
+            $query .= " AND (
+                l.titre LIKE :searchTitre 
+                OR a.nom LIKE :searchNom 
+                OR a.prenom LIKE :searchPrenom
+                OR l.code_livre LIKE :searchCode
+            )";
+            $params[':searchTitre'] = "%$search%";
+            $params[':searchNom'] = "%$search%";
+            $params[':searchPrenom'] = "%$search%";
+            $params[':searchCode'] = "%$search%";
+        }
+    
+        try {
+            $stmt = $pdo->prepare($query);
+            
+            // Debug: Afficher la requête et les paramètres
+            error_log("Requête SQL: " . $query);
+            error_log("Paramètres: " . print_r($params, true));
+            
+            $success = $stmt->execute($params);
+            
+            if (!$success) {
+                $errorInfo = $stmt->errorInfo();
+                throw new PDOException("Erreur d'exécution: " . $errorInfo[2]);
+            }
+            
+            $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug: Vérifier les résultats
+            error_log("Nombre de livres trouvés: " . count($books));
+            
+            if (empty($books)) {
+                echo json_encode([]);
+                return;
+            }
+            
+            echo json_encode($books, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'query' => $query,
+                'params' => $params
+            ], JSON_UNESCAPED_UNICODE);
+        }
+    }
     public static function emprunterLivre(){
         global $pdo;
     

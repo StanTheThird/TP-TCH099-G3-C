@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
         case "Admin":
             sessionStorage.setItem('admin', 'true');
             loadScript('../Scripts/Admin.js', () => {
-                displayAllBooks();
+                displayBooks();
                 setUpModalAjoutLivre();
             });
             break;
