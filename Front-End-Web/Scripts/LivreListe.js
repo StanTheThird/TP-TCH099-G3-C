@@ -116,9 +116,21 @@ async function displayFilteredBooks(filters) {
             return;
         }
 
+        // Valeur par défaut: "grille"
+        const mode = localStorage.getItem('modeAffichage') || 'grille';
+        if (mode === 'liste') {
+            conteneur.className = 'conteneur-liste';
+        } else {
+            conteneur.className = 'conteneur-grille';
+        }        
         livres.forEach(livre => {
-            const carte = createLivre(livre);
-            conteneur.appendChild(carte);
+            let element;
+            if (mode === 'liste') {
+                element = addLivre(livre);
+            } else {
+                element = createLivre(livre);
+            }
+            conteneur.appendChild(element);
         });
 
     } catch (error) {
@@ -174,5 +186,39 @@ function changerAffichage(mode) {
     filtrerFromOptions();
 }
 
+function addLivre(livre) {
+    const livreDiv = document.createElement('div');
+    livreDiv.className = 'livre';
+
+    livreDiv.addEventListener('click', () => {
+        sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
+        window.location.href = "livreInfo.html";
+    });
+
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'livreInfo';
+
+    const imageDiv = document.createElement('div');
+    imageDiv.className = 'image';
+    imageDiv.innerHTML = `<img src="${livre.image || 'placeholder.jpg'}" alt="${livre.titre || 'Couverture'}">`;
+
+    const descDiv = document.createElement('div');
+    descDiv.className = 'desc';
+    descDiv.innerHTML = `
+        <h1>${livre.titre}</h1>
+        <ul>
+            ${livre.description ? `<li>${livre.description}</li>` : ''}
+            ${livre.categorie ? `<li>Catégorie: ${livre.categorie}</li>` : ''}
+            ${livre.langue ? `<li>Langue: ${livre.langue}</li>` : ''}
+            ${livre.date_parution ? `<li>Date de parution: ${livre.date_parution}</li>` : ''}
+            ${livre.nom_auteur && livre.prenom_auteur ? `<li>Auteur: ${livre.prenom_auteur} ${livre.nom_auteur}</li>` : ''}
+        </ul>
+    `;
+    infoDiv.appendChild(imageDiv);
+    infoDiv.appendChild(descDiv);
+    livreDiv.appendChild(infoDiv);
+
+    return livreDiv;
+}
 // Initialisation
 populateFiltres();
