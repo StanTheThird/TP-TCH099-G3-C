@@ -30,6 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
             sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/Historique.js');
             break;
+        case "Création Administrateur":  // New case for createAdmin.html
+            sessionStorage.setItem('admin', 'true');
+            loadScript('../Scripts/Admin.js', () => {
+                createAdmin();  // Call the createAdmin function after loading
+            });
+            break;
         default:
             console.log("Rien à faire.");
     }
@@ -84,6 +90,8 @@ function SetUpNavigation() {
         
         if (user.type == 1) {
             nav.appendChild(createMenuItem('Administration', 'admin.html'));
+            // Add link to createAdmin.html only for existing admins
+            nav.appendChild(createMenuItem('Créer Admin', 'createAdmin.html'));
         }
     } else {
         nav.appendChild(createMenuItem('Connexion', 'connexion.html'));
