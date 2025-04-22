@@ -10,24 +10,58 @@ async function ShowHistorique() {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
+        
+        const data = await response.json();
+        
         if (!response.ok) {
-            throw new Error('Erreur lors de la récupération de l\'historique');
+            throw new Error(data.error || 'Erreur lors de la récupération de l\'historique');
         }
-        const historique = await response.json();
-        displayHistorique(historique);
+        
+        displayHistorique(data);
     } catch (error) {
         console.error('Erreur:', error);
         alert(error.message);
     }
 }
 
-function displayHistorique(historique) {
+function displayHistorique(data) {
     const conteneur = document.querySelector('.conteneurHistorique');
     conteneur.innerHTML = '';
-    if (historique.length === 0) {
-        conteneur.innerHTML = '<p class="aucun-emprunt">Aucun emprunt dans votre historique</p>';
+    
+    // Cas où l'historique est vide
+    if (data.status === "empty") {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'empty-history';
+        
+        emptyDiv.innerHTML = `
+            <div class="empty-icon">📚</div>
+            <h2>${data.message}</h2>
+            <button class="btn-explorer" onclick="window.location.href='accueil.html'">
+                Explorer les livres
+            </button>
+        `;
+        
+        conteneur.appendChild(emptyDiv);
         return;
     }
+    
+    // Cas où l'historique contient des données
+    if (data.length === 0) {
+        // Fallback au cas où l'API ne renverrait pas le status "empty"
+        conteneur.innerHTML = `
+            <div class="empty-history">
+                <div class="empty-icon">📚</div>
+                <h2>Vous n'avez encore emprunté aucun livre</h2>
+                <p>Parcourez notre catalogue pour trouver votre prochaine lecture !</p>
+                <button class="btn-explorer" onclick="window.location.href='accueil.html'">
+                    Explorer les livres
+                </button>
+            </div>
+        `;
+        return;
+    }
+
+    // Le reste du code pour afficher l'historique non vide reste inchangé
     const table = document.createElement('table');
     table.className = 'table-historique';
     const thead = document.createElement('thead');
@@ -41,6 +75,7 @@ function displayHistorique(historique) {
         </tr>
     `;
     table.appendChild(thead);
+    
     const tbody = document.createElement('tbody');
     historique.forEach(emprunt => {
         const row = document.createElement('tr');
