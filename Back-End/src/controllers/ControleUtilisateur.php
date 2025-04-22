@@ -117,19 +117,10 @@ class ControleUtilisateur{
         }
     }
     public static function getHistorique($userId) {
-        // Partie importante ne pas retirer: 
-        require_once __DIR__ . "/../../config.php"; 
         global $pdo;
         
-        // Configuration des headers
         header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST');
-        header('Access-Control-Allow-Headers: Content-Type');
         header('Content-Type: application/json; charset=utf-8');
-    
-        // // Récupérer l'ID utilisateur depuis les paramètres de la requête
-        // $data = json_decode(file_get_contents('php://input'), true);
-        // $userId = $data['id_utilisateur'] ?? null;
     
         if (!$userId) {
             http_response_code(400);
@@ -138,7 +129,6 @@ class ControleUtilisateur{
         }
     
         try {
-            // Requête pour récupérer l'historique des emprunts
             $query = $pdo->prepare("
                 SELECT 
                     e.id_emprunt,
@@ -151,9 +141,7 @@ class ControleUtilisateur{
                     a.nom AS auteur_nom,
                     a.prenom AS auteur_prenom,
                     c.nom AS categorie,
-                    lang.nom AS langue,
-                    s.montant AS amende,
-                    s.date_limite_paiement AS date_limite_amende
+                    lang.nom AS langue
                 FROM 
                     Emprunt e
                 JOIN 
@@ -164,8 +152,6 @@ class ControleUtilisateur{
                     Categorie c ON l.categorie_id = c.id_categorie
                 JOIN 
                     Langue lang ON l.langue_id = lang.id_langue
-                LEFT JOIN 
-                    Solde s ON e.id_emprunt = s.emprunt_id
                 WHERE 
                     e.utilisateur_id = ?
                 ORDER BY 
@@ -176,36 +162,18 @@ class ControleUtilisateur{
             $historique = $query->fetchAll(PDO::FETCH_ASSOC);
     
             if (empty($historique)) {
-                http_response_code(404);
-                echo json_encode(["message" => "Aucun emprunt trouvé pour cet utilisateur"]);
+                // Retourne un code 200 avec un message spécifique
+                http_response_code(200);
+                echo json_encode([
+                    "status" => "empty",
+                    "message" => "Vous n'avez encore emprunté aucun livre. Parcourez notre catalogue pour trouver votre prochaine lecture !"
+                ]);
                 return;
             }
     
-            // Formater les données pour la réponse
-            $response = [];
-            foreach ($historique as $emprunt) {
-                $response[] = [
-                    'id_emprunt' => $emprunt['id_emprunt'],
-                    'date_emprunt' => $emprunt['date_emprunt'],
-                    'date_limite' => $emprunt['date_limite'],
-                    'date_retour' => $emprunt['date_retour'],
-                    'livre' => [
-                        'id' => $emprunt['id_livre'],
-                        'titre' => $emprunt['titre'],
-                        'image' => $emprunt['image'],
-                        'auteur' => $emprunt['auteur_prenom'] . ' ' . $emprunt['auteur_nom'],
-                        'categorie' => $emprunt['categorie'],
-                        'langue' => $emprunt['langue']
-                    ],
-                    'amende' => $emprunt['amende'] ? [
-                        'montant' => $emprunt['amende'],
-                        'date_limite_paiement' => $emprunt['date_limite_amende']
-                    ] : null
-                ];
-            }
-    
+            // Formatage des données existant...
             http_response_code(200);
-            echo json_encode($response);
+            echo json_encode($historique);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => "Erreur serveur: " . $e->getMessage()]);

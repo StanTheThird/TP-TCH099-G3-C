@@ -188,6 +188,10 @@ function displayEmpruntAdmin() {
     const conteneur = document.querySelector('.conteneurEmprunt');
     conteneur.innerHTML = '';
 
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'emprunt-controls';
+
+    // Barre de recherche
     const divRecherche = document.createElement('div');
     divRecherche.className = 'recherche-emprunt';
 
@@ -195,7 +199,6 @@ function displayEmpruntAdmin() {
     inputRecherche.type = 'text';
     inputRecherche.id = 'rechercheEmpruntInput';
     inputRecherche.placeholder = 'Code du livre';
-
     inputRecherche.addEventListener('input', () => {
         const valeurRecherche = inputRecherche.value.trim();
         if (valeurRecherche === '') {
@@ -205,14 +208,49 @@ function displayEmpruntAdmin() {
         }
     });
 
-    divRecherche.appendChild(inputRecherche);
-    conteneur.appendChild(divRecherche);
+    // Menu déroulant pour le tri
+    const sortSelect = document.createElement('select');
+    sortSelect.id = 'sortEmprunts';
+    sortSelect.className = 'sort-select';
+    
+    const options = [
+        { value: 'date_desc', text: 'Date emprunt(récent → ancien)' },
+        { value: 'date_asc', text: 'Date emprunt(ancien → récent)' },
+        { value: 'nom_asc', text: 'Utilisateur (A → Z)' },
+        { value: 'nom_desc', text: 'Utilisateur (Z → A)' },
+        { value: 'code_asc', text: 'Code livre (A → Z)' },
+        { value: 'code_desc', text: 'Code livre (Z → A)' }
+    ];
+    
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.text;
+        sortSelect.appendChild(optionElement);
+    });
 
-    chargerTousLesEmprunts(conteneur);
+    sortSelect.addEventListener('change', () => {
+        chargerTousLesEmprunts(conteneur, sortSelect.value);
+    });
+
+    divRecherche.appendChild(inputRecherche);
+    
+    const sortDiv = document.createElement('div');
+    sortDiv.className = 'sort-emprunt';
+    const sortLabel = document.createElement('label');
+    sortLabel.textContent = 'Trier par: ';
+    sortLabel.htmlFor = 'sortEmprunts';
+    sortDiv.appendChild(sortLabel);
+    sortDiv.appendChild(sortSelect);
+
+    controlsDiv.appendChild(divRecherche);
+    controlsDiv.appendChild(sortDiv);
+    conteneur.appendChild(controlsDiv);
+    chargerTousLesEmprunts(conteneur, 'date_desc');
 }
 
-function chargerTousLesEmprunts(conteneur) {
-    fetch('http://localhost:8000/api/emprunt/admin')
+function chargerTousLesEmprunts(conteneur, sortBy = 'date_desc') {
+    fetch(`http://localhost:8000/api/emprunt/admin?sort=${sortBy}`)
         .then(response => {
             if (!response.ok) throw new Error('Erreur recherche');
             return response.json();
@@ -226,8 +264,8 @@ function chargerTousLesEmprunts(conteneur) {
         });
 }
 
-function rechercherEmprunts(search, conteneur) {
-    fetch(`http://localhost:8000/api/emprunt/recherche?search=${encodeURIComponent(search)}`)
+function rechercherEmprunts(search, conteneur, sortBy = 'date_desc') {
+    fetch(`http://localhost:8000/api/emprunt/recherche?search=${encodeURIComponent(search)}&sort=${sortBy}`)
         .then(response => {
             if (!response.ok) throw new Error('Erreur recherche');
             return response.json();

@@ -374,52 +374,76 @@ class ControleLivre {
 
     public static function getAllEmprunt(){
         global $pdo;
-
+    
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json');
-
+    
+        // Récupérer le paramètre de tri
+        $sort = $_GET['sort'] ?? 'date_desc';
+        
         try{
             $query = $pdo->prepare('SELECT e.id_emprunt, e.date_emprunt, e.date_limite, e.date_retour, 
-            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, l.id_livre, l.titre, l.code_livre
+            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, 
+            l.id_livre, l.titre, l.code_livre
             FROM Emprunt e
             INNER JOIN Utilisateur u ON e.utilisateur_id = u.id_utilisateur 
             INNER JOIN Livre l ON e.livre_id = l.id_livre
-            ORDER BY e.date_retour DESC
-            ');
+            ORDER BY ' . self::getOrderByClause($sort));
+            
             $query->execute();
-            $emprunts = $query -> fetchAll(PDO::FETCH_ASSOC);
-
+            $emprunts = $query->fetchAll(PDO::FETCH_ASSOC);
+    
             echo json_encode($emprunts);
-
+    
         } catch (PDOException $e){
             http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
-
+    
     public static function getEmpruntParRecherche(){
         global $pdo;
         header('Content-Type: application/json');
-
+    
         $search = trim($_GET['search'] ?? '');
+        $sort = $_GET['sort'] ?? 'date_desc';
         $params = [];
-
+    
         try{
             $query = $pdo->prepare('SELECT e.id_emprunt, e.date_emprunt, e.date_limite, e.date_retour, 
-            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, l.id_livre, l.code_livre, l.titre
+            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, 
+            l.id_livre, l.code_livre, l.titre
             FROM Emprunt e
             INNER JOIN Livre l ON e.livre_id = l.id_livre
             INNER JOIN Utilisateur u ON e.utilisateur_id = u.id_utilisateur 
             WHERE l.code_livre LIKE :search
-            ORDER BY e.date_emprunt DESC
-            ');
-            $query -> execute([':search' => "$search%"]);
+            ORDER BY ' . self::getOrderByClause($sort));
+            
+            $query->execute([':search' => "$search%"]);
             $resultats = $query->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($resultats);
-
+    
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(["error" => $e->getMessage()]);
+        }
+    }
+    
+    // Fonction utilitaire pour générer la clause ORDER BY en fonction du tri sélectionné
+    private static function getOrderByClause($sort) {
+        switch ($sort) {
+            case 'date_asc':
+                return 'e.date_emprunt ASC';
+            case 'nom_asc':
+                return 'u.nom ASC, u.prenom ASC';
+            case 'nom_desc':
+                return 'u.nom DESC, u.prenom DESC';
+            case 'code_asc':
+                return 'l.code_livre ASC';
+            case 'code_desc':
+                return 'l.code_livre DESC';
+            default: // date_desc
+                return 'e.date_emprunt DESC';
         }
     }
 
