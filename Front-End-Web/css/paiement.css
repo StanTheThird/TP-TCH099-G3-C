@@ -1,0 +1,132 @@
+/* ---------------- création grille ---------------- */
+html, body {
+    height: 100%;
+    margin: 0;
+  }
+  .conteneur {
+    display: grid;
+    min-height: 100vh;
+    grid-template-rows: 6rem auto 1fr auto;
+    grid-template-columns: auto;
+    grid-template-areas:
+      "header"
+      "filters"  /* vide sur cette page */
+      "main"
+      "footer";
+  }
+  
+  /* ---------------- style header ---------------- */
+  .header {
+    grid-area: header;
+    background-color: rgb(235, 197, 161);
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* ---------------- style main (formulaire paiement) ---------------- */
+  .main {
+    grid-area: main;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding: 2rem 1rem;
+    background-color: #DEEDFF;
+  }
+  
+  .containerPaiement {
+    background-color: #FCF9F7;
+    padding: 1.5rem;
+    border-radius: 0.63rem;
+    width: 360px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .containerPaiement h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-family: cooper black, serif;
+  }
+  
+  /* ----- labels & inputs ----- */
+  .containerPaiement label {
+    display: block;
+    margin-top: 1rem;
+    font-family: 'Courier New', monospace;
+  }
+  
+  .containerPaiement input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 0.44rem;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+  }
+  
+  /* Cacher les chiffres du CVC */
+  .containerPaiement input[name="cvc"] {
+    font-family: password;
+  }
+  
+  /* ----- bouton PAYER ----- */
+  .btn-payer {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    background: linear-gradient(to right, #62C4E8, #CE8DFF);
+    border: none;
+    border-radius: 0.44rem;
+    font-family: fantasy, cursive;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: opacity 0.3s, box-shadow 0.3s;
+  }
+  
+  .btn-payer:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+  }
+  
+  .btn-payer:hover:not(:disabled) {
+    opacity: 0.85;
+    box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
+  }
+  
+  /* ----- message d’erreur ----- */
+  .message_erreur {
+    color: #BA0808;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    margin-top: 0.5rem;
+    min-height: 1.2em;
+  }
+  
+  /* ---------------- style footer ---------------- */
+  .debutfooter {
+    grid-area: footer;
+    font-size: smaller;
+    background-color: rgb(235, 197, 161);
+    width: 100%;
+  }
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem;
+  }
+  
+  /* ----- conteneurs footer ----- */
+  .apropos, .contacter, .reseaux {
+    flex: 1;
+    padding: 0.63rem 1rem;
+  }
+  .apropos, .contacter {
+    padding-right: 5.63rem;
+  }
+  
+  /* ----- copyrights ----- */
+  .copyright {
+    text-align: center;
+    font-family: 'Courier New', monospace;
+  }
+  

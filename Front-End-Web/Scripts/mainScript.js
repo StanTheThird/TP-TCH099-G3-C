@@ -1,16 +1,19 @@
+// mainScript.js
 document.addEventListener("DOMContentLoaded", () => {
     SetUpNavigation();
     const nomPage = document.title;
-    // Chargement dynamique des scripts en fonction de la page
-    switch(nomPage) {
+
+    switch (nomPage) {
         case "BiblioSmart":
             sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/LivreListe.js');
             break;
+
         case "Connexion":
         case "Enregistrement":
             loadScript('../Scripts/EnregistrementConnexion.js');
             break;
+
         case "Admin":
             sessionStorage.setItem('admin', 'true');
             loadScript('../Scripts/Admin.js', () => {
@@ -18,27 +21,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 setUpModalAjoutLivre();
             });
             break;
+
         case "AdminEmprunt":
+            sessionStorage.setItem('admin', 'true');
             loadScript('../Scripts/Admin.js', () => {
                 displayEmpruntAdmin();
             });
             break;
+
         case "InfoLivre":
             loadScript('../Scripts/InfoLivre.js');
             break;
+
         case "InfoAuteur":
             loadScript('../Scripts/infoAuteur.js');
-            break;    
+            break;
+
         case "Historique":
             sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/Historique.js');
             break;
-        case "Création Administrateur":  // New case for createAdmin.html
+
+        case "Paiement":
+            // Pas de script externe : on gère tout ici
+            sessionStorage.setItem('admin', 'false');
+            SetupPayment();
+            break;
+
+        case "Création Administrateur":
             sessionStorage.setItem('admin', 'true');
             loadScript('../Scripts/Admin.js', () => {
-                createAdmin();  // Call the createAdmin function after loading
+                createAdmin();
             });
             break;
+
         default:
             console.log("Rien à faire.");
     }
@@ -47,9 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function loadScript(scriptName, callback = null) {
     const script = document.createElement('script');
     script.src = scriptName;
-    script.onload = () => {
-        if (callback) callback();
-    };
+    script.onload = () => { if (callback) callback(); };
     document.head.appendChild(script);
 }
 
@@ -58,53 +72,80 @@ function SetUpNavigation() {
     nav.innerHTML = '';
     const menuButton = document.querySelector('.btn-menu a');
     const userData = localStorage.getItem('user');
-    const isConnected = userData !== null;
-    
-    if (isConnected) {
-        const user = JSON.parse(userData);
-        menuButton.innerHTML = `<img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30"> ${user.nom_utilisateur}`;
-    } else {
-        menuButton.innerHTML = `<img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30"> Menu`;
-    }
+    const isConnected = !!userData;
 
-    const createMenuItem = (text, href = '#', onClick = null) => {
+    menuButton.innerHTML = isConnected
+        ? `<img src="/Front-End-Web/ressources/menu.jpg" width="40" height="30"> ${JSON.parse(userData).nom_utilisateur}`
+        : `<img src="/Front-End-Web/ressources/menu.jpg" width="40" height="30"> Menu`;
+
+    const createMenuItem = (text, href='#', onClick=null) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.textContent = text;
-        if (href !== '#') {
-            a.href = '/Front-End-Web/html/' + href;
-        }
-        if (onClick) {
-            a.addEventListener('click', onClick);
-        }
+        if (href!=='#') a.href = '/Front-End-Web/html/' + href;
+        if (onClick) a.addEventListener('click', onClick);
         li.appendChild(a);
         return li;
     };
 
-    nav.appendChild(createMenuItem('Accueil', 'accueil.html'));
-    
+    nav.appendChild(createMenuItem('Accueil','accueil.html'));
+
     if (isConnected) {
         const user = JSON.parse(userData);
-        nav.appendChild(createMenuItem('Historique', 'historique.html'));
-        nav.appendChild(createMenuItem('Déconnexion', 'accueil.html', () => {
+        nav.appendChild(createMenuItem('Historique','historique.html'));
+        nav.appendChild(createMenuItem('Déconnexion','accueil.html', () => {
             localStorage.removeItem('user');
             SetUpNavigation();
         }));
-        
-        if (user.type == 1) {
-            nav.appendChild(createMenuItem('Administration', 'admin.html'));
-            // Retirer la ligne suivante qui créait l'option dans le menu
-            // nav.appendChild(createMenuItem('Créer Admin', 'createAdmin.html'));
+        if (user.type==1) {
+            nav.appendChild(createMenuItem('Administration','admin.html'));
         }
     } else {
-        nav.appendChild(createMenuItem('Connexion', 'connexion.html'));
-        nav.appendChild(createMenuItem('Enregistrement', 'enregistrement.html'));
+        nav.appendChild(createMenuItem('Connexion','connexion.html'));
+        nav.appendChild(createMenuItem('Enregistrement','enregistrement.html'));
     }
 }
 
-// Fonction utilitaire partagée
 function formatDate(dateString) {
     if (!dateString) return '-';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-CA');
+    return new Date(dateString).toLocaleDateString('fr-CA');
+}
+
+// --- NOUVELLE FONCTION POUR LA PAGE PAIEMENT ---
+function SetupPayment() {
+    const form = document.getElementById("paymentForm");
+    const messageErreur = document.getElementById("messageErreur");
+
+    // TODO : remplacer par un appel API réel ou lecture depuis localStorage
+    const montant = parseFloat(localStorage.getItem("solde") || "0");
+    form.montant.value = montant.toFixed(2);
+
+    form.addEventListener("submit", async e => {
+        e.preventDefault();
+        messageErreur.textContent = "";
+
+        // Récupère toutes les données du formulaire
+        const data = Object.fromEntries(new FormData(form).entries());
+        // Ajoute l'ID utilisateur
+        data.id_utilisateur = JSON.parse(localStorage.getItem("user")).id;
+        // Force le montant
+        data.montant = montant;
+
+        try {
+            const resp = await fetch("http://localhost:8000/api/paiement", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            const json = await resp.json();
+            if (!resp.ok) throw new Error(json.error || "Erreur paiement");
+
+            alert("Paiement réussi ! Votre solde est maintenant à $ 0.00");
+            // Remise à zéro du solde en localStorage
+            localStorage.setItem("solde", "0");
+            window.location.href = "accueil.html";
+        } catch (err) {
+            messageErreur.textContent = err.message;
+        }
+    });
 }

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paiement</title>
+  <link rel="stylesheet" href="/Front-End-Web/css/normalize.css" />
+  <link rel="stylesheet" href="/Front-End-Web/css/paiement.css" />
+</head>
+<body>
+  <div class="conteneur">
+    <header class="header">
+      <div class="logo">
+        <!-- ton logo… -->
+      </div>
+      <nav id="navigation">
+        <!-- SetUpNavigation() injectera ici les liens Accueil, Connexion… -->
+      </nav>
+    </header>
+
+    <main class="main">
+      <div class="containerPaiement">
+        <h1>Paiement du solde</h1>
+        <form id="paymentForm">
+          <label>Nom sur la carte</label>
+          <input type="text" name="nom" required />
+
+          <label>Numéro de carte</label>
+          <input type="text"
+                 name="numero"
+                 pattern="^4519\d{12}$"
+                 title="Doit commencer par 4519 et contenir 16 chiffres"
+                 maxlength="16"
+                 required />
+
+          <label>Date d’expiration (MM/AA)</label>
+          <input type="text"
+                 name="date_expiration"
+                 placeholder="MM/AA"
+                 pattern="^(0[1-9]|1[0-2])\/(2[0-4])$"
+                 title="Format MM/AA, et année ≥ 2025"
+                 required />
+
+          <label>CVC</label>
+          <input type="password"
+                 name="cvc"
+                 maxlength="3"
+                 pattern="\d{3}"
+                 title="3 chiffres"
+                 required />
+
+          <label>Montant à payer ($ CAD)</label>
+          <input type="number"
+                 name="montant"
+                 step="0.01"
+                 readonly />
+
+          <p id="messageErreur" class="message_erreur"></p>
+
+          <button type="submit" class="btn-payer">PAYER</button>
+        </form>
+      </div>
+    </main>
+
+    <footer>
+      <!-- ton footer… -->
+    </footer>
+  </div>
+
+  <!-- Chargement du mainScript juste avant </body> -->
+  <script src="/Front-End-Web/js/mainScript.js"></script>
+</body>
+</html>
+
