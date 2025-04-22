@@ -129,29 +129,9 @@ async function emprunter(livreId, bouton, event = null) {
         
         if (!response.ok) throw new Error((await response.json()).error);
         
-        const result = await response.json();
-        
-        if (bouton) {
-            const livreData = JSON.parse(sessionStorage.getItem('livreSelectionne'));
-            livreData.stock = result.stock;
-            sessionStorage.setItem('livreSelectionne', JSON.stringify(livreData));
-            
-            // Mettre à jour l'affichage du stock
-            const stockElements = document.querySelectorAll('li');
-            stockElements.forEach(el => {
-                if (el.textContent.includes('Exemplaires disponibles')) {
-                    el.innerHTML = `<strong>Exemplaires disponibles:</strong> ${livreData.stock}`;
-                }
-            });
-            
-            if (livreData.stock <= 0) {
-                bouton.disabled = true;
-                bouton.textContent = "Indisponible";
-                bouton.style.background = "gray";
-            }
-        }
-        
         alert("Emprunt réussi !");
+        
+        window.location.href = '/Front-End-Web/html/accueil.html';
     } catch (error) {
         console.error("Erreur:", error);
         alert("Erreur: " + error.message);

@@ -401,8 +401,8 @@ class ControleLivre {
                        SUM(CASE WHEN l.emprunte = FALSE THEN 1 ELSE 0 END) AS stock
                 FROM Livre l
                 JOIN Auteur a ON l.auteur_id = a.id_auteur
-                WHERE l.code_livre NOT IN (
-                    SELECT livre.code_livre 
+                WHERE l.titre NOT IN (
+                    SELECT livre.titre
                     FROM Emprunt 
                     JOIN Livre livre ON Emprunt.livre_id = livre.id_livre
                     WHERE Emprunt.utilisateur_id = ?

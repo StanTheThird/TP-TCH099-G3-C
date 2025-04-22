@@ -104,7 +104,7 @@ VALUES
     rentrée à Poudlar.Mais Harry est-il vraiment à l''abri du danger qui le menace ?.','1998-07-02','/Front-End-Web/ressources/prisonnierAzkaban.jpg',443,'Livre de poche',FALSE,1,3,2),
     (3937969,'Harry Potter et le prisonnier d''Azkaban','Sirius Black, le dangereux criminel qui s''est échappé de la forteresse d''Azkaban, recherche Harry Potter. C est donc sous bonne garde que l''apprenti sorcier fait sa
     rentrée à Poudlar.Mais Harry est-il vraiment à l''abri du danger qui le menace ?.','1998-07-02','/Front-End-Web/ressources/prisonnierAzkaban.jpg',443,'Livre de poche',FALSE,1,3,2),
-    (3745593,'Les Secrets de Dumbledore : le texte du film','e professeur Albus Dumbledore sait que le puissant mage noir Gellert Grindelwald cherche à prendre le contrôle du monde des sorciers. Incapable de le contrer seul,
+    (3745593,'Les Secrets de Dumbledore : le texte du film','Le professeur Albus Dumbledore sait que le puissant mage noir Gellert Grindelwald cherche à prendre le contrôle du monde des sorciers. Incapable de le contrer seul,
      il sollicite l''aide du magizoologiste Norbert Dragonneau pour réunir une équipe intrépide composée de sorciers.','1997-06-26','/Front-End-Web/ressources/secretsDumbledore.jpg',289,'Livre relié',FALSE,1,3,2),
     (2739713,'Orgueil et Préjugés','Un roman sur l''amour et les classes sociales, où Elizabeth Bennet et Mr. Darcy luttent contre leurs préjugés pour finir ensemble.','1813-01-28',
     '/Front-End-Web/ressources/orgueilPrejuges.jpg',288,'Livre numérique',FALSE,2,4,3),
