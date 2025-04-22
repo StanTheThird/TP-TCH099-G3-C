@@ -149,14 +149,14 @@ function createFiltre(livres) {
  
      //bouton pour afficher les livres en grille
      const btnGrille = document.createElement('button');
-     btnGrille.textContent = 'Grille';
      btnGrille.className = 'btn-affichage';
+     btnGrille.innerHTML = `<img src="../ressources/grille.jpg" alt="Grille" class="icone-btn">`;
      btnGrille.addEventListener('click', () => changerAffichage('grille'));
  
      //Bouton pour afficher les livres en liste 
      const btnListe = document.createElement('button');
-     btnListe.textContent = 'Liste';
      btnListe.className = 'btn-affichage';
+     btnListe.innerHTML = `<img src="../ressources/ligne.jpg" alt="Liste" class="icone-btn">`;
      btnListe.addEventListener('click' , () => changerAffichage('liste'));
  
      conteneurBouton.appendChild(btnGrille);
@@ -203,7 +203,7 @@ function addLivre(livre) {
     const conteneur = document.getElementById("conteneur_livres"); 
 
     if(mode == 'grille'){
-        const carte = createAdminLivre(livre); 
+        const carte = createLivre(livre); 
         conteneur.appendChild(carte);
     } else {
         const row = document.createElement('tr');
@@ -487,7 +487,7 @@ function formatDate(dateString) {
 }
 
 
-// création des éléments pour la bar des "filtres" + affiche tous les livres
+// création des éléments pour la bar pour la page admin + affiche tous les livres
 function displayAllBooks() {
     const filtreContainer = document.getElementById("admin");
 
@@ -519,15 +519,16 @@ function displayAllBooks() {
     const boutonAjout = document.createElement('button');
     boutonAjout.textContent = "+ Livre";
     boutonAjout.className = 'btn-ajout-livre';
-    // boutonAjout.addEventListener('click', () => {
-    //     const modal = document.getElementById('addLivreModal');
-    //     if (modal) {
-    //         modal.style.display = 'flex'; // Affiche la modal (voir CSS)
-    //     }
-    // });
+
+    const boutonEmprunt = document.createElement('button');
+    boutonEmprunt.textContent = "Gérer les emprunts";
+    boutonEmprunt.className = "btn-gerer-emprunt";
+    boutonEmprunt.addEventListener('click', () => {
+        window.location.href = 'adminEmprunt.html';
+    });
 
     // Ajoute tout dans la barre de "filtre"
-    bar.append(rechercheLabel, champRecherche, boutonAjout);
+    bar.append(rechercheLabel, champRecherche, boutonAjout, boutonEmprunt);
     filtreContainer.appendChild(bar);
 
     // Récupere tous les livres
@@ -592,6 +593,30 @@ function createAdminLivre(livre) {
 
     return carteLivre;
 }
+// Créeation des "cartes" pour les livres (côté client)
+function createLivre(livre) {
+    // Création de la carte qui va représenter le livre 
+    const carteLivre = document.createElement('div');
+    carteLivre.className = 'admin-livre-carte';
+
+    const image = document.createElement('img');
+    image.src = livre.image;
+    image.alt = livre.titre;
+
+    const titre = document.createElement('h3');
+    titre.textContent = livre.titre;
+
+    carteLivre.appendChild(image);
+    carteLivre.appendChild(titre);
+
+    // Au clic on va à la page livre info
+    carteLivre.addEventListener('click', () => {
+        sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
+        window.location.href = "livreInfo.html";
+    });
+
+    return carteLivre;
+}
 
 // Fenêtre du formulaire pour ajouter un livre
 function setUpModalAjoutLivre(){
@@ -623,8 +648,12 @@ function setUpModalAjoutLivre(){
             const data = {
                 image: document.getElementById('image').value,
                 titre: document.getElementById('titre').value,
+                code_livre: document.getElementById('codeLivre').value,
                 description: document.getElementById('description').value,
                 date_parution: document.getElementById('dateParution').value,
+                nb_pages: document.getElementById('nbPages').value,
+                format: document.getElementById('format').value,
+                stock: document.getElementById('stock').value,        
                 auteur_id: 1,                   // À CHANGER
                 langue_id: 1,                   // À CHANGER
                 categorie_id: 1                 // À CHANGER
@@ -650,71 +679,6 @@ function setUpModalAjoutLivre(){
         });
     }
 }
-
-// function displayEmpruntAdmin(){
-//     const conteneur = document.querySelector('.conteneurEmprunt');
-//     conteneur.innerHTML = '';
-
-//     fetch('http://localhost:8000/api/emprunt/admin')
-//         .then(response => {
-//             if (!response.ok) throw new Error('Erreur recherche');
-//             return response.json();
-//         })
-//         .then(emprunts => {
-//             if (emprunts.length === 0) {
-//             conteneur.innerHTML ='<p class="aucun-emprunt">Aucun emprunt trouvé !</p>';
-//             return;
-//         }
-//         const table = document.createElement('table');
-//         table.className = 'table-emprunt';
-//         const thread = document.createElement('thread');
-//         table.innerHTML = `
-//             <tr>
-//                 <th>Utilisateur</th>
-//                 <th>Titre du livre</th>
-//                 <th>Date d'emprunt</th>
-//                 <th>Date limite</th>
-//                 <th>Date de retour</th>
-//                 <th>Statut</th>
-//                 <th>Retour</th>
-//             </tr>
-//             `;
-//             table.appendChild(thread);
-//             const tbody = document.createElement('tbody');
-//             emprunts.forEach(emprunt => {
-//                 const row = document.createElement('tr');
-//                 let statut = '';
-//                 if (emprunt.date_retour) {
-//                     statut = 'Retourné';
-//                 } else {
-//                     const today = new Date();
-//                     const dateLimite = new Date(emprunt.date_limite);
-//                     statut = today > dateLimite ? 'En retard' : 'En cours';
-//                 }
-//                 row.innerHTML = `
-//                 <td>${emprunt.prenom_utilisateur} ${emprunt.nom_utilisateur}</td>
-//                 <td>${emprunt.titre}</td>
-//                 <td>${formatDate(emprunt.date_emprunt)}</td>
-//                 <td>${formatDate(emprunt.date_limite)}</td>
-//                 <td>${emprunt.date_retour ? formatDate(emprunt.date_retour) : '-'}</td>
-//                 <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
-//                 <td>
-//                     ${!emprunt.date_retour
-//                         ? `<button class="btn-retour" onclick="retournerLivre(${emprunt.id_emprunt})">Retourner</button>`
-//                         : ''}
-//                 </td>
-//             `;
-//             tbody.appendChild(row);
-//         });
-
-//         table.appendChild(tbody);
-//         conteneur.appendChild(table);
-//     })
-//     .catch(err => {
-//         console.error('Erreur chargement des emprunts admin:', err);
-//         conteneur.innerHTML = '<p class="erreur">Erreur lors du chargement des emprunts.</p>';
-//     });
-// }
 function displayEmpruntAdmin() {
     const conteneur = document.querySelector('.conteneurEmprunt');
     conteneur.innerHTML = '';
@@ -773,17 +737,13 @@ function afficherTableauEmprunts(emprunts, conteneur) {
     const ancienTableau = conteneur.querySelector('table');
     if (ancienTableau) ancienTableau.remove();
 
-    if (emprunts.length === 0) {
-        conteneur.innerHTML += '<p class="aucun-emprunt">Aucun emprunt trouvé !</p>';
-        return;
-    }
-
     const table = document.createElement('table');
     table.className = 'table-emprunt';
     table.innerHTML = `
         <thead>
             <tr>
                 <th>Utilisateur</th>
+                <th>Code livre</th>
                 <th>Titre du livre</th>
                 <th>Date d'emprunt</th>
                 <th>Date limite</th>
@@ -808,6 +768,7 @@ function afficherTableauEmprunts(emprunts, conteneur) {
 
         row.innerHTML = `
             <td>${emprunt.prenom_utilisateur} ${emprunt.nom_utilisateur}</td>
+            <td>${emprunt.code_livre}</td>
             <td>${emprunt.titre}</td>
             <td>${formatDate(emprunt.date_emprunt)}</td>
             <td>${formatDate(emprunt.date_limite)}</td>

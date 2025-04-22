@@ -8,7 +8,9 @@ class ControleLivre {
         header('Content-Type: application/json; charset=utf-8');
 
         try {
-            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom AS langue, l.date_parution, a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.date_naissance, a.biographie AS biographie_auteur 
+            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom AS langue, 
+            l.date_parution, a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.date_naissance, a.biographie AS biographie_auteur,
+            l.code_livre, l.nb_page, l.format, l.stock
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -32,7 +34,8 @@ class ControleLivre {
         header('Content-Type: application/json; charset=utf-8');
 
         try {
-            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, la.nom AS langue, l.date_parution, a.prenom AS prenom_auteur, a.nom AS nom_auteur 
+            $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, 
+            la.nom AS langue, l.date_parution, a.prenom AS prenom_auteur, a.nom AS nom_auteur 
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -173,15 +176,18 @@ class ControleLivre {
 
         $data = json_decode(file_get_contents('php://input'), true);
         if (!isset($data['image'], $data['titre'], $data['auteur_id'], $data['description'], 
-                $data['categorie_id'], $data['langue_id'], $data['date_parution'])) {
+                $data['categorie_id'], $data['langue_id'], $data['date_parution'], $data['code_livre'],
+                $data['nb_pages'], $data['format'], $data['stock'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Données incomplètes']);
             exit;
         }
 
         try {
-            $query = ("INSERT INTO Livre (image, titre, auteur_id, description, categorie_id, langue_id, date_parution)
-            VALUES (:image, :titre, :auteur_id, :description, :categorie_id, :langue_id, :date_parution)
+            $query = ("INSERT INTO Livre (image, titre, auteur_id, description, categorie_id, langue_id, date_parution, code_livre,
+            nb_pages, format, stock)
+            VALUES (:image, :titre, :auteur_id, :description, :categorie_id, :langue_id, :date_parution, :code_livre,
+            :nb_pages, :format, :stock)
             ");
             $requete = $pdo->prepare($query);
             $requete->execute([
@@ -192,6 +198,10 @@ class ControleLivre {
                 ':categorie_id' => $data['categorie_id'],
                 ':langue_id' => $data['langue_id'],
                 ':date_parution' => $data['date_parution'],
+                ':code_livre' => $data['code_livre'],
+                ':nb_pages' => $data['nb_pages'],
+                ':format' => $data['format'],
+                ':stock' => $data['stock']
             ]);
             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
         } catch (PDOException $e) {
@@ -276,7 +286,7 @@ class ControleLivre {
 
         try{
             $query = $pdo->prepare('SELECT e.id_emprunt, e.date_emprunt, e.date_limite, e.date_retour, 
-            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, l.id_livre, l.titre
+            u.id_utilisateur, u.nom AS nom_utilisateur, u.prenom AS prenom_utilisateur, l.id_livre, l.titre, l.code_livre
             FROM Emprunt e
             INNER JOIN Utilisateur u ON e.utilisateur_id = u.id_utilisateur 
             INNER JOIN Livre l ON e.livre_id = l.id_livre
