@@ -47,7 +47,6 @@ function displayHistorique(data) {
     
     // Cas où l'historique contient des données
     if (data.length === 0) {
-        // Fallback au cas où l'API ne renverrait pas le status "empty"
         conteneur.innerHTML = `
             <div class="empty-history">
                 <div class="empty-icon">📚</div>
@@ -61,7 +60,7 @@ function displayHistorique(data) {
         return;
     }
 
-    // Le reste du code pour afficher l'historique non vide reste inchangé
+    // Affichage normal de l'historique
     const table = document.createElement('table');
     table.className = 'table-historique';
     const thead = document.createElement('thead');
@@ -77,7 +76,7 @@ function displayHistorique(data) {
     table.appendChild(thead);
     
     const tbody = document.createElement('tbody');
-    historique.forEach(emprunt => {
+    data.forEach(emprunt => {
         const row = document.createElement('tr');
         let statut = '';
         if (emprunt.date_retour) {
@@ -87,11 +86,18 @@ function displayHistorique(data) {
             const dateLimite = new Date(emprunt.date_limite);
             statut = today > dateLimite ? 'En retard' : 'En cours';
         }
+        
+        // Correction: Vérification de la structure des données
+        const titreLivre = emprunt.livre?.titre || emprunt.titre || 'Titre inconnu';
+        const dateEmprunt = emprunt.date_emprunt ? formatDate(emprunt.date_emprunt) : '-';
+        const dateLimite = emprunt.date_limite ? formatDate(emprunt.date_limite) : '-';
+        const dateRetour = emprunt.date_retour ? formatDate(emprunt.date_retour) : '-';
+        
         row.innerHTML = `
-            <td>${emprunt.livre.titre}</td>
-            <td>${formatDate(emprunt.date_emprunt)}</td>
-            <td>${formatDate(emprunt.date_limite)}</td>
-            <td>${emprunt.date_retour ? formatDate(emprunt.date_retour) : '-'}</td>
+            <td>${titreLivre}</td>
+            <td>${dateEmprunt}</td>
+            <td>${dateLimite}</td>
+            <td>${dateRetour}</td>
             <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
         `;
         tbody.appendChild(row);
