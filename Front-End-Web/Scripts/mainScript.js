@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     SetUpNavigation();
     const nomPage = document.title;
-    
     // Chargement dynamique des scripts en fonction de la page
     switch(nomPage) {
         case "BiblioSmart":
+            sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/LivreListe.js');
             break;
         case "Connexion":
@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadScript('../Scripts/EnregistrementConnexion.js');
             break;
         case "Admin":
+            sessionStorage.setItem('admin', 'true');
             loadScript('../Scripts/Admin.js', () => {
                 displayAllBooks();
                 setUpModalAjoutLivre();
@@ -26,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadScript('../Scripts/InfoLivre.js');
             break;
         case "Historique":
+            sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/Historique.js');
             break;
         default:

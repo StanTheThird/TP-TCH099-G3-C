@@ -86,7 +86,6 @@ function createAdminLivre(livre) {
 
     carteLivre.addEventListener('click', () => {
         sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
-        sessionStorage.setItem('admin', 'true');
         window.location.href = "livreInfo.html";
     });
 

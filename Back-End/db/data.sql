@@ -100,7 +100,7 @@ VALUES
 -- Insertion des données dans la table Utilisateur
 INSERT INTO Utilisateur (prenom, nom, mot_de_passe, nom_utilisateur,type)
 VALUES 
-    ('Ignore', 'Moi', 'ignorerMoi','ignorerMoi', FALSE);
+    ('Add', 'Minatou', '$2y$10$/dbvI2J1tvljYZyeeA2iiO161w3HCu9QnJJXOyl8C1fX0vRJRBwnO','Admin1', TRUE);
 
 -- Insertion des données dans la table Emprunt
 INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
