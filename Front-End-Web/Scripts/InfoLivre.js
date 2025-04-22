@@ -5,15 +5,42 @@ function SetUpLivreInfo() {
         window.location.href = "accueil.html";
         return;
     }
+    console.log("Informations de l'auteur :", livreData);
     document.getElementById('livre-titre').textContent = livreData.titre;
     document.getElementById('livre-image').src = livreData.image || 'placeholder.jpg';
     const infosList = document.getElementById('livre-infos');
     infosList.innerHTML = '';
     const addInfo = (label, value) => {
         if (value) {
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${label}:</strong> ${value}`;
-            infosList.appendChild(li);
+            if (label === 'Auteur') {
+                const li = document.createElement('li'); 
+                const button = document.createElement('button');
+                button.textContent = `${livreData.prenom_auteur} ${livreData.nom_auteur}`;
+                button.classList.add('btn-auteur'); 
+                li.innerHTML = `<strong>${label}:</strong> `;
+                li.appendChild(button);
+                infosList.appendChild(li);
+
+                button.addEventListener('click', () => {
+                    const auteurInfo = {
+                        prenom: livreData.prenom_auteur,
+                        nom: livreData.nom_auteur,
+                        nationalite : livreData.nationalite_auteur,
+                        //date_naissance: livreData.date_naissance, 
+                        //biographie: livreData.biographie_auteur 
+                        
+                    };
+                    sessionStorage.setItem('auteurSelectionne', JSON.stringify(auteurInfo));
+                    window.location.href = "auteurInfo.html";
+                });
+                
+
+            } else {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${label}:</strong> ${value}`;
+                infosList.appendChild(li);
+            }
+    
         }
     };
     addInfo('Description', livreData.description);
@@ -74,6 +101,7 @@ function SetUpLivreInfo() {
             });
         }
         conteneurBtn.appendChild(btnEmprunt);
+
     }
 }
 

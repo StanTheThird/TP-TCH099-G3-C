@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
         case "InfoLivre":
             loadScript('../Scripts/InfoLivre.js');
             break;
+        case "InfoAuteur":
+            loadScript('../Scripts/infoAuteur.js');
+            break;    
         case "Historique":
             loadScript('../Scripts/Historique.js');
             break;

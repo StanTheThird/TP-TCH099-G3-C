@@ -10,7 +10,7 @@ class ControleLivre {
         try {
             $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom AS langue, 
             l.date_parution, a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.date_naissance, a.biographie AS biographie_auteur,
-            l.code_livre, l.nb_page, l.format, l.stock
+            l.code_livre, l.nb_pages, l.format, l.stock
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie

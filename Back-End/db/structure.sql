@@ -17,6 +17,7 @@ CREATE TABLE Auteur (
     id_auteur INT(10) NOT NULL AUTO_INCREMENT,
     prenom VARCHAR(55) NOT NULL,
     nom VARCHAR(55) NOT NULL,
+    image VARCHAR(255) NOT NULL,
     date_naissance DATE,
     nationalite VARCHAR(55),
     biographie TEXT,
