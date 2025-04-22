@@ -46,9 +46,9 @@ CREATE TABLE Livre (
     description TEXT NOT NULL,
     date_parution DATE NOT NULL,
     image VARCHAR(255) NOT NULL,
-    nb_pages INT(10)NOT NULL,
+    nb_pages INT(10) NOT NULL,
     format VARCHAR(25) CHECK (format IN ('Livre de poche','Livre numérique','Livre relié')),
-    stock INT(2) NOT NULL,
+    emprunte BOOLEAN NOT NULL DEFAULT FALSE,  -- Nouveau champ pour indiquer si le livre est emprunté
     categorie_id INT(10) NOT NULL,
     auteur_id INT(10) NOT NULL,
     langue_id INT(10) NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE Livre (
     FOREIGN KEY (auteur_id) REFERENCES Auteur(id_auteur) ON DELETE CASCADE,
     FOREIGN KEY (categorie_id) REFERENCES Categorie(id_categorie) ON DELETE CASCADE,
     FOREIGN KEY (langue_id) REFERENCES Langue(id_langue) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
 -- Création de la table Emprunt

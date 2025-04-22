@@ -45,10 +45,14 @@ function SetUpRegister() {
         }
         try {
             const formData = new FormData(registerForm);
+            const userData = Object.fromEntries(formData.entries());
+            // Forcer le type à 0 (utilisateur normal)
+            userData.type = 0;
+            
             const response = await fetch('http://localhost:8000/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(Object.fromEntries(formData.entries()))
+                body: JSON.stringify(userData)
             });
             if (!response.ok) {
                 const errorData = await response.json();

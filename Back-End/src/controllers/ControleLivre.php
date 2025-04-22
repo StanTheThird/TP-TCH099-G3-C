@@ -6,11 +6,12 @@ class ControleLivre {
         
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-
+    
         try {
             $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description,  c.nom AS categorie, la.nom AS langue, 
             l.date_parution, a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.date_naissance, a.biographie AS biographie_auteur,
-            l.code_livre, l.nb_pages, l.format, l.stock
+            l.code_livre, l.nb_pages, l.format, l.emprunte
+
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -35,7 +36,8 @@ class ControleLivre {
     
         try {
             $query = $pdo -> prepare('SELECT l.id_livre, l.image, l.titre, l.description, c.nom AS categorie, 
-            la.nom AS langue, l.date_parution, a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur
+            la.nom AS langue, l.date_parution, a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur,
+            l.emprunte
             FROM Livre l
             INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
             INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
@@ -43,12 +45,6 @@ class ControleLivre {
             ');
             $query->execute();
             $books = $query->fetchAll(PDO::FETCH_ASSOC);
-            // Si déjà emprunté
-            foreach($books as &$book) {
-                $query2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
-                $query2->execute([$book['id_livre']]);
-                $book['deja_emprunter'] = $query2->fetchColumn() > 0;
-            }
             echo json_encode($books);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -70,15 +66,20 @@ class ControleLivre {
         $search = trim($search);
         $params = [];
         
-        $query = "SELECT l.id_livre, l.image, l.titre, l.description, l.date_parution,  
+        $query = "SELECT l.code_livre, l.image, l.titre, l.description, l.date_parution,  
                 l.nb_pages, l.format,
-                c.nom AS categorie, la.nom AS langue, 
-                a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.nationalite AS nationalite_auteur
+                c.nom AS categorie, la.nom AS langue,
+                a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.nationalite AS nationalite_auteur,
+                SUM(CASE WHEN l.emprunte = 0 THEN 1 ELSE 0 END) AS stock,
+                COALESCE(
+                    MIN(CASE WHEN l.emprunte = 0 THEN l.id_livre ELSE NULL END),
+                    MIN(l.id_livre)
+                ) AS id_livre
                 FROM Livre l
                 INNER JOIN Auteur a ON l.auteur_id = a.id_auteur
                 INNER JOIN Categorie c ON l.categorie_id = c.id_categorie
-                 INNER JOIN Langue la ON l.langue_id = la.id_langue
-          WHERE 1=1";
+                INNER JOIN Langue la ON l.langue_id = la.id_langue
+                WHERE 1=1";
     
         // Filtre texte (titre ou auteur)
         if (!empty($search)) {
@@ -110,17 +111,14 @@ class ControleLivre {
             $params['origine'] = $origine;
         }
     
+        //Partie importante, car il y a maintenant plusieurs copie de chaque livre.
+        $query .= " GROUP BY l.titre, l.description, l.date_parution, l.nb_pages, l.format, 
+                   c.nom, la.nom, a.nom, a.prenom, a.nationalite, l.image";
+    
         try {
             $stmt = $pdo->prepare($query);
             $stmt->execute($params);
             $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-            // Vérifier les emprunts
-            foreach ($books as &$book) {
-                $stmt2 = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
-                $stmt2->execute([$book['id_livre']]);
-                $book['deja_emprunter'] = $stmt2->fetchColumn() > 0;
-            }
     
             echo json_encode($books);
         } catch (PDOException $e) {
@@ -130,73 +128,86 @@ class ControleLivre {
     }
     public static function emprunterLivre(){
         global $pdo;
-
+    
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-
+    
         $data = json_decode(file_get_contents("php://input"), true);
-
-        // vérifier le livre
+    
         if(!isset($data['livre_id'])){
             http_response_code(400);
             echo json_encode(["error" => "Pas de livre sélectionné"]);
             exit;
         }
-
+    
         if(!isset($data['utilisateur_id'])){
             http_response_code(400);
             echo json_encode(["error" => "Veuillez-vous connecté pour poursuivre"]);
             exit;
         }
-
+    
         $livreId = $data['livre_id'];
         $utilisateurId = $data['utilisateur_id'];
     
         try{
-            //vérifier si le livre est déjà emprunté
-            $query = $pdo->prepare("SELECT COUNT(*) FROM Emprunt WHERE livre_id = ? AND date_retour IS NULL");
+            // Vérifier si le livre est disponible en fonction du stock
+            $query = $pdo->prepare("SELECT COUNT(*) as disponible FROM Livre WHERE id_livre = ? AND emprunte = FALSE");
             $query->execute([$livreId]);
-
-            if($query->fetchColumn() > 0){
+            $result = $query->fetch(PDO::FETCH_ASSOC);
+    
+            if($result['disponible'] <= 0){
                 http_response_code(409);
-                echo json_encode(["error" => "Ce livre est déja emprunté"]);
+                echo json_encode(["error" => "Ce livre n'est pas disponible"]);
                 exit;
             }
-
-            // emprunter le livre 
+    
+            // Emprunter le livre
             $query2 = $pdo->prepare("INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
             VALUES (CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 14 DAY), ?, ?)");
-            $query2 -> execute([$livreId, $utilisateurId]);
+            $query2->execute([$livreId, $utilisateurId]);
+    
+            // Mettre à jour le statut du livre
+            $query3 = $pdo->prepare("UPDATE Livre SET emprunte = TRUE WHERE id_livre = ?");
+            $query3->execute([$livreId]);
+    
+            // Retourner le nouveau stock disponible pour ce livre (même code_livre)
+            $query4 = $pdo->prepare("SELECT COUNT(*) as stock FROM Livre WHERE code_livre = (SELECT code_livre FROM Livre WHERE id_livre = ?) AND emprunte = FALSE");
+            $query4->execute([$livreId]);
+            $stock = $query4->fetch(PDO::FETCH_ASSOC)['stock'];
+    
             http_response_code(201);
-            echo json_encode(["success" => true, "message" => "Livre emprunté!"]);
+            echo json_encode([
+                "success" => true, 
+                "message" => "Livre emprunté!",
+                "stock" => $stock
+            ]);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(["error" => "Erreur:" . $e->getMessage()]);
         }
-    
     }
 
     // Créer un livre pour l'admin
     public static function createBook() {
         global $pdo;
-
+    
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-
+    
         $data = json_decode(file_get_contents('php://input'), true);
         if (!isset($data['image'], $data['titre'], $data['auteur_id'], $data['description'], 
                 $data['categorie_id'], $data['langue_id'], $data['date_parution'], $data['code_livre'],
-                $data['nb_pages'], $data['format'], $data['stock'])) {
+                $data['nb_pages'], $data['format'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Données incomplètes']);
             exit;
         }
-
+    
         try {
             $query = ("INSERT INTO Livre (image, titre, auteur_id, description, categorie_id, langue_id, date_parution, code_livre,
-            nb_pages, format, stock)
+            nb_pages, format, emprunte)
             VALUES (:image, :titre, :auteur_id, :description, :categorie_id, :langue_id, :date_parution, :code_livre,
-            :nb_pages, :format, :stock)
+            :nb_pages, :format, FALSE)
             ");
             $requete = $pdo->prepare($query);
             $requete->execute([
@@ -209,8 +220,7 @@ class ControleLivre {
                 ':date_parution' => $data['date_parution'],
                 ':code_livre' => $data['code_livre'],
                 ':nb_pages' => $data['nb_pages'],
-                ':format' => $data['format'],
-                ':stock' => $data['stock']
+                ':format' => $data['format']
             ]);
             echo json_encode(['success' => true, 'message' => 'Livre ajouté avec succès']);
         } catch (PDOException $e) {
@@ -222,12 +232,12 @@ class ControleLivre {
     //Supprimer un livre pour l'admin
     public static function deleteBook($id) {
         global $pdo;
-
+    
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-
+    
         $data = json_decode(file_get_contents("php://input"), true);
-
+    
         if(!$id){
             http_response_code(400);
             echo json_encode(['error' => 'id manquant']);
@@ -249,42 +259,47 @@ class ControleLivre {
     public static function retourLivre(){
         global $pdo;
         header('Content-Type: application/json');
-
+    
         $data = json_decode(file_get_contents("php://input"), true);
         $id = $data['id_emprunt'];
-
+    
         if(!$id){
             http_response_code(400);
             echo json_encode(["message" => "Pas d'emprunt (id manquant)"]);
             return;
         }
-
+    
         // vérifier que le livre n'est pas déjà emprunté
-        $query = $pdo->prepare(' SELECT * FROM Emprunt 
-        WHERE id_emprunt = ? 
-        ');
+        $query = $pdo->prepare('SELECT * FROM Emprunt WHERE id_emprunt = ?');
         $query->execute([$id]);
         $emprunt = $query->fetch(PDO::FETCH_ASSOC);
+        
         if (!$emprunt){
-        // Not found
-        http_response_code(404);
-        echo json_encode(["message" => "Aucun emprunt trouvé / Livre déjà retourné"]);
-        return;
+            http_response_code(404);
+            echo json_encode(["message" => "Aucun emprunt trouvé"]);
+            return;
         }
-
+    
         if($emprunt['date_retour'] !== null){
-            // conflit, parce que livre déjà emprunté
             http_response_code(409);
             echo json_encode(["message" => "Ce livre a déjà été retourné !"]);
             return;
         }
-
-        // Si déjà retourné
-        $maj = $pdo->prepare('UPDATE Emprunt SET date_Retour = CURRENT_DATE 
-        WHERE id_emprunt = ?');
-        $maj->execute([$id]);
-
-        echo json_encode(["message" => "Livre retourné avec succès !"]);
+    
+        try {
+            // Mettre à jour la date de retour
+            $maj = $pdo->prepare('UPDATE Emprunt SET date_Retour = CURRENT_DATE WHERE id_emprunt = ?');
+            $maj->execute([$id]);
+    
+            // Mettre à jour le statut du livre
+            $updateLivre = $pdo->prepare('UPDATE Livre SET emprunte = FALSE WHERE id_livre = ?');
+            $updateLivre->execute([$emprunt['livre_id']]);
+    
+            echo json_encode(["message" => "Livre retourné avec succès !"]);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(["error" => $e->getMessage()]);
+        }
     }
 
     public static function getAllEmprunt(){
@@ -360,14 +375,14 @@ class ControleLivre {
             $queryHistory->execute([$userId]);
             $lastBooks = $queryHistory->fetchAll(PDO::FETCH_ASSOC);
     
-            // Si l'utilisateur n'a pas d'historique, retourner 3 livres aléatoires en stock
+            // Si l'utilisateur n'a pas d'historique, retourner 3 livres aléatoires disponibles
             if (empty($lastBooks)) {
                 $queryRandom = $pdo->prepare("
-                    SELECT l.id_livre, l.image, l.titre, l.description, l.date_parution,
+                    SELECT DISTINCT l.code_livre, l.image, l.titre, l.description, l.date_parution,
                            a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur
                     FROM Livre l
                     JOIN Auteur a ON l.auteur_id = a.id_auteur
-                    WHERE l.stock > 0
+                    WHERE l.emprunte = FALSE
                     ORDER BY RAND()
                     LIMIT 3
                 ");
@@ -377,19 +392,25 @@ class ControleLivre {
                 return;
             }
     
-            // 2. Récupérer tous les livres en stock sauf ceux déjà empruntés par l'utilisateur
+            // 2. Récupérer tous les livres disponibles (groupés par code_livre)
             $queryAllBooks = $pdo->prepare("
-                SELECT l.id_livre, l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
+                SELECT l.code_livre, l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
                        l.langue_id, l.nb_pages, l.date_parution, l.format,
-                       a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur
+                       a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur,
+                       SUM(CASE WHEN l.emprunte = FALSE THEN 1 ELSE 0 END) AS stock
                 FROM Livre l
                 JOIN Auteur a ON l.auteur_id = a.id_auteur
-                WHERE l.stock > 0
-                AND l.id_livre NOT IN (
-                    SELECT livre_id FROM Emprunt WHERE utilisateur_id = ? 
+                WHERE l.code_livre NOT IN (
+                    SELECT livre.code_livre 
+                    FROM Emprunt 
+                    JOIN Livre livre ON Emprunt.livre_id = livre.id_livre
+                    WHERE Emprunt.utilisateur_id = ? AND Emprunt.date_retour IS NULL
                 )
+                GROUP BY l.code_livre, l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
+                         l.langue_id, l.nb_pages, l.date_parution, l.format,
+                         a.prenom, a.nom, a.nationalite
+                HAVING stock > 0
             ");
-            //En ce moment la partie au dessus vérifie seulement si le livre a été emprunter par l'utilisateur actuel et ne vérifie pas si le livre est en stock.
             $queryAllBooks->execute([$userId]);
             $allBooks = $queryAllBooks->fetchAll(PDO::FETCH_ASSOC);
     
@@ -454,7 +475,7 @@ class ControleLivre {
             foreach ($topBooks as $scoredBook) {
                 $book = $scoredBook['book'];
                 $recommendations[] = [
-                    'id_livre' => $book['id_livre'],
+                    'code_livre' => $book['code_livre'],
                     'image' => $book['image'],
                     'titre' => $book['titre'],
                     'description' => $book['description'],

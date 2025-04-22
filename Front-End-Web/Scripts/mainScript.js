@@ -1,10 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
     SetUpNavigation();
     const nomPage = document.title;
-    
     // Chargement dynamique des scripts en fonction de la page
     switch(nomPage) {
         case "BiblioSmart":
+            sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/LivreListe.js');
             break;
         case "Connexion":
@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loadScript('../Scripts/EnregistrementConnexion.js');
             break;
         case "Admin":
+            sessionStorage.setItem('admin', 'true');
             loadScript('../Scripts/Admin.js', () => {
                 displayAllBooks();
                 setUpModalAjoutLivre();
@@ -29,7 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
             loadScript('../Scripts/infoAuteur.js');
             break;    
         case "Historique":
+            sessionStorage.setItem('admin', 'false');
             loadScript('../Scripts/Historique.js');
+            break;
+        case "Création Administrateur":  // New case for createAdmin.html
+            sessionStorage.setItem('admin', 'true');
+            loadScript('../Scripts/Admin.js', () => {
+                createAdmin();  // Call the createAdmin function after loading
+            });
             break;
         default:
             console.log("Rien à faire.");
@@ -85,6 +93,8 @@ function SetUpNavigation() {
         
         if (user.type == 1) {
             nav.appendChild(createMenuItem('Administration', 'admin.html'));
+            // Retirer la ligne suivante qui créait l'option dans le menu
+            // nav.appendChild(createMenuItem('Créer Admin', 'createAdmin.html'));
         }
     } else {
         nav.appendChild(createMenuItem('Connexion', 'connexion.html'));

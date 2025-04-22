@@ -285,3 +285,61 @@ a,button{
     color: black;
     box-shadow: 0.25rem 0.31rem 0.31rem lightgray;
 }
+
+/* Style de base commun à tous les boutons */
+.btn-ajout-livre,
+.btn-ajouter-admin,
+.btn-gerer-emprunt {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Style spécifique pour chaque bouton */
+.btn-ajout-livre {
+    background-color: #4CAF50; /* Vert */
+    color: white;
+}
+
+.btn-ajouter-admin {
+    background-color: #f44336; /* Rouge */
+    color: white;
+}
+
+.btn-gerer-emprunt {
+    background-color: #2196F3; /* Bleu */
+    color: white;
+}
+
+/* Effets de survol */
+.btn-ajout-livre:hover {
+    background-color: #45a049; /* Vert plus foncé */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-ajouter-admin:hover {
+    background-color: #d32f2f; /* Rouge plus foncé */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-gerer-emprunt:hover {
+    background-color: #0b7dda; /* Bleu plus foncé */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Effet actif (quand on clique) */
+.btn-ajout-livre:active,
+.btn-ajouter-admin:active,
+.btn-gerer-emprunt:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+}

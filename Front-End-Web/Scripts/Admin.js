@@ -20,10 +20,17 @@ function displayAllBooks() {
         let search = champRecherche.value.trim();
         displayBooksFromSearch(search);
     });
-
+    
     const boutonAjout = document.createElement('button');
     boutonAjout.textContent = "+ Livre";
     boutonAjout.className = 'btn-ajout-livre';
+
+    const boutonAdmin = document.createElement('button');
+    boutonAdmin.textContent = "+ Admin";
+    boutonAdmin.className = "btn-ajouter-admin";
+    boutonAdmin.addEventListener('click', () => {
+        window.location.href = 'createAdmin.html';
+    });
 
     const boutonEmprunt = document.createElement('button');
     boutonEmprunt.textContent = "Gérer les emprunts";
@@ -32,7 +39,7 @@ function displayAllBooks() {
         window.location.href = 'adminEmprunt.html';
     });
 
-    bar.append(rechercheLabel, champRecherche, boutonAjout, boutonEmprunt);
+    bar.append(rechercheLabel, champRecherche, boutonAjout, boutonAdmin, boutonEmprunt);
     filtreContainer.appendChild(bar);
 
     fetch("http://localhost:8000/api/livre")
@@ -86,7 +93,6 @@ function createAdminLivre(livre) {
 
     carteLivre.addEventListener('click', () => {
         sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
-        sessionStorage.setItem('admin', 'true');
         window.location.href = "livreInfo.html";
     });
 
@@ -281,5 +287,57 @@ function retournerLivre(idEmprunt) {
     })
     .catch(error => {
         console.error("Erreur:", error);
+    });
+}
+
+function createAdmin() {
+    const adminForm = document.getElementById('adminForm');
+    if (!adminForm) return;
+
+    adminForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        const motDePasse = adminForm.mot_de_passe.value;
+        const confirmation = adminForm.confirmation_mot_de_passe.value;
+        
+        if (motDePasse !== confirmation) {
+            alert("Les mots de passe ne correspondent pas !");
+            return;
+        }
+
+        try {
+            const formData = new FormData(adminForm);
+            const adminData = Object.fromEntries(formData.entries());
+            // Forcer le type à 1 (administrateur)
+            adminData.type = 1;
+
+            // Vérifier si l'utilisateur actuel est admin
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                throw new Error("Accès non autorisé");
+            }
+            const user = JSON.parse(userData);
+            if (user.type !== 1) {
+                throw new Error("Seuls les administrateurs peuvent créer des comptes admin");
+            }
+
+            const response = await fetch('http://localhost:8000/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(adminData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Échec de la création de l'administrateur");
+            }
+
+            const responseData = await response.json();
+            alert("Administrateur créé avec succès !");
+            adminForm.reset();
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert(error.message || "Échec de la création de l'administrateur");
+        }
     });
 }
