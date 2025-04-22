@@ -299,3 +299,58 @@ a,button{
     margin-bottom: 10px;
     color: #777;
 }
+/* Styles pour page de recommandations */
+.titre-recommandations {
+    text-align: center;
+    margin: 1rem 0;
+    color: #2c3e50;
+    font-size: 2rem;
+}
+
+.sous-titre {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.conteneur-recommandations {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.badge-recommandation {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.livre-recommande {
+    position: relative;
+}
+/* Style pour les livres recommandés */
+.livre-recommande {
+    position: relative;
+    border: 2px solid #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+.badge-recommandation {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #e74c3c;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 1;
+}

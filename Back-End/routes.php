@@ -29,9 +29,8 @@ post('/api/register', function(){
 post('/api/login', function(){
     ControleUtilisateur::userLogin();
 });
-// TA NOUVELLE ROUTE HISTORIQUE (GET) ↓
+// Route Historique
 get('/api/historique/$id', function($id){
-    require_once './src/controllers/ControleHistorique.php';
     ControleUtilisateur::getHistorique($id);
 });
 post('/api/retour/emprunt', function(){
@@ -42,7 +41,12 @@ get('/api/emprunt/admin', function(){
 });
 get('/api/emprunt/recherche', function(){
     ControleLivre::getEmpruntParRecherche();
-})
+});
+
+// Route Recommandation
+get('/api/recommandations/$id', function($id) {
+    ControleLivre::getRecommendations($id);
+});
 
 // route par défaut pour les erreurs 404
 // any('/404', function() {

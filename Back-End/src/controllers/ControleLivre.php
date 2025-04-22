@@ -336,5 +336,140 @@ class ControleLivre {
             echo json_encode(["error" => $e->getMessage()]);
         }
     }
+
+    // Permet de prendre un $userId et puis retourner une liste
+    public static function getRecommendations($userId) {
+        global $pdo;
+        
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        try {
+            // 1. Récupérer les 3 derniers livres empruntés par l'utilisateur
+            $queryHistory = $pdo->prepare("
+                SELECT l.id_livre, l.categorie_id, l.auteur_id, l.langue_id, l.nb_pages, 
+                       l.date_parution, l.format, a.nationalite AS auteur_nationalite
+                FROM Emprunt e
+                JOIN Livre l ON e.livre_id = l.id_livre
+                JOIN Auteur a ON l.auteur_id = a.id_auteur
+                WHERE e.utilisateur_id = ?
+                ORDER BY e.id_emprunt DESC
+                LIMIT 3
+            ");
+            $queryHistory->execute([$userId]);
+            $lastBooks = $queryHistory->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Si l'utilisateur n'a pas d'historique, retourner 3 livres aléatoires en stock
+            if (empty($lastBooks)) {
+                $queryRandom = $pdo->prepare("
+                    SELECT l.id_livre, l.image, l.titre, l.description, l.date_parution,
+                           a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur
+                    FROM Livre l
+                    JOIN Auteur a ON l.auteur_id = a.id_auteur
+                    WHERE l.stock > 0
+                    ORDER BY RAND()
+                    LIMIT 3
+                ");
+                $queryRandom->execute();
+                $randomBooks = $queryRandom->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode($randomBooks);
+                return;
+            }
+    
+            // 2. Récupérer tous les livres en stock sauf ceux déjà empruntés par l'utilisateur
+            $queryAllBooks = $pdo->prepare("
+                SELECT l.id_livre, l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
+                       l.langue_id, l.nb_pages, l.date_parution, l.format,
+                       a.prenom AS prenom_auteur, a.nom AS nom_auteur, a.nationalite AS nationalite_auteur
+                FROM Livre l
+                JOIN Auteur a ON l.auteur_id = a.id_auteur
+                WHERE l.stock > 0
+                AND l.id_livre NOT IN (
+                    SELECT livre_id FROM Emprunt WHERE utilisateur_id = ? 
+                )
+            ");
+            //En ce moment la partie au dessus vérifie seulement si le livre a été emprunter par l'utilisateur actuel et ne vérifie pas si le livre est en stock.
+            $queryAllBooks->execute([$userId]);
+            $allBooks = $queryAllBooks->fetchAll(PDO::FETCH_ASSOC);
+    
+            // 3. Calculer le score pour chaque livre
+            $scoredBooks = [];
+            foreach ($allBooks as $book) {
+                $score = 0;
+                
+                foreach ($lastBooks as $lastBook) {
+                    // +2 points pour même catégorie
+                    if ($book['categorie_id'] == $lastBook['categorie_id']) {
+                        $score += 2;
+                    }
+                    
+                    // +1 point pour même auteur
+                    if ($book['auteur_id'] == $lastBook['auteur_id']) {
+                        $score += 1;
+                    }
+                    
+                    // +1 point pour même nationalité d'auteur
+                    if ($book['nationalite_auteur'] == $lastBook['auteur_nationalite']) {
+                        $score += 1;
+                    }
+                    
+                    // +1 point pour différence de pages < 50
+                    if (abs($book['nb_pages'] - $lastBook['nb_pages']) < 50) {
+                        $score += 1;
+                    }
+                    
+                    // +1 point pour même langue
+                    if ($book['langue_id'] == $lastBook['langue_id']) {
+                        $score += 1;
+                    }
+                    // +1 point pour même format
+                    if ($book['format'] == $lastBook['format']) {
+                        $score += 1;
+                    }
+                    
+                    // +1 point pour date de parution proche (20 ans ou moins)
+                    $bookYear = date('Y', strtotime($book['date_parution']));
+                    $lastBookYear = date('Y', strtotime($lastBook['date_parution']));
+                    if (abs($bookYear - $lastBookYear) <= 20) {
+                        $score += 1;
+                    }
+                }
+                
+                $scoredBooks[] = [
+                    'book' => $book,
+                    'score' => $score
+                ];
+            }
+    
+            // 4. Trier par score décroissant et prendre les 3 premiers
+            usort($scoredBooks, function($a, $b) {
+                return $b['score'] - $a['score'];
+            });
+    
+            $topBooks = array_slice($scoredBooks, 0, 3);
+    
+            // 5. Formater la réponse
+            $recommendations = [];
+            foreach ($topBooks as $scoredBook) {
+                $book = $scoredBook['book'];
+                $recommendations[] = [
+                    'id_livre' => $book['id_livre'],
+                    'image' => $book['image'],
+                    'titre' => $book['titre'],
+                    'description' => $book['description'],
+                    'date_parution' => $book['date_parution'],
+                    'prenom_auteur' => $book['prenom_auteur'],
+                    'nom_auteur' => $book['nom_auteur'],
+                    'nationalite_auteur' => $book['nationalite_auteur'],
+                    'format' => $book['format']
+                ];
+            }
+    
+            echo json_encode($recommendations);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 }
 ?>
