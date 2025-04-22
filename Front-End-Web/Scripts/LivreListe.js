@@ -2,7 +2,7 @@ const typeDeFiltre = ["Categorie", "Langue", "Origine"];
 
 async function populateFiltres() {
     try {
-        const response = await fetch(`http://localhost:8000/api/livre`);
+        const response = await fetch(`http://localhost:8000/api/livre/recherche-filtre`);
         if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
         const data = await response.json();
         createFiltre(data);
@@ -81,57 +81,78 @@ async function displayFilteredBooks(filters) {
     if (filters.categorie && filters.categorie !== "Tous") params.append('Categorie', filters.categorie);
     if (filters.langue && filters.langue !== "Tous") params.append('Langue', filters.langue);
     if (filters.origine && filters.origine !== "Tous") params.append('Origine', filters.origine);
-    
+
     try {
         const url = `http://localhost:8000/api/livre/recherche-filtre?${params.toString()}`;
         const response = await fetch(url);
-        
+
         if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
-        
+
         let livres = await response.json();
         const user = JSON.parse(localStorage.getItem('user'));
-        
+
         if (user) {
             const recResponse = await fetch(`http://localhost:8000/api/recommandations/${user.id}`);
             if (recResponse.ok) {
                 const recommendations = await recResponse.json();
-                const recommendedIds = recommendations.map(r => r.id_livre);
-                
-                livres = livres.map(livre => {
-                    return {
-                        ...livre,
-                        isRecommended: recommendedIds.includes(livre.id_livre)
-                    };
-                }).sort((a, b) => {
+                const recommendedTitles = recommendations.map(r => r.titre.toLowerCase().trim());
+
+                livres = livres.map(livre => ({
+                    ...livre,
+                    isRecommended: recommendedTitles.includes(livre.titre.toLowerCase().trim())
+                })).sort((a, b) => {
                     if (a.isRecommended && !b.isRecommended) return -1;
                     if (!a.isRecommended && b.isRecommended) return 1;
                     return 0;
                 });
             }
         }
-        
+
+        // Vérification qu'on a au moins 3 livres à afficher
+        if (livres.length < 3) {
+            console.warn("Moins de 3 livres trouvés, affichage réduit.");
+        }
+
         const conteneur = document.getElementById("conteneur_livres");
         conteneur.innerHTML = '';
-        
+
+        if (livres.length === 0) {
+            conteneur.innerHTML = '<p>Aucun livre trouvé.</p>';
+            return;
+        }
+
         livres.forEach(livre => {
             const carte = createLivre(livre);
             conteneur.appendChild(carte);
         });
-        
+
     } catch (error) {
         console.error('Erreur:', error);
     }
 }
 
+
+
 function createLivre(livre) {
     const carte = document.createElement('div');
-    carte.className = livre.isRecommended ? 'livre-recommande admin-livre-carte' : 'admin-livre-carte';
     
-    if (livre.isRecommended) {
+    // Déterminer la classe en fonction de la disponibilité et des recommandations
+    if (livre.stock <= 0) {
+        carte.className = 'livre-indisponible admin-livre-carte';
+        
+        const badge = document.createElement('div');
+        badge.className = 'badge-indisponible';
+        badge.textContent = 'Pas en stock';
+        carte.appendChild(badge);
+    } else if (livre.isRecommended) {
+        carte.className = 'livre-recommande admin-livre-carte';
+        
         const badge = document.createElement('div');
         badge.className = 'badge-recommandation';
         badge.textContent = 'Recommandé';
         carte.appendChild(badge);
+    } else {
+        carte.className = 'admin-livre-carte';
     }
 
     const image = document.createElement('img');
@@ -146,11 +167,9 @@ function createLivre(livre) {
     carte.addEventListener('click', () => {
         sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
         window.location.href = "livreInfo.html";
-    });
-
+     });
     return carte;
 }
-
 function setDefaultValues() {
     document.querySelectorAll(".option").forEach(select => select.value = 'Tous');
 }

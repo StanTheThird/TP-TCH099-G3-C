@@ -25,7 +25,9 @@ function SetUpLivreInfo() {
     }
     addInfo('Format', livreData.format);
     addInfo('Nombre de pages', livreData.nb_pages);
-
+    
+    // Ajout de l'information sur le stock disponible
+    addInfo('Exemplaires disponibles', livreData.stock || '0');
 
     const conteneurBtn = document.getElementById('conteneur-btn');
     conteneurBtn.innerHTML = '';
@@ -57,9 +59,10 @@ function SetUpLivreInfo() {
         const btnEmprunt = document.createElement('button');
         btnEmprunt.className = 'btn-emprunt';
         
-        if (livreData.deja_emprunter) {
+        // Modifier la condition pour vérifier le stock plutôt que deja_emprunter
+        if (livreData.stock <= 0) {
             btnEmprunt.disabled = true;
-            btnEmprunt.textContent = "Déjà emprunté";
+            btnEmprunt.textContent = "Indisponible";
             btnEmprunt.style.background = "gray";
         } else {
             btnEmprunt.textContent = "Emprunter";
@@ -94,18 +97,32 @@ async function emprunter(livreId, bouton, event = null) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ livre_id: livreId, utilisateur_id: user.id })
         });
+        
         if (!response.ok) throw new Error((await response.json()).error);
+        
+        const result = await response.json();
+        
         if (bouton) {
-            bouton.disabled = true;
-            bouton.textContent = "Déjà emprunté";
-            bouton.style.background = "gray";
-        }
-        alert("Emprunt réussi !");
-        if (document.title == 'InfoLivre') {
             const livreData = JSON.parse(sessionStorage.getItem('livreSelectionne'));
-            livreData.deja_emprunter = true;
+            livreData.stock = result.stock;
             sessionStorage.setItem('livreSelectionne', JSON.stringify(livreData));
+            
+            // Mettre à jour l'affichage du stock
+            const stockElements = document.querySelectorAll('li');
+            stockElements.forEach(el => {
+                if (el.textContent.includes('Exemplaires disponibles')) {
+                    el.innerHTML = `<strong>Exemplaires disponibles:</strong> ${livreData.stock}`;
+                }
+            });
+            
+            if (livreData.stock <= 0) {
+                bouton.disabled = true;
+                bouton.textContent = "Indisponible";
+                bouton.style.background = "gray";
+            }
         }
+        
+        alert("Emprunt réussi !");
     } catch (error) {
         console.error("Erreur:", error);
         alert("Erreur: " + error.message);
