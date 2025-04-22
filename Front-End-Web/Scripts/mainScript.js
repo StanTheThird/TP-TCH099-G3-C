@@ -90,8 +90,8 @@ function SetUpNavigation() {
         
         if (user.type == 1) {
             nav.appendChild(createMenuItem('Administration', 'admin.html'));
-            // Add link to createAdmin.html only for existing admins
-            nav.appendChild(createMenuItem('Créer Admin', 'createAdmin.html'));
+            // Retirer la ligne suivante qui créait l'option dans le menu
+            // nav.appendChild(createMenuItem('Créer Admin', 'createAdmin.html'));
         }
     } else {
         nav.appendChild(createMenuItem('Connexion', 'connexion.html'));

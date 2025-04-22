@@ -20,10 +20,17 @@ function displayAllBooks() {
         let search = champRecherche.value.trim();
         displayBooksFromSearch(search);
     });
-
+    
     const boutonAjout = document.createElement('button');
     boutonAjout.textContent = "+ Livre";
     boutonAjout.className = 'btn-ajout-livre';
+
+    const boutonAdmin = document.createElement('button');
+    boutonAdmin.textContent = "+ Admin";
+    boutonAdmin.className = "btn-ajouter-admin";
+    boutonAdmin.addEventListener('click', () => {
+        window.location.href = 'createAdmin.html';
+    });
 
     const boutonEmprunt = document.createElement('button');
     boutonEmprunt.textContent = "Gérer les emprunts";
@@ -32,7 +39,7 @@ function displayAllBooks() {
         window.location.href = 'adminEmprunt.html';
     });
 
-    bar.append(rechercheLabel, champRecherche, boutonAjout, boutonEmprunt);
+    bar.append(rechercheLabel, champRecherche, boutonAjout, boutonAdmin, boutonEmprunt);
     filtreContainer.appendChild(bar);
 
     fetch("http://localhost:8000/api/livre")
