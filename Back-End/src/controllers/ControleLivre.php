@@ -70,6 +70,7 @@ class ControleLivre {
                 l.nb_pages, l.format,
                 c.nom AS categorie, la.nom AS langue,
                 a.nom AS nom_auteur, a.prenom AS prenom_auteur, a.nationalite AS nationalite_auteur,
+                a.date_naissance, a.biographie AS biographie_auteur,a.image AS image_auteur,
                 SUM(CASE WHEN l.emprunte = 0 THEN 1 ELSE 0 END) AS stock,
                 COALESCE(
                     MIN(CASE WHEN l.emprunte = 0 THEN l.id_livre ELSE NULL END),

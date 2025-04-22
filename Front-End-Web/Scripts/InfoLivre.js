@@ -26,8 +26,9 @@ function SetUpLivreInfo() {
                         prenom: livreData.prenom_auteur,
                         nom: livreData.nom_auteur,
                         nationalite : livreData.nationalite_auteur,
-                        //date_naissance: livreData.date_naissance, 
-                        //biographie: livreData.biographie_auteur 
+                        image_auteur : livreData.image_auteur,
+                        date_naissance: livreData.date_naissance, 
+                        biographie_auteur: livreData.biographie_auteur 
                         
                     };
                     sessionStorage.setItem('auteurSelectionne', JSON.stringify(auteurInfo));

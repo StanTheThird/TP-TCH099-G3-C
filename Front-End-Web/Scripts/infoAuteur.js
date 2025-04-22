@@ -9,7 +9,6 @@ async function SetUpAuteurInfo() {
 
     try {
         if (auteurData) {
-            console.log("Informations de l'auteur :", auteurData);
 
             const auteurTitre = document.getElementById('auteur-titre');
             const auteurInfosList = document.getElementById('auteur-infos');
@@ -29,15 +28,15 @@ async function SetUpAuteurInfo() {
                 }
             };
     
-            //addAuteurInfo('Date de naissance', auteurData.date_naissance);
-            addAuteurInfo('Biographie', auteurData.biographie);
-            addAuteurInfo('Nationalité', auteurData.nationalité);
+            addAuteurInfo('Date de naissance', auteurData.date_naissance);
+            addAuteurInfo('Nationalité', auteurData.nationalite);
+            addAuteurInfo('Biographie', auteurData.biographie_auteur);
 
             // Si tu as une URL d'image pour l'auteur dans tes données
-            /*if (auteurData.image_auteur) {
+            if (auteurData.image_auteur) {
                 auteurImage.src = auteurData.image_auteur;
                 auteurImage.alt = `${auteurData.prenom} ${auteurData.nom}`;
-            }*/
+            }
     
         } else {
             alert("Aucune information sur l'auteur sélectionné !");
