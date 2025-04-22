@@ -26,9 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (nomPage == "Historique") {
         console.log("Page Historique");
         ShowHistorique();
-    } else if (nomPage == "Recommandations") {
-        console.log("Page Recommandations");
-        populateRecommandations();
     } else {
         console.log("Rien à faire.");
     }
@@ -185,25 +182,58 @@ function filtrerFromOptions() {
     });
 }
 
+//Version améliorer pour ajouter les recommendation 
 async function displayFilteredBooks(filters) {
     const params = new URLSearchParams();
     if (filters.titre) params.append('search', filters.titre);
     if (filters.categorie && filters.categorie !== "Tous") params.append('Categorie', filters.categorie);
     if (filters.langue && filters.langue !== "Tous") params.append('Langue', filters.langue);
     if (filters.origine && filters.origine !== "Tous") params.append('Origine', filters.origine);
-    const url = `http://localhost:8000/api/livre/recherche-filtre?${params.toString()}`;
+    
     try {
+        const url = `http://localhost:8000/api/livre/recherche-filtre?${params.toString()}`;
         const response = await fetch(url);
+        
         if (!response.ok) throw new Error('Erreur lors de la récupération des livres');
-        const livres = await response.json();
+        
+        let livres = await response.json();
+        const user = JSON.parse(localStorage.getItem('user'));
+        
+        // Si utilisateur connecté, on récupère et marque les recommandations
+        if (user) {
+            const recResponse = await fetch(`http://localhost:8000/api/recommandations/${user.id}`);
+            if (recResponse.ok) {
+                const recommendations = await recResponse.json();
+                const recommendedIds = recommendations.map(r => r.id_livre);
+                
+                // Marquer les livres recommandés et les déplacer au début
+                livres = livres.map(livre => {
+                    return {
+                        ...livre,
+                        isRecommended: recommendedIds.includes(livre.id_livre)
+                    };
+                }).sort((a, b) => {
+                    // Les recommandés d'abord
+                    if (a.isRecommended && !b.isRecommended) return -1;
+                    if (!a.isRecommended && b.isRecommended) return 1;
+                    return 0;
+                });
+            }
+        }
+        
+        // Afficher tous les livres
         const conteneur = document.getElementById("conteneur_livres");
         conteneur.innerHTML = '';
-        livres.forEach(addLivre);
+        
+        livres.forEach(livre => {
+            const carte = createLivre(livre);
+            conteneur.appendChild(carte);
+        });
+        
     } catch (error) {
         console.error('Erreur:', error);
     }
 }
-
 function setDefaultValues() {
     document.querySelectorAll(".option").forEach(select => select.value = 'Tous');
 }
@@ -414,7 +444,6 @@ function SetUpNavigation() {
     
     if (isConnected) {
         const user = JSON.parse(userData);
-        nav.appendChild(createMenuItem('Recommandations', 'recommandations.html'));
         nav.appendChild(createMenuItem('Historique', 'historique.html'));
         nav.appendChild(createMenuItem('Déconnexion', 'accueil.html', () => {
             localStorage.removeItem('user');
@@ -611,27 +640,32 @@ function createAdminLivre(livre) {
 }
 // Créeation des "cartes" pour les livres (côté client)
 function createLivre(livre) {
-    // Création de la carte qui va représenter le livre 
-    const carteLivre = document.createElement('div');
-    carteLivre.className = 'admin-livre-carte';
+    const carte = document.createElement('div');
+    carte.className = livre.isRecommended ? 'livre-recommande admin-livre-carte' : 'admin-livre-carte';
+    
+    if (livre.isRecommended) {
+        const badge = document.createElement('div');
+        badge.className = 'badge-recommandation';
+        badge.textContent = 'Recommandé';
+        carte.appendChild(badge);
+    }
 
     const image = document.createElement('img');
-    image.src = livre.image;
-    image.alt = livre.titre;
+    image.src = livre.image || 'placeholder.jpg';
+    image.alt = livre.titre || 'Couverture';
+    carte.appendChild(image);
 
     const titre = document.createElement('h3');
-    titre.textContent = livre.titre;
+    titre.textContent = livre.titre || 'Titre inconnu';
+    carte.appendChild(titre);
 
-    carteLivre.appendChild(image);
-    carteLivre.appendChild(titre);
-
-    // Au clic on va à la page livre info
-    carteLivre.addEventListener('click', () => {
+    // Add click handler
+    carte.addEventListener('click', () => {
         sessionStorage.setItem('livreSelectionne', JSON.stringify(livre));
         window.location.href = "livreInfo.html";
     });
 
-    return carteLivre;
+    return carte;
 }
 
 // Fenêtre du formulaire pour ajouter un livre

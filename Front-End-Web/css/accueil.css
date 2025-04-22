@@ -316,15 +316,11 @@ a,button{
 .livre-recommande {
     position: relative;
 }
-/* Styles pour les recommandations */
+/* Style pour les livres recommandés */
 .livre-recommande {
     position: relative;
-    transition: transform 0.3s ease;
-}
-
-.livre-recommande:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border: 2px solid #e74c3c;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
 }
 
 .badge-recommandation {
@@ -334,28 +330,8 @@ a,button{
     background-color: #e74c3c;
     color: white;
     padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
+    border-radius: 4px;
     font-size: 0.75rem;
     font-weight: bold;
     z-index: 1;
-}
-
-.auteur {
-    color: #555;
-    font-style: italic;
-    margin-top: 0.5rem;
-}
-
-.aucun-livre {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #666;
-    margin-top: 2rem;
-}
-
-.erreur {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #e74c3c;
-    margin-top: 2rem;
 }

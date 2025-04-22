@@ -353,7 +353,7 @@ class ControleLivre {
                 JOIN Livre l ON e.livre_id = l.id_livre
                 JOIN Auteur a ON l.auteur_id = a.id_auteur
                 WHERE e.utilisateur_id = ?
-                ORDER BY e.date_emprunt DESC
+                ORDER BY e.id_emprunt DESC
                 LIMIT 3
             ");
             $queryHistory->execute([$userId]);
@@ -385,9 +385,10 @@ class ControleLivre {
                 JOIN Auteur a ON l.auteur_id = a.id_auteur
                 WHERE l.stock > 0
                 AND l.id_livre NOT IN (
-                    SELECT livre_id FROM Emprunt WHERE utilisateur_id = ? AND date_retour IS NULL
+                    SELECT livre_id FROM Emprunt WHERE utilisateur_id = ? 
                 )
             ");
+            //En ce moment la partie au dessus vérifie seulement si le livre a été emprunter par l'utilisateur actuel et ne vérifie pas si le livre est en stock.
             $queryAllBooks->execute([$userId]);
             $allBooks = $queryAllBooks->fetchAll(PDO::FETCH_ASSOC);
     
