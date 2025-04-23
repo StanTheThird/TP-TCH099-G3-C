@@ -25,34 +25,37 @@
           <input type="text" name="nom" required />
 
           <label>Numéro de carte</label>
-          <input type="text"
-                 name="numero"
-                 pattern="^4519\d{12}$"
-                 title="Doit commencer par 4519 et contenir 16 chiffres"
-                 maxlength="16"
-                 required />
+          <input
+            type="text"
+            name="numero"
+            pattern="^4519\d{12}$"
+            title="Doit commencer par 4519 et contenir 16 chiffres"
+            maxlength="16"
+            required
+          />
 
           <label>Date d’expiration (MM/AA)</label>
-          <input type="text"
-                 name="date_expiration"
-                 placeholder="MM/AA"
-                 pattern="^(0[1-9]|1[0-2])\/(2[0-4])$"
-                 title="Format MM/AA, et année ≥ 2025"
-                 required />
+          <input
+            type="text"
+            name="date_expiration"
+            placeholder="MM/AA"
+            pattern="^(0[1-9]|1[0-2])\/(2[0-4])$"
+            title="Format MM/AA, et année ≥ 2025"
+            required
+          />
 
           <label>CVC</label>
-          <input type="password"
-                 name="cvc"
-                 maxlength="3"
-                 pattern="\d{3}"
-                 title="3 chiffres"
-                 required />
+          <input
+            type="password"
+            name="cvc"
+            maxlength="3"
+            pattern="\d{3}"
+            title="3 chiffres"
+            required
+          />
 
           <label>Montant à payer ($ CAD)</label>
-          <input type="number"
-                 name="montant"
-                 step="0.01"
-                 readonly />
+          <input type="number" name="montant" step="0.01" readonly />
 
           <p id="messageErreur" class="message_erreur"></p>
 
@@ -66,8 +69,9 @@
     </footer>
   </div>
 
-  <!-- Chargement du mainScript juste avant </body> -->
+  <!-- Chargement du script principal -->
   <script src="/Front-End-Web/js/mainScript.js"></script>
 </body>
 </html>
+
 

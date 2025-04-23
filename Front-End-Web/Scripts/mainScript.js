@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
             break;
 
         case "Paiement":
-            // Pas de script externe : on gère tout ici
+            // On gère tout ici, pas de script externe
             sessionStorage.setItem('admin', 'false');
             SetupPayment();
             break;
@@ -116,7 +116,7 @@ function SetupPayment() {
     const form = document.getElementById("paymentForm");
     const messageErreur = document.getElementById("messageErreur");
 
-    // TODO : remplacer par un appel API réel ou lecture depuis localStorage
+    // Récupère le solde stocké (ou 0 par défaut)
     const montant = parseFloat(localStorage.getItem("solde") || "0");
     form.montant.value = montant.toFixed(2);
 
@@ -124,12 +124,25 @@ function SetupPayment() {
         e.preventDefault();
         messageErreur.textContent = "";
 
-        // Récupère toutes les données du formulaire
+        // Récupère les champs du formulaire
         const data = Object.fromEntries(new FormData(form).entries());
-        // Ajoute l'ID utilisateur
         data.id_utilisateur = JSON.parse(localStorage.getItem("user")).id;
-        // Force le montant
         data.montant = montant;
+
+        // Validation basique côté client
+        if (!/^4519\d{12}$/.test(data.numero)) {
+            messageErreur.textContent = "Le numéro doit commencer par 4519 et faire 16 chiffres.";
+            return;
+        }
+        const [mm, aa] = data.date_expiration.split('/');
+        if (!mm || !aa || Number(aa) < 25) {
+            messageErreur.textContent = "La date d’expiration doit être après 2025.";
+            return;
+        }
+        if (!/^\d{3}$/.test(data.cvc)) {
+            messageErreur.textContent = "Le CVC doit faire 3 chiffres.";
+            return;
+        }
 
         try {
             const resp = await fetch("http://localhost:8000/api/paiement", {
@@ -140,8 +153,7 @@ function SetupPayment() {
             const json = await resp.json();
             if (!resp.ok) throw new Error(json.error || "Erreur paiement");
 
-            alert("Paiement réussi ! Votre solde est maintenant à $ 0.00");
-            // Remise à zéro du solde en localStorage
+            alert("Paiement réussi ! Votre solde est maintenant à $ 0.00");
             localStorage.setItem("solde", "0");
             window.location.href = "accueil.html";
         } catch (err) {
