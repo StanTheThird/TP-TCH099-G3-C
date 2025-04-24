@@ -149,3 +149,11 @@ html, body {
   text-align: center;
   font-family: 'Courier New', monospace;
 }
+/* message de confirmation en vert */
+.message_confirmation {
+  color: #2E7D32;      /* un vert “succès” */
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
