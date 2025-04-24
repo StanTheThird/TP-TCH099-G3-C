@@ -134,7 +134,7 @@ class ControleUtilisateur{
         }
     
         try {
-            $stmt = $pdo->prepare("
+            $query = $pdo->prepare("
                 SELECT 
                     e.id_emprunt,
                     e.date_emprunt,
@@ -168,7 +168,7 @@ class ControleUtilisateur{
                 ]);
             } else {
 
-                foreach ($hist as &$emprunt) {
+                foreach ($historique as &$emprunt) {
                     $dateLimite = new DateTime($emprunt['date_limite']);
                     $aujourdHui = new DateTime();
                     $dateRetour = $emprunt['date_retour'] ?? null;
@@ -183,7 +183,7 @@ class ControleUtilisateur{
                     }
                 }
                 
-                echo json_encode($hist);
+                echo json_encode($historique);
         }
         } catch (Exception $e) {
             http_response_code(500);
