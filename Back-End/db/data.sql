@@ -196,8 +196,5 @@ INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
 VALUES 
     ('2025-03-01', '2025-03-15', 1, 1); 
 
--- Insertion des données dans la table Solde
-INSERT INTO Solde (montant, date_limite_paiement, emprunt_id, utilisateur_id)
-VALUES 
-    (10.00, '2025-03-30', 1, 1);  
+
 
