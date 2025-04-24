@@ -136,6 +136,7 @@ function setUpModalAjoutLivre() {
     const boutonAjout = document.querySelector('.btn-ajout-livre');
     if (boutonAjout && modal) {
         boutonAjout.addEventListener('click', () => {
+            chargerChampsDynamique(); //Permet de charger les selects du formulaire.
             modal.style.display = 'flex';
         });
     }
@@ -158,9 +159,9 @@ function setUpModalAjoutLivre() {
                 date_parution: document.getElementById('dateParution').value,
                 nb_pages: document.getElementById('nbPages').value,
                 format: document.getElementById('format').value,
-                auteur_id: 1,
-                langue_id: 1,
-                categorie_id: 1
+                auteur_id: document.getElementById('auteur').value,
+                langue_id: document.getElementById('langue').value,
+                categorie_id: document.getElementById('categorie').value,
             };
 
             try {
@@ -406,4 +407,46 @@ function createAdmin() {
             alert(error.message || "Échec de la création de l'administrateur");
         }
     });
+}
+
+async function chargerChampsDynamique() {
+    try {
+        const [auteursRes, languesRes, categoriesRes] = await Promise.all([
+            fetch('http://localhost:8000/api/auteurs'),
+            fetch('http://localhost:8000/api/langues'),
+            fetch('http://localhost:8000/api/categories')
+        ]);
+
+        const auteurs = await auteursRes.json();
+        const langues = await languesRes.json();
+        const categories = await categoriesRes.json();
+
+        const selectAuteur = document.getElementById('auteur');
+        const selectLangue = document.getElementById('langue');
+        const selectCategorie = document.getElementById('categorie');
+
+        auteurs.forEach(auteur => {
+            const option = document.createElement('option');
+            option.value = auteur.id_auteur;
+            option.textContent = `${auteur.prenom} ${auteur.nom}`;
+            selectAuteur.appendChild(option);
+        });
+
+        langues.forEach(langue => {
+            const option = document.createElement('option');
+            option.value = langue.id_langue;
+            option.textContent = langue.nom;
+            selectLangue.appendChild(option);
+        });
+
+        categories.forEach(categorie => {
+            const option = document.createElement('option');
+            option.value = categorie.id_categorie;
+            option.textContent = categorie.nom;
+            selectCategorie.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Erreur lors du chargement des données dynamiques :", error);
+    }
 }

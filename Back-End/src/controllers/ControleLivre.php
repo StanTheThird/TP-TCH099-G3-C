@@ -630,6 +630,53 @@ class ControleLivre {
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+
+    public static function getAllAuteurs() {
+        global $pdo;
+    
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        try {
+            $query = $pdo->query('SELECT id_auteur, prenom, nom FROM Auteur');
+            $auteurs = $query->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($auteurs);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+    public static function getAllLangues() {
+        global $pdo;
+    
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        try {
+            $query = $pdo->query('SELECT id_langue, nom FROM Langue');
+            $langues = $query->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($langues);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+
+    public static function getAllCategories() {
+        global $pdo;
+    
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        try {
+            $query = $pdo->query('SELECT id_categorie, nom FROM Categorie');
+            $categories = $query->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($categories);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
     
 }
 ?>

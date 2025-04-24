@@ -48,6 +48,16 @@ delete('/api/supprimer/livre/$id', function($id) {
     ControleLivre::deleteBook($id);
 });
 
+/*------------------------ Routes Info Livre ------------------------*/
+get('/api/auteurs', function() {
+    ControleLivre::getAllAuteurs();
+});
+get('/api/langues', function() {
+    ControleLivre::getAllLangues();
+});
+get('/api/categories', function() {
+    ControleLivre::getAllCategories();
+});
 
 /*------------------------ Routes Utilisateur ------------------------*/
 

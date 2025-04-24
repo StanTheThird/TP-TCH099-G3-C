@@ -96,10 +96,15 @@
             <input type="text" id="titre" placeholder="Titre" required>
             <input type="text" id="image" placeholder="URL de l'image">
             <input type="number" id="codeLivre" placeholder="Code du livre" required>
-            <input type="text" id="prenomAuteur" placeholder="Prénom de l'auteur" required>
-            <input type="text" id="nomAuteur" placeholder="Nom de l'auteur" required>
-            <input type="text" id="langue" placeholder="Langue" required>
-            <input type="text" id="categorie" placeholder="Catégorie" required>
+            <select id="auteur" required>
+                <option value="">-- Sélectionnez un auteur --</option>
+            </select>
+            <select id="langue" required>
+                <option value="">-- Sélectionnez une langue --</option>
+            </select>
+            <select id="categorie" required>
+                <option value="">-- Sélectionnez une catégorie --</option>
+            </select>
             <input type="date" id="dateParution" placeholder="Date de parution">
             <textarea id="description" placeholder="Description du livre"></textarea>
             <input type="number" id="nbPages" placeholder="Nombre de pages" required>
