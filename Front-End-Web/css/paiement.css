@@ -120,6 +120,20 @@ html, body {
   min-height: 1.2em;
 }
 
+/* ---------------- style footer ---------------- */
+.debutfooter {
+  grid-area: footer;
+  font-size: smaller;
+  background-color: rgb(235, 197, 161);
+  width: 100%;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
 /* ----- conteneurs footer ----- */
 .apropos, .contacter, .reseaux {
   flex: 1;
