@@ -38,6 +38,11 @@ post('/api/ajout/livre', function() {
     ControleLivre::createBook();
 });
 
+// Ajouter stock (admin)
+post('/api/ajout/exemplaire', function() {
+    ControleLivre::ajouterExemplaire();
+});
+
 // Supprimer (admin)
 delete('/api/supprimer/livre/$id', function($id) {
     ControleLivre::deleteBook($id);

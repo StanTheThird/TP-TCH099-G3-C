@@ -117,9 +117,9 @@ class ControleLivre {
                    c.nom, la.nom, a.nom, a.prenom, a.nationalite, l.image";
     
         try {
-            $stmt = $pdo->prepare($query);
-            $stmt->execute($params);
-            $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $requete = $pdo->prepare($query);
+            $requete->execute($params);
+            $books = $requete->fetchAll(PDO::FETCH_ASSOC);
     
             echo json_encode($books);
         } catch (PDOException $e) {
@@ -163,20 +163,20 @@ class ControleLivre {
         }
     
         try {
-            $stmt = $pdo->prepare($query);
+            $requete = $pdo->prepare($query);
             
             // Debug: Afficher la requête et les paramètres
             error_log("Requête SQL: " . $query);
             error_log("Paramètres: " . print_r($params, true));
             
-            $success = $stmt->execute($params);
+            $success = $requete->execute($params);
             
             if (!$success) {
-                $errorInfo = $stmt->errorInfo();
+                $errorInfo = $requete->errorInfo();
                 throw new PDOException("Erreur d'exécution: " . $errorInfo[2]);
             }
             
-            $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $books = $requete->fetchAll(PDO::FETCH_ASSOC);
             
             // Debug: Vérifier les résultats
             error_log("Nombre de livres trouvés: " . count($books));
@@ -586,5 +586,50 @@ class ControleLivre {
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
+    public static function ajouterExemplaire() {
+        global $pdo;
+        header('Content-Type: application/json; charset=utf-8');
+    
+        $data = json_decode(file_get_contents("php://input"), true);
+        $ancienCode = $data['ancien_code'] ?? null;
+        $nouveauCode = $data['nouveau_code'] ?? null;
+    
+        if (!$ancienCode || !$nouveauCode) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Codes manquants']);
+            return;
+        }
+    
+        try {
+            // prendre info du livre à ajouter
+            $requete = $pdo->prepare('SELECT * FROM Livre WHERE code_livre = ? LIMIT 1');
+            $requete->execute([$ancienCode]);
+            $livre = $requete->fetch(PDO::FETCH_ASSOC);
+    
+            // ajouter le nouveau livre (avec le nouveau code)
+            $query = 'INSERT INTO Livre (code_livre, titre, description, date_parution, image, nb_pages, format, emprunte, categorie_id, auteur_id, langue_id)
+            VALUES (:code_livre, :titre, :description, :date_parution, :image, :nb_pages, :format, FALSE, :categorie_id, :auteur_id, :langue_id)';
+            
+            $requeteInsert = $pdo->prepare($query);
+            $requeteInsert->execute([
+                ':code_livre' => $nouveauCode,
+                ':titre' => $livre['titre'],
+                ':description' => $livre['description'],
+                ':date_parution' => $livre['date_parution'],
+                ':image' => $livre['image'],
+                ':nb_pages' => $livre['nb_pages'],
+                ':format' => $livre['format'],
+                ':categorie_id' => $livre['categorie_id'],
+                ':auteur_id' => $livre['auteur_id'],
+                ':langue_id' => $livre['langue_id'],
+            ]);
+    
+            echo json_encode(['success' => true, 'message' => 'Nouvel exemplaire ajouté avec succès.']);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
+    
 }
 ?>

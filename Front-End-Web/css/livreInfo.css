@@ -139,7 +139,7 @@ a,button{
 }
 
 /* ---------------- style bouton ---------------- */
-.btn-supprimer,.btn-emprunt{
+.btn-supprimer,.btn-emprunt, .btn-stock{
     background:linear-gradient(to right,#62C4E8,#CE8DFF);
     padding: 0.63rem 1.56rem;
     transition-duration: 0.4s;
@@ -160,3 +160,22 @@ a,button{
 .btn-auteur:hover {
     background:linear-gradient(to right,#62C4E8,#CE8DFF);
 }
+
+/* ---------------- modal ---------------- */
+
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  

@@ -158,7 +158,6 @@ function setUpModalAjoutLivre() {
                 date_parution: document.getElementById('dateParution').value,
                 nb_pages: document.getElementById('nbPages').value,
                 format: document.getElementById('format').value,
-                stock: document.getElementById('stock').value,        
                 auteur_id: 1,
                 langue_id: 1,
                 categorie_id: 1
@@ -176,7 +175,7 @@ function setUpModalAjoutLivre() {
 
                 alert("Livre ajouté !");
                 modal.style.display = 'none';
-                displayAllBooks();
+                displayBooks();
             } catch (error) {
                 alert("erreur : " + error.message);
             }

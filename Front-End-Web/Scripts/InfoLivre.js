@@ -76,6 +76,20 @@ function SetUpLivreInfo() {
         btnSupprimer.textContent = "Supprimer ce livre";
         btnSupprimer.className = "btn-supprimer";
 
+        const btnStock = document.createElement('button');
+        btnStock.textContent = "+ Stock";
+        btnStock.className = "btn-stock";
+    
+        btnStock.addEventListener('click', () => {
+            const modalStock = document.getElementById("modalAjoutStock");
+            const formStock = document.getElementById("formAjoutStock");
+            
+            modalStock.style.display = 'flex';
+            setupAjoutExemplaire(livreData, modalStock, formStock);
+        });
+    
+        conteneurBtn.appendChild(btnStock);
+
         btnSupprimer.addEventListener('click', async () => {
             if (!confirm(`Confirmer la suppression de "${livreData.titre}" ?`)) return;
 
@@ -149,3 +163,27 @@ async function emprunter(livreId, bouton, event = null) {
 
 // Initialisation
 SetUpLivreInfo();
+function setupAjoutExemplaire(livreData, modalStock, formStock) {
+    formStock.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const ancienCode = livreData.code_livre;
+        const nouveauCode = document.getElementById("nouveauCodeLivre").value;
+
+        try {
+            const response = await fetch('http://localhost:8000/api/ajout/exemplaire', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ancien_code: ancienCode, nouveau_code: nouveauCode })
+            });
+
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error);
+            alert(result.message);
+            modalStock.style.display = 'none';
+        } catch (err) {
+            alert("Erreur : " + err.message);
+        }
+    });
+}
+
+
