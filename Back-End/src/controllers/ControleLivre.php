@@ -530,7 +530,7 @@ class ControleLivre {
                     }
                     
                     // +1 point pour différence de pages < 50
-                    if (abs($book['nb_pages'] - $lastBook['nb_pages']) < 50) {
+                    if (abs($book['nb_pages'] - $lastBook['nb_pages']) < 70) {
                         $score += 1;
                     }
                     
@@ -546,7 +546,7 @@ class ControleLivre {
                     // +1 point pour date de parution proche (20 ans ou moins)
                     $bookYear = date('Y', strtotime($book['date_parution']));
                     $lastBookYear = date('Y', strtotime($lastBook['date_parution']));
-                    if (abs($bookYear - $lastBookYear) <= 20) {
+                    if (abs($bookYear - $lastBookYear) <= 15) {
                         $score += 1;
                     }
                 }
