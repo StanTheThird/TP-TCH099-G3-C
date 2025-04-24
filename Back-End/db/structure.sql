@@ -65,6 +65,7 @@ CREATE TABLE Emprunt (
     date_retour    DATE,
     livre_id       INT(10)   NOT NULL,
     utilisateur_id INT(10)   NOT NULL,
+    est_paye          BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id_emprunt),
     FOREIGN KEY (livre_id)       REFERENCES Livre(id_livre)       ON DELETE CASCADE,
     FOREIGN KEY (utilisateur_id) REFERENCES Utilisateur(id_utilisateur) ON DELETE CASCADE

@@ -48,11 +48,16 @@ class ControlePaiement {
 
         try {
             // Mise à jour du solde à zéro
-            $stmt = $pdo->prepare(
+            $requete = $pdo->prepare(
                 "UPDATE Utilisateur SET solde = 0 WHERE id_utilisateur = :id"
             );
-            $stmt->execute([':id' => $userId]);
+            $requete->execute([':id' => $userId]);
             echo json_encode(['success' => true]);
+
+            // si c'est bien payé  
+            $query = $pdo->prepare("UPDATE Emprunt SET est_paye = TRUE WHERE id_emprunt = :id");
+            $query->execute(['id' => $data['emprunt_id']]);
+            
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Erreur serveur : ' . $e->getMessage()]);

@@ -32,7 +32,7 @@ function displayHistorique(data) {
     if (!Array.isArray(data) || data.length === 0) {
         cont.innerHTML = `
             <div class="empty-history">
-                <div class="empty-icon">📚</div>
+                <div class="empty-icon"></div>
                 <h2>Vous n'avez encore emprunté aucun livre.</h2>
                 <button class="btn-explorer" onclick="window.location.href='accueil.html'">
                     Explorer les livres
@@ -41,44 +41,6 @@ function displayHistorique(data) {
         `;
         return;
     }
-
-    // 1) Calcul des frais de retard par emprunt et total dû
-    const today = new Date();
-    let total = 0;
-    const breakdown = data.map(e => {
-        const limite = new Date(e.date_limite);
-        const fin = e.date_retour ? new Date(e.date_retour) : today;
-        const diff = fin - limite;
-        const jours = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        const frais = jours > 0 ? jours * 1 : 0; // 1$ / jour
-        total += frais;
-        return {
-            titre: e.livre?.titre || '—',
-            jours: jours > 0 ? jours : 0,
-            frais
-        };
-    }).filter(item => item.frais > 0);
-
-    // 2) Si total > 0 : affiche breakdown + bouton PAYER
-    if (total > 0) {
-        const div = document.createElement('div');
-        div.className = 'total-due';
-        div.innerHTML = `
-            <h2>Total dû : <strong>${total.toFixed(2)} $ CAD</strong></h2>
-            <ul class="breakdown-list">
-                ${breakdown.map(b => `<li>${b.titre} : ${b.jours} jour(s) → ${b.frais.toFixed(2)} $</li>`).join('')}
-            </ul>
-            <button id="btnPayerTotal" class="btn-payer-total">PAYER MAINTENANT</button>
-        `;
-        cont.appendChild(div);
-        document.getElementById('btnPayerTotal').addEventListener('click', () => {
-            localStorage.setItem('solde', total.toFixed(2));
-            window.location.href = 'paiement.html';
-        });
-        return;
-    }
-
-    // 3) Sinon, affiche le tableau normal
     const table = document.createElement('table');
     table.className = 'table-historique';
     table.innerHTML = `
@@ -105,13 +67,36 @@ function displayHistorique(data) {
                         <td>${dateEmp}</td>
                         <td>${dateLim}</td>
                         <td>${dateRet}</td>
-                        <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
+                        <td class="statut ${statut.toLowerCase().replace(' ', '-')}">
+                            ${statut}
+                        ${
+                        statut === 'En retard'
+                            ? (e.est_paye
+                                ? `<span class="statut-paye">Payé</span>`
+                                : `<button class="btn-payer" data-id="${e.id_emprunt}" data-montant="${e.solde || 0}">Payer</button>`)
+                            : ''
+                        }
+
+                            </td>
                     </tr>
                 `;
             }).join('')}
         </tbody>
     `;
     cont.appendChild(table);
+
+    document.querySelectorAll('.btn-payer').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const empruntId = btn.dataset.id;
+            const montant = btn.dataset.montant;
+    
+            sessionStorage.setItem('paiement_emprunt_id', empruntId);
+            sessionStorage.setItem('paiement_montant', montant);
+    
+            window.location.href = "paiement.html";
+        });
+    });
+    
 }
 
 function formatDate(d) {

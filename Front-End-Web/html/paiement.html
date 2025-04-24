@@ -5,20 +5,30 @@
   <title>Paiement</title>
   <link rel="stylesheet" href="/Front-End-Web/css/normalize.css">
   <link rel="stylesheet" href="/Front-End-Web/css/paiement.css">
+  <script src="../Scripts/Paiement.js"></script>
+
 </head>
 <body>
   <div class="conteneur">
-    <header class="header">
-      <div class="logo">
-        <a href="accueil.html">
-          <img id="img-logo"
-               src="/Front-End-Web/ressources/logo.png"
-               alt="Logo BiblioSmart"
-               width="240" height="80">
-        </a>
-      </div>
-      <nav id="navigation"></nav>
-    </header>
+      <header class="header">
+          <div class="logo">
+              <a  href="/Front-End-Web/html/accueil.html">
+                  <img id="img-logo" src="/Front-End-Web/ressources/logo.png" alt="Logo" width="240" height="80">
+              </a>
+          </div>
+          <div class="menu">
+              <ul>
+                  <li class="btn-menu">
+                      <a id="menu" href="">
+                      <img src="/Front-End-Web/ressources/menu.jpg" alt="logo-menu" width="40" height="30">
+                      Menu</a>
+                      <ul class="sous-menu" id="navigation">
+                          <!-- Auto généré par le mainScript.js -->
+                      </ul>
+                  </li> 
+              </ul>
+          </div>
+      </header>
 
     <main class="main">
       <div class="containerPaiement">
@@ -76,17 +86,58 @@
       </div>
     </main>
 
-    <footer class="debutfooter">
-      <!-- ... ton footer ... -->
-    </footer>
-  </div>
+    <footer>
+      <div class="debutfooter">
+          <div class="footer">
+              <div>
+                  <article class="apropos">
+                      <h3> À propos </h3>
+                      <p>
+                      <h4> Notre mission : </h4>
+                      <p>Être un centre d'information et de culture, accessible à tous, pour favoriser l'éducation et l'enrichissement personnel.</p>
+                      <h4> Nos valeurs : </h4>
+                      <p> Nous valorisons un accès équitable à la connaissance, l'innovation dans nos services, et l'inclusion de toutes les personnes.</p>
+                      </p>
+                  </article>
+              </div>
+              <div>
+                  <article class="contacter">
+                      <h3> Nous contacter </h3>
+                      <ul>
+                          <li> Adresse : 56 rue de l'Éts, Montréal, QC </li>
+                          <li> Téléphone : 438-321-456</li>
+                          <li> Email : contact@energixquebec.org</li>
+                      </ul>
+                      <ul>
+                          <h4>Heures d’ouverture du centre de soutien :</h4>
+                          <li>Lundi au vendredi : 9 h à 18 h</li>
+                          <li>Samedi : 9 h à 16 h</li>
+                      </ul>
+                  </article>
+              </div>
+              <div>
+                  <article class="reseaux">
+                      <h3> Suivez-nous</h3>
+                      <a href="">
+                          <img src="/Front-End-Web/ressources/instagram.png" alt="Icône de instagram" width="40" 
+                              height="40">
+                      </a>
+                      <a href="">
+                          <img src="/Front-End-Web/ressources/facebook.png" alt="Icône de facebook" width="40" 
+                              height="40">
+                      </a>
+                      <a href="">
+                          <img src="/Front-End-Web/ressources/twitter.jpg" alt="Icône de twitter" width="40" 
+                              height="40">
+                      </a>
+                  </article>
+              </div>
+          </div>
+          <p class="copyright"> &copy; 2025 biblioSmart, tous droits réservés</p>
+      </div>
+  </footer>
 
-  <!-- On charge d’abord Paiement.js, puis le main qui appellera SetupPayment() -->
-  <script src="/Front-End-Web/Scripts/Paiement.js"></script>
-  <script src="/Front-End-Web/js/mainScript.js"></script>
+</div>
+
 </body>
 </html>
-
-
-
-

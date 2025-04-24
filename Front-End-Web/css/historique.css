@@ -282,3 +282,8 @@ a,button{
     line-height: 1.5;
     font-family: 'Courier New', monospace;
 }
+
+.statut-paye {
+    color: green;
+    font-weight: bold;
+}

@@ -155,6 +155,7 @@ class ControleUtilisateur {
                     e.date_emprunt,
                     e.date_limite,
                     e.date_retour,
+                    e.est_paye,
                     l.id_livre,
                     l.titre,
                     l.image,
@@ -179,6 +180,22 @@ class ControleUtilisateur {
                     "message" => "Vous n'avez encore emprunté aucun livre. Parcourez notre catalogue !"
                 ]);
             } else {
+
+                foreach ($hist as &$emprunt) {
+                    $dateLimite = new DateTime($emprunt['date_limite']);
+                    $aujourdHui = new DateTime();
+                    $dateRetour = $emprunt['date_retour'] ?? null;
+                
+                    // calcul du montant, si date limite dépassé (1.50 par jour)
+                    if (!$dateRetour && $dateLimite < $aujourdHui) {
+                        $interval = $dateLimite->diff($aujourdHui);
+                        $joursRetard = $interval->days;
+                        $emprunt['solde'] = $joursRetard * 1.50; 
+                    } else {
+                        $emprunt['solde'] = 0;
+                    }
+                }
+                
                 echo json_encode($hist);
             }
         } catch (Exception $e) {
