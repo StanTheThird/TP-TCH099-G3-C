@@ -71,7 +71,6 @@ function SetUpRegister() {
     });
 }
 
-// Initialisation
 if (document.title === 'Connexion') {
     SetupLogin();
 } else if (document.title === 'Enregistrement') {

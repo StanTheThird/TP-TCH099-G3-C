@@ -160,7 +160,6 @@ class ControleUtilisateur{
             $historique = $query->fetchAll(PDO::FETCH_ASSOC);
     
             if (empty($historique)) {
-                // Retourne un code 200 avec un message spécifique
                 http_response_code(200);
                 echo json_encode([
                     "status" => "empty",

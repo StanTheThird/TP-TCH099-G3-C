@@ -1,5 +1,4 @@
 <?php
-// Démarrer la session php 
 session_start();
 
 //Configuration et connexion à la base de données

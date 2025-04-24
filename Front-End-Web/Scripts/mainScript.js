@@ -43,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
             break;
 
         case "Paiement":
-            // On gère tout ici, pas de script externe
             sessionStorage.setItem('admin', 'false');
             SetupPayment();
             break;

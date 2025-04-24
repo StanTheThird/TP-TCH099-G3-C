@@ -13,7 +13,6 @@ function SetupPayment() {
       return;
   }
 
-  // Pré-remplir le champ
   form.elements["montant"].value = montant.toFixed(2);
 
   form.addEventListener("submit", async e => {

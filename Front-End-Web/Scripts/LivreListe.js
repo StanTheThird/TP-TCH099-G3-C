@@ -220,5 +220,5 @@ function addLivre(livre) {
 
     return livreDiv;
 }
-// Initialisation
+
 populateFiltres();

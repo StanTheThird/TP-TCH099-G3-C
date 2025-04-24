@@ -161,7 +161,7 @@ async function emprunter(livreId, bouton, event = null) {
     }
 }
 
-// Initialisation
+
 SetUpLivreInfo();
 function setupAjoutExemplaire(livreData, modalStock, formStock) {
     formStock.addEventListener('submit', async (e) => {

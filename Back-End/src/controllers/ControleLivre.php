@@ -148,7 +148,6 @@ class ControleLivre {
                  INNER JOIN Langue la ON l.langue_id = la.id_langue
                  WHERE 1=1";
     
-        // Search filter (title, author or code_livre)
         if (!empty($search)) {
             $query .= " AND (
                 l.titre LIKE :searchTitre 
@@ -165,7 +164,6 @@ class ControleLivre {
         try {
             $requete = $pdo->prepare($query);
             
-            // Debug: Afficher la requête et les paramètres
             error_log("Requête SQL: " . $query);
             error_log("Paramètres: " . print_r($params, true));
             
@@ -178,7 +176,6 @@ class ControleLivre {
             
             $books = $requete->fetchAll(PDO::FETCH_ASSOC);
             
-            // Debug: Vérifier les résultats
             error_log("Nombre de livres trouvés: " . count($books));
             
             if (empty($books)) {
@@ -231,16 +228,13 @@ class ControleLivre {
                 exit;
             }
     
-            // Emprunter le livre
             $query2 = $pdo->prepare("INSERT INTO Emprunt (date_emprunt, date_limite, livre_id, utilisateur_id)
             VALUES (CURRENT_DATE, DATE_ADD(CURRENT_DATE, INTERVAL 14 DAY), ?, ?)");
             $query2->execute([$livreId, $utilisateurId]);
     
-            // Mettre à jour le statut du livre
             $query3 = $pdo->prepare("UPDATE Livre SET emprunte = TRUE WHERE id_livre = ?");
             $query3->execute([$livreId]);
     
-            // Retourner le nouveau stock disponible pour ce livre (même code_livre)
             $query4 = $pdo->prepare("SELECT COUNT(*) as stock FROM Livre WHERE code_livre = (SELECT code_livre FROM Livre WHERE id_livre = ?) AND emprunte = FALSE");
             $query4->execute([$livreId]);
             $stock = $query4->fetch(PDO::FETCH_ASSOC)['stock'];
@@ -339,7 +333,6 @@ class ControleLivre {
             return;
         }
     
-        // vérifier que le livre n'est pas déjà emprunté
         $query = $pdo->prepare('SELECT * FROM Emprunt WHERE id_emprunt = ?');
         $query->execute([$id]);
         $emprunt = $query->fetch(PDO::FETCH_ASSOC);
@@ -357,11 +350,9 @@ class ControleLivre {
         }
     
         try {
-            // Mettre à jour la date de retour
             $maj = $pdo->prepare('UPDATE Emprunt SET date_Retour = CURRENT_DATE WHERE id_emprunt = ?');
             $maj->execute([$id]);
     
-            // Mettre à jour le statut du livre
             $updateLivre = $pdo->prepare('UPDATE Livre SET emprunte = FALSE WHERE id_livre = ?');
             $updateLivre->execute([$emprunt['livre_id']]);
     
@@ -378,7 +369,7 @@ class ControleLivre {
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json');
     
-        // Récupérer le paramètre de tri
+        //On récupère le type de sort utilisé
         $sort = $_GET['sort'] ?? 'date_desc';
         
         try{
@@ -429,7 +420,6 @@ class ControleLivre {
         }
     }
     
-    // Fonction utilitaire pour générer la clause ORDER BY en fonction du tri sélectionné
     private static function getOrderByClause($sort) {
         switch ($sort) {
             case 'date_asc':
@@ -442,7 +432,7 @@ class ControleLivre {
                 return 'l.code_livre ASC';
             case 'code_desc':
                 return 'l.code_livre DESC';
-            default: // date_desc
+            default:
                 return 'e.date_emprunt DESC';
         }
     }
@@ -455,7 +445,7 @@ class ControleLivre {
         header('Content-Type: application/json; charset=utf-8');
     
         try {
-            // 1. Récupérer les 3 derniers livres empruntés par l'utilisateur
+            //Récupére les 3 derniers livres empruntés par l'utilisateur
             $queryHistory = $pdo->prepare("
                 SELECT l.id_livre, l.categorie_id, l.auteur_id, l.langue_id, l.nb_pages, 
                        l.date_parution, l.format, a.nationalite AS auteur_nationalite
@@ -486,7 +476,7 @@ class ControleLivre {
                 return;
             }
     
-            // 2. Récupérer tous les livres disponibles (groupés par code_livre)
+            // Récupérer tous les livres disponibles et les groupés par nom
             $queryAllBooks = $pdo->prepare("
                 SELECT l.image, l.titre, l.description, l.categorie_id, l.auteur_id, 
                        l.langue_id, l.nb_pages, l.date_parution, l.format,
@@ -508,7 +498,7 @@ class ControleLivre {
             $queryAllBooks->execute([$userId]);
             $allBooks = $queryAllBooks->fetchAll(PDO::FETCH_ASSOC);
     
-            // 3. Calculer le score pour chaque livre
+            //Calculer le score pour chaque livre
             $scoredBooks = [];
             foreach ($allBooks as $book) {
                 $score = 0;
@@ -557,14 +547,14 @@ class ControleLivre {
                 ];
             }
     
-            // 4. Trier par score décroissant et prendre les 3 premiers
+            // On prend les 3 scores les plus élevés
             usort($scoredBooks, function($a, $b) {
                 return $b['score'] - $a['score'];
             });
     
             $topBooks = array_slice($scoredBooks, 0, 3);
     
-            // 5. Formater la réponse
+            // Formater la réponse
             $recommendations = [];
             foreach ($topBooks as $scoredBook) {
                 $book = $scoredBook['book'];
@@ -606,7 +596,7 @@ class ControleLivre {
             $requete->execute([$ancienCode]);
             $livre = $requete->fetch(PDO::FETCH_ASSOC);
     
-            // ajouter le nouveau livre (avec le nouveau code)
+            // ajouter le nouveau livre
             $query = 'INSERT INTO Livre (code_livre, titre, description, date_parution, image, nb_pages, format, emprunte, categorie_id, auteur_id, langue_id)
             VALUES (:code_livre, :titre, :description, :date_parution, :image, :nb_pages, :format, FALSE, :categorie_id, :auteur_id, :langue_id)';
             
@@ -661,7 +651,6 @@ class ControleLivre {
             echo json_encode(['error' => $e->getMessage()]);
         }
     }
-
     public static function getAllCategories() {
         global $pdo;
     

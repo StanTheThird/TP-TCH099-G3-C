@@ -1,11 +1,9 @@
-// Variable globale pour conserver la référence à l'input
 let searchInput = null;
 
 function displayBooks(search = '') {
     const filtreContainer = document.getElementById("admin");
     const conteneurLivres = document.getElementById("conteneur_livres_admin");
     
-    // On ne recrée la barre d'administration que si elle n'existe pas déjà
     if (!document.querySelector('.admin-bar')) {
         const titre = filtreContainer.querySelector('h1');
         filtreContainer.innerHTML = '';
@@ -18,12 +16,12 @@ function displayBooks(search = '') {
         rechercheLabel.textContent = " 🔎 ";
         rechercheLabel.setAttribute('for', 'rechercheLivre');
 
-        searchInput = document.createElement('input'); // On stocke la référence
+        searchInput = document.createElement('input');
         searchInput.type = "text";
         searchInput.id = "rechercheLivre";
         searchInput.placeholder = "Entrez un titre ou un auteur...";
         searchInput.className = "champ-recherche";
-        searchInput.value = search; // On pré-remplit avec la valeur actuelle
+        searchInput.value = search;
         
         // Utilisation d'un debouncer pour éviter des appels trop fréquents
         let timeout = null;
@@ -94,9 +92,6 @@ function loadBooks(search = '') {
             conteneur.innerHTML = `<p class="error">Erreur lors du chargement: ${error.message}</p>`;
         });
 }
-
-// Keep all other functions unchanged (createAdminLivre, setUpModalAjoutLivre, etc.)
-
 function createAdminLivre(livre) {
     const carteLivre = document.createElement('div');
     carteLivre.className = 'admin-livre-carte';
@@ -136,7 +131,7 @@ function setUpModalAjoutLivre() {
     const boutonAjout = document.querySelector('.btn-ajout-livre');
     if (boutonAjout && modal) {
         boutonAjout.addEventListener('click', () => {
-            chargerChampsDynamique(); //Permet de charger les selects du formulaire.
+            chargerChampsDynamique();
             modal.style.display = 'flex';
         });
     }
@@ -374,7 +369,6 @@ function createAdmin() {
         try {
             const formData = new FormData(adminForm);
             const adminData = Object.fromEntries(formData.entries());
-            // Forcer le type à 1 (administrateur)
             adminData.type = 1;
 
             // Vérifier si l'utilisateur actuel est admin

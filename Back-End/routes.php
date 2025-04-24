@@ -49,12 +49,15 @@ delete('/api/supprimer/livre/$id', function($id) {
 });
 
 /*------------------------ Routes Info Livre ------------------------*/
+//Get liste des auteurs disponibles
 get('/api/auteurs', function() {
     ControleLivre::getAllAuteurs();
 });
+//Get liste des langues disponibles
 get('/api/langues', function() {
     ControleLivre::getAllLangues();
 });
+//Get liste des catégories disponibles
 get('/api/categories', function() {
     ControleLivre::getAllCategories();
 });

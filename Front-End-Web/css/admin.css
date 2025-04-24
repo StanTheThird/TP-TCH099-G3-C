@@ -301,42 +301,40 @@ a,button{
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Style spécifique pour chaque bouton */
 .btn-ajout-livre {
-    background-color: #4CAF50; /* Vert */
+    background-color: #4CAF50;
     color: white;
 }
 
 .btn-ajouter-admin {
-    background-color: #f44336; /* Rouge */
+    background-color: #f44336;
     color: white;
 }
 
 .btn-gerer-emprunt {
-    background-color: #2196F3; /* Bleu */
+    background-color: #2196F3;
     color: white;
 }
 
 /* Effets de survol */
 .btn-ajout-livre:hover {
-    background-color: #45a049; /* Vert plus foncé */
+    background-color: #45a049;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .btn-ajouter-admin:hover {
-    background-color: #d32f2f; /* Rouge plus foncé */
+    background-color: #d32f2f;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .btn-gerer-emprunt:hover {
-    background-color: #0b7dda; /* Bleu plus foncé */
+    background-color: #0b7dda;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Effet actif (quand on clique) */
 .btn-ajout-livre:active,
 .btn-ajouter-admin:active,
 .btn-gerer-emprunt:active {
@@ -347,7 +345,7 @@ a,button{
 /* Styles pour les livres empruntés */
 .livre-emprunte {
     position: relative;
-    border: 2px solid #0b7dda;
+    border: 2px solid #2196F3;
     box-shadow: 0 0 10px rgba(127, 140, 141, 0.3);
     opacity: 0.8;
 }
@@ -356,7 +354,7 @@ a,button{
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: #0b7dda; /* Bleu pour différencier des indisponibles */
+    background-color: #0b7dda;
     color: white;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
