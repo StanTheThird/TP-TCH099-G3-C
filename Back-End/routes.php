@@ -1,72 +1,107 @@
 <?php
-require_once(__DIR__.'/router.php');
+require_once(__DIR__ . '/router.php');
 require 'config.php';
 
 require './src/controllers/ControleLivre.php';
 require './src/controllers/ControleUtilisateur.php';
-require './src/controllers/ControlePaiement.php';  // <-- Ajout du contrôleur Paiement
+require './src/controllers/ControlePaiement.php';
 
-/*------------------------ Route pour les livres ------------------------*/
-get('/api/livre/recherche-filtre', function(){
+/*------------------------ Routes Livre ------------------------*/
+
+// Recherche / filtres avancés
+get('/api/livre/recherche-filtre', function() {
     ControleLivre::getAllBookFiltre();
 });
-get('/api/livre/admin-search', function(){
+
+// Recherche administrateur
+get('/api/livre/admin-search', function() {
     ControleLivre::getAllBookAdmin();
 });
-get('/api/livre', function(){
+
+// Tous les livres
+get('/api/livre', function() {
     ControleLivre::getAllBooks();
 });
-get('/api/livre/$id', function($id){
+
+// Un livre précis
+get('/api/livre/$id', function($id) {
     ControleLivre::getBook($id);
 });
-post('/api/emprunt/livre', function(){
+
+// Emprunter
+post('/api/emprunt/livre', function() {
     ControleLivre::emprunterLivre();
 });
-post('/api/ajout/livre', function(){
+
+// Ajouter (admin)
+post('/api/ajout/livre', function() {
     ControleLivre::createBook();
 });
-delete('/api/supprimer/livre/$id', function($id){
+
+// Supprimer (admin)
+delete('/api/supprimer/livre/$id', function($id) {
     ControleLivre::deleteBook($id);
 });
 
-/*------------------------ Route pour les utilisateurs ------------------------*/
-post('/api/register', function(){
+
+/*------------------------ Routes Utilisateur ------------------------*/
+
+// Inscription
+post('/api/register', function() {
     ControleUtilisateur::userRegister();
 });
-post('/api/login', function(){
+
+// Connexion
+post('/api/login', function() {
     ControleUtilisateur::userLogin();
 });
-// Historique (récupère l’historique d’un seul utilisateur)
-get('/api/historique/$id', function($id){
+
+// Historique d’un client
+get('/api/historique/$id', function($id) {
     ControleUtilisateur::getHistorique($id);
 });
 
-/*------------------------ Route pour le retour de livre ------------------------*/
-post('/api/retour/emprunt', function(){
+
+/*------------------------ Route Retour de livre ------------------------*/
+
+// Marquer un emprunt comme retourné
+post('/api/retour/emprunt', function() {
     ControleLivre::retourLivre();
 });
 
-/*------------------------ Routes admin emprunts ------------------------*/
-get('/api/emprunt/admin', function(){
+
+/*------------------------ Routes Emprunts Admin ------------------------*/
+
+// Lister tous les emprunts (admin)
+get('/api/emprunt/admin', function() {
     ControleLivre::getAllEmprunt();
 });
-get('/api/emprunt/recherche', function(){
+
+// Rechercher des emprunts (admin)
+get('/api/emprunt/recherche', function() {
     ControleLivre::getEmpruntParRecherche();
 });
 
+
 /*------------------------ Route Recommandations ------------------------*/
+
+// Livres recommandés pour un client
 get('/api/recommandations/$id', function($id) {
     ControleLivre::getRecommendations($id);
 });
 
+
 /*------------------------ Route Paiement ------------------------*/
-post('/api/paiement', function(){
+
+// Traiter un paiement et remettre le solde à zéro
+post('/api/paiement', function() {
     ControlePaiement::payerSolde();
 });
 
+
 /*------------------------ Route 404 par défaut ------------------------*/
+
 any('/404', function() {
     http_response_code(404);
     echo json_encode(["error" => "route not found"]);
 });
-?>

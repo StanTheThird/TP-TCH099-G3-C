@@ -1,3 +1,5 @@
+// Front-End-Web/Scripts/Historique.js
+
 async function ShowHistorique() {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) {
@@ -5,53 +7,33 @@ async function ShowHistorique() {
         window.location.href = "connexion.html";
         return;
     }
+
     try {
-        const response = await fetch(`http://localhost:8000/api/historique/${user.id}`, {
+        const resp = await fetch(`http://localhost:8000/api/historique/${user.id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
-        
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Erreur lors de la récupération de l\'historique');
+        const data = await resp.json();
+        if (!resp.ok) {
+            throw new Error(data.error || "Erreur lors de la récupération de l'historique");
         }
-        
         displayHistorique(data);
-    } catch (error) {
-        console.error('Erreur:', error);
-        alert(error.message);
+    } catch (err) {
+        console.error(err);
+        alert(err.message);
     }
 }
 
 function displayHistorique(data) {
-    const conteneur = document.querySelector('.conteneurHistorique');
-    conteneur.innerHTML = '';
-    
-    // Cas où l'historique est vide
-    if (data.status === "empty") {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.className = 'empty-history';
-        
-        emptyDiv.innerHTML = `
-            <div class="empty-icon">📚</div>
-            <h2>${data.message}</h2>
-            <button class="btn-explorer" onclick="window.location.href='accueil.html'">
-                Explorer les livres
-            </button>
-        `;
-        
-        conteneur.appendChild(emptyDiv);
-        return;
-    }
-    
-    // Cas où l'historique contient des données
-    if (data.length === 0) {
-        conteneur.innerHTML = `
+    const cont = document.querySelector('.conteneurHistorique');
+    cont.innerHTML = '';
+
+    // Si pas de tableau ou vide
+    if (!Array.isArray(data) || data.length === 0) {
+        cont.innerHTML = `
             <div class="empty-history">
                 <div class="empty-icon">📚</div>
-                <h2>Vous n'avez encore emprunté aucun livre</h2>
-                <p>Parcourez notre catalogue pour trouver votre prochaine lecture !</p>
+                <h2>Vous n'avez encore emprunté aucun livre.</h2>
                 <button class="btn-explorer" onclick="window.location.href='accueil.html'">
                     Explorer les livres
                 </button>
@@ -60,51 +42,82 @@ function displayHistorique(data) {
         return;
     }
 
-    // Affichage normal de l'historique
+    // 1) Calcul des frais de retard par emprunt et total dû
+    const today = new Date();
+    let total = 0;
+    const breakdown = data.map(e => {
+        const limite = new Date(e.date_limite);
+        const fin = e.date_retour ? new Date(e.date_retour) : today;
+        const diff = fin - limite;
+        const jours = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        const frais = jours > 0 ? jours * 1 : 0; // 1$ / jour
+        total += frais;
+        return {
+            titre: e.livre?.titre || '—',
+            jours: jours > 0 ? jours : 0,
+            frais
+        };
+    }).filter(item => item.frais > 0);
+
+    // 2) Si total > 0 : affiche breakdown + bouton PAYER
+    if (total > 0) {
+        const div = document.createElement('div');
+        div.className = 'total-due';
+        div.innerHTML = `
+            <h2>Total dû : <strong>${total.toFixed(2)} $ CAD</strong></h2>
+            <ul class="breakdown-list">
+                ${breakdown.map(b => `<li>${b.titre} : ${b.jours} jour(s) → ${b.frais.toFixed(2)} $</li>`).join('')}
+            </ul>
+            <button id="btnPayerTotal" class="btn-payer-total">PAYER MAINTENANT</button>
+        `;
+        cont.appendChild(div);
+        document.getElementById('btnPayerTotal').addEventListener('click', () => {
+            localStorage.setItem('solde', total.toFixed(2));
+            window.location.href = 'paiement.html';
+        });
+        return;
+    }
+
+    // 3) Sinon, affiche le tableau normal
     const table = document.createElement('table');
     table.className = 'table-historique';
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Titre du livre</th>
-            <th>Date d'emprunt</th>
-            <th>Date limite</th>
-            <th>Date de retour</th>
-            <th>Statut</th>
-        </tr>
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Titre du livre</th>
+                <th>Date d'emprunt</th>
+                <th>Date limite</th>
+                <th>Date de retour</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${data.map(e => {
+                const dateEmp = e.date_emprunt ? formatDate(e.date_emprunt) : '-';
+                const dateLim = e.date_limite   ? formatDate(e.date_limite)   : '-';
+                const dateRet = e.date_retour    ? formatDate(e.date_retour)    : '-';
+                const statut = e.date_retour
+                    ? 'Retourné'
+                    : (new Date() > new Date(e.date_limite) ? 'En retard' : 'En cours');
+                return `
+                    <tr>
+                        <td>${e.livre?.titre || '—'}</td>
+                        <td>${dateEmp}</td>
+                        <td>${dateLim}</td>
+                        <td>${dateRet}</td>
+                        <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
+                    </tr>
+                `;
+            }).join('')}
+        </tbody>
     `;
-    table.appendChild(thead);
-    
-    const tbody = document.createElement('tbody');
-    data.forEach(emprunt => {
-        const row = document.createElement('tr');
-        let statut = '';
-        if (emprunt.date_retour) {
-            statut = 'Retourné';
-        } else {
-            const today = new Date();
-            const dateLimite = new Date(emprunt.date_limite);
-            statut = today > dateLimite ? 'En retard' : 'En cours';
-        }
-        
-        // Correction: Vérification de la structure des données
-        const titreLivre = emprunt.livre?.titre || emprunt.titre || 'Titre inconnu';
-        const dateEmprunt = emprunt.date_emprunt ? formatDate(emprunt.date_emprunt) : '-';
-        const dateLimite = emprunt.date_limite ? formatDate(emprunt.date_limite) : '-';
-        const dateRetour = emprunt.date_retour ? formatDate(emprunt.date_retour) : '-';
-        
-        row.innerHTML = `
-            <td>${titreLivre}</td>
-            <td>${dateEmprunt}</td>
-            <td>${dateLimite}</td>
-            <td>${dateRetour}</td>
-            <td class="statut ${statut.toLowerCase().replace(' ', '-')}">${statut}</td>
-        `;
-        tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-    conteneur.appendChild(table);
+    cont.appendChild(table);
 }
 
-// Initialisation
+function formatDate(d) {
+    if (!d) return '-';
+    return new Date(d).toLocaleDateString('fr-CA');
+}
+
+// Lancement
 ShowHistorique();
