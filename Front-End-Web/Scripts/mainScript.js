@@ -42,10 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
             loadScript('../Scripts/Historique.js');
             break;
 
-        case "Paiement":
-            // On gère tout ici, pas de script externe
+        case "Solde":
             sessionStorage.setItem('admin', 'false');
-            SetupPayment();
+            loadScript('../Scripts/Solde.js');
             break;
 
         case "Création Administrateur":
@@ -93,6 +92,7 @@ function SetUpNavigation() {
     if (isConnected) {
         const user = JSON.parse(userData);
         nav.appendChild(createMenuItem('Historique','historique.html'));
+        nav.appendChild(createMenuItem('Solde','solde.html'));
         nav.appendChild(createMenuItem('Déconnexion','accueil.html', () => {
             localStorage.removeItem('user');
             SetUpNavigation();
