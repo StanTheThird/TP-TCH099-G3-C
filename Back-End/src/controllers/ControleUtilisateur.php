@@ -130,32 +130,25 @@ class ControleUtilisateur{
     
         try {
             $query = $pdo->prepare("
-                SELECT 
-                    e.id_emprunt,
-                    e.date_emprunt,
-                    e.date_limite,
-                    e.date_retour,
-                    l.id_livre,
-                    l.titre,
-                    l.image,
-                    a.nom AS auteur_nom,
-                    a.prenom AS auteur_prenom,
-                    c.nom AS categorie,
-                    lang.nom AS langue
-                FROM 
-                    Emprunt e
-                JOIN 
-                    Livre l ON e.livre_id = l.id_livre
-                JOIN 
-                    Auteur a ON l.auteur_id = a.id_auteur
-                JOIN 
-                    Categorie c ON l.categorie_id = c.id_categorie
-                JOIN 
-                    Langue lang ON l.langue_id = lang.id_langue
-                WHERE 
-                    e.utilisateur_id = ?
-                ORDER BY 
-                    e.date_emprunt DESC
+            SELECT 
+                e.id_emprunt,
+                e.date_emprunt,
+                e.date_limite,
+                e.date_retour,
+                l.titre,
+                CASE 
+                    WHEN e.date_retour IS NOT NULL THEN 'Retourné'
+                    WHEN e.date_limite < NOW() THEN 'En retard'
+                    ELSE 'Emprunté'
+                END AS statut
+            FROM 
+                Emprunt e
+            JOIN 
+                Livre l ON e.livre_id = l.id_livre
+            WHERE 
+                e.utilisateur_id = ?
+            ORDER BY 
+                e.date_emprunt DESC
             ");
             
             $query->execute([$userId]);
